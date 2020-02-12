@@ -78,6 +78,8 @@ docs/_build/
 target/
 
 
+.idea/
+
 ### Django ###
 *.log
 *.pot
@@ -87,3 +89,6 @@ local_settings.py
 
 .env
 db.sqlite3
+
+Pipfile
+Pipfile.lock

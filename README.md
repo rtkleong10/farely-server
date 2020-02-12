@@ -1,2 +1,2 @@
 # Farely-server
-Server to handle backend service for Frely application
+Server to handle the backend service for Farely application
