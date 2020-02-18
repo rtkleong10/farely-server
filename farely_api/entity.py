@@ -1,29 +1,26 @@
-# class RouteQuery:
-# 	ADULT = 1
-# 	CHILD = 2
-# 	FARE_TYPES = [
-# 		(ADULT, 'Adult'),
-# 		(CHILD, 'Child'),
-# 	]
-
-from enum import Enum
-
-class FareType(Enum):
-	WORKFARE = 0
-	STUDENT = 1
-	SINGLE_TRIP = 2
-	SENIOR_CITIZEN = 3
-	PERSONS_WITH_DISABILITIES = 4
-	ADULT = 5
-
-class RouteQuery():
-	pass
-
-class Route():
-	pass
+class Location():
+	def __init__(self, name, longitude, latitude):
+		self.name = name
+		self.longitude = longitude
+		self.latitude = latitude
 
 class DirectionStep():
-	pass
+	def __init__(self, distance, travel_time, travel_mode, departure_stop, arrival_stop):
+		self.distance = distance
+		self.travel_time = travel_time
+		self.travel_mode = travel_mode
+		self.departure_stop = departure_stop
+		self.arrival_stop = arrival_stop
 
-class Location():
-	pass
+class Route():
+	def __init__(self, price, travel_time, direction_steps):
+		self.price = price
+		self.travel_time = travel_time
+		self.direction_steps = direction_steps
+
+class RouteQuery():
+	def __init__(self, fare_type, departure_time, departure_location, arrival_location):
+		self.fare_type = fare_type
+		self.departure_time = departure_time
+		self.departure_location = departure_location
+		self.arrival_location = arrival_location
