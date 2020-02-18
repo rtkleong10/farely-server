@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from .enum import FareType, TravelMode
 
 class PlaintextLocationSerializer(serializers.Serializer):
 	plaintext = serializers.CharField()
@@ -13,17 +14,13 @@ class LocationListSerializer(serializers.Serializer):
 
 class RouteQuerySerializer(serializers.Serializer):
 	sort_mode = serializers.IntegerField()
-	fare_type = serializers.IntegerField()
+	fare_type = serializers.ChoiceField(choices=FareType.choices())
 	departure_time = serializers.TimeField()
-	departure_location = serializers.ListField(
-		child=serializers.IntegerField()
-	)
-	arrival_location = serializers.ListField(
-		child=serializers.IntegerField()
-	)
+	departure_location = serializers.CharField()
+	arrival_location = serializers.CharField()
 
 class DirectionStepSerializer(serializers.Serializer):
-	transport_type = serializers.IntegerField()
+	travel_mode = serializers.ChoiceField(choices=TravelMode.choices())
 	line = serializers.CharField()
 	time = serializers.TimeField()
 	departure_stop = LocationSerializer()

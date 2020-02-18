@@ -1,9 +1,7 @@
-from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import PlaintextLocationSerializer, LocationListSerializer, RouteQuerySerializer, RouteListSerializer
-from farely_server.settings import GOOGLE_MAPS_API_KEY
-import requests
+from .control import LocationController, FindRoutesController
 
 class InterpretLocationAPI(APIView):
 	"""
@@ -34,33 +32,14 @@ class InterpretLocationAPI(APIView):
 
 		# Raise exception if invalid
 		plaintext_location_serializer.is_valid(raise_exception=True)
-		print(plaintext_location_serializer.data)
 
-		# URL = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
-		# r = requests.get(url = URL, params = {
-		# 	'query': plaintext_location_serializer.data['plaintext'],
-		# 	'key': GOOGLE_MAPS_API_KEY	
-		# }) 
-		
-		# print(r.json())
-		# data = r.json()
-		# latitude = data['results'][0]['geometry']['location']['lat']
-		# longitude = data['results'][0]['geometry']['location']['lng']
-		# name = data['results'][0]['name']
+		# Find candidate locations
+		data = plaintext_location_serializer.data
+		location_list = LocationController.getLocations(data["plaintext"])
 
+		# Serialize output
 		location_list_serializer = LocationListSerializer({
-			'locations': [
-				{
-					'name': 'NTU',
-					'latitude': 1.3,
-					'longitude': 1.2,
-				},
-				{
-					'name': 'NYJC',
-					'latitude': 1.3,
-					'longitude': 1.2,
-				},
-			]
+			'locations': location_list
 		})
 
 		return Response(location_list_serializer.data)
@@ -71,15 +50,15 @@ class FindRoutesAPI(APIView):
 
 	## Parameters
 	- sort_mode: The sorting mode (as an integer)
-		- 0: Sort by price
-		- 1: Sort by travel time
+		- 1: Sort by price
+		- 2: Sort by travel time
 	- fare_type: The fare type (as an integer)
-		- 0: Workfare transport concession card fare
-		- 1: Student card fare
-		- 2: Single trip
-		- 3: Senior citizen card fare
-		- 4: Persons with disabilities card fare
-		- 5: Adult card fare
+		- 1: Workfare transport concession card fare
+		- 2: Student card fare
+		- 3: Single trip
+		- 4: Senior citizen card fare
+		- 5: Persons with disabilities card fare
+		- 6: Adult card fare
 	- departure_time: The starting time of the route
 	- departure_location: The starting point of the route
 		- latitude
@@ -127,10 +106,12 @@ class FindRoutesAPI(APIView):
 		# Raise exception if invalid
 		route_query_serializer.is_valid(raise_exception=True)
 
-		print(route_query_serializer.data)
+		# Find candidate locations
+		data = route_query_serializer.data
+		route_list = FindRoutesController(**data).findRoutes()
 
 		routes_serializer = RouteListSerializer({
-			'routes': []
+			'routes': route_list
 		})
 
 		return Response(routes_serializer.data)
