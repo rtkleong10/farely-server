@@ -5,8 +5,9 @@ class Location():
 		self.latitude = latitude
 
 class DirectionStep():
-	def __init__(self, distance, travel_time, travel_mode, departure_stop, arrival_stop):
+	def __init__(self, distance, line, travel_time, travel_mode, departure_stop, arrival_stop):
 		self.distance = distance
+		self.line = line
 		self.travel_time = travel_time
 		self.travel_mode = travel_mode
 		self.departure_stop = departure_stop
