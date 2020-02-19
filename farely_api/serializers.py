@@ -29,6 +29,7 @@ class DirectionStepSerializer(serializers.Serializer):
 class RouteSerializer(serializers.Serializer):
 	travel_time = serializers.TimeField()
 	price = serializers.DecimalField(max_digits=None, decimal_places=2)
+	distance = serializers.FloatField()
 	direction_steps = DirectionStepSerializer(many=True)
 
 class RouteListSerializer(serializers.Serializer):

@@ -16,7 +16,7 @@ class FindRoutesController():
 
 	def findRoutes(self):
 		return [
-			Route(1.00, '12:00', [
+			Route(1.00, '12:00', 1.2, [
 				DirectionStep(1.2, 'EW', '12:00', 1, Location('NTU', 1, 1), Location('NTU', 1, 1))
 			])
 		]

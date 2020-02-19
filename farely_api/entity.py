@@ -14,9 +14,10 @@ class DirectionStep():
 		self.arrival_stop = arrival_stop
 
 class Route():
-	def __init__(self, price, travel_time, direction_steps):
+	def __init__(self, price, travel_time, distance, direction_steps):
 		self.price = price
 		self.travel_time = travel_time
+		self.distance = distance
 		self.direction_steps = direction_steps
 
 class RouteQuery():

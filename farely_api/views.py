@@ -7,6 +7,9 @@ class InterpretLocationAPI(APIView):
 	"""
 	Interprets the plaintext location of the user and returns a list of candidate locations.
 
+	## Sample Query
+	`/api/interpret-location/?plaintext=ntu`
+
 	## Parameters
 	- plaintext: Plaintext location to find the candidate locations of
 
@@ -48,6 +51,9 @@ class FindRoutesAPI(APIView):
 	"""
 	Accepts a route query and returns a list of the best routes
 
+	## Sample Query
+	`/api/find-routes/?sort_mode=1&fare_type=1&departure_time=2020-02-02T12:00&departure_location=ntu|1|2&arrival_location=nie|2|3`
+
 	## Parameters
 	- sort_mode: The sorting mode (as an integer)
 		- 1: Sort by price
@@ -61,23 +67,22 @@ class FindRoutesAPI(APIView):
 		- 6: Adult card fare
 	- departure_time: The starting time of the route
 	- departure_location: The starting point of the route
-		- latitude
-		- longitude
+		- Format: name|latitude|longitude
 	- arrival_location: The end location of the route
-		- latitude
-		- longitude
+		- Format: name|latitude|longitude
 
 	## Return Format
 		{
 			routes: [
 				{
-					'time': ...,
-					'price': ...,
+					'travel_time': ..., // In hh:mm (e.g. 12:00)
+					'price': ..., // In SGD
+					'distance': ..., // In km
 					'directions': [
 						{
 							'transport_type': ...,
 							'line': ...,
-							'time': ...,
+							'travel_time': ...,
 							'departure_stop': {
 								'name': ...,
 								'latitude': ...,
