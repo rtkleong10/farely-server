@@ -7,28 +7,31 @@ class GoogleMapsService():
 	PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json'
 	DIRECTIONS_API_URL = 'https://maps.googleapis.com/maps/api/directions/json'
 
-	def getLocations(self, plaintext):
+	@staticmethod
+	def getLocations(plaintext):
 		r = requests.get(
 			url=GoogleMapsService.PLACES_API_URL,
 			params={
 				'key': GOOGLE_MAPS_API_KEY,
 				'inputtype': 'textquery',
+				'fields': 'name,geometry',
 				'input': plaintext,
 			}
 		)
 
 		return r.json()
 
-	def getDirections(self, departure_time, departure_location, arrival_location):
+	@staticmethod
+	def getDirections(departure_time, departure_location, arrival_location):
 		r = requests.get(
 			url=GoogleMapsService.DIRECTIONS_API_URL,
 			params={
 				'key': GOOGLE_MAPS_API_KEY,
 				'mode': 'transit',
 				'units': 'metric',
-				'departure_time': datetime.timestamp(departure_time),
-				'origin': '{},{}'.format(departure_location.latitude, departure_location.longitude),
-				'destination': '{},{}'.format(arrival_location.latitude, arrival_location.longitude),
+				'departure_time': int(datetime.timestamp(departure_time)),
+				'origin': '{},{}'.format(departure_location.lat, departure_location.lng),
+				'destination': '{},{}'.format(arrival_location.lat, arrival_location.lng),
 			}
 		)
 
@@ -42,7 +45,8 @@ class DataGovService():
 	TRUNK_BUS_RESOURCE_ID = '7a5c22f0-71da-4c24-b419-84322b54ce17'
 	MRT_LRT_RESOURCE_ID = 'e496ae38-989e-4eac-977d-e64c9e91a20f'
 
-	def getResults(self, resource_id):
+	@staticmethod
+	def getResults(resource_id):
 		r = requests.get(
 			url=DataGovService.DATA_GOV_API_URL,
 			params={
@@ -52,23 +56,28 @@ class DataGovService():
 
 		return r.json()
 
-	def getFaresForFeederBus(self):
-		return self.getResults(DataGovService.FEEDER_BUS_RESOURCE_ID)
+	@staticmethod
+	def getFaresForFeederBus():
+		return DataGovService.getResults(DataGovService.FEEDER_BUS_RESOURCE_ID)
 
-	def getFaresForExpressBus(self):
-		return self.getResults(DataGovService.EXPRESS_BUS_RESOURCE_ID)
+	@staticmethod
+	def getFaresForExpressBus():
+		return DataGovService.getResults(DataGovService.EXPRESS_BUS_RESOURCE_ID)
 
-	def getFaresForTrunkBus(self):
-		return self.getResults(DataGovService.TRUNK_BUS_RESOURCE_ID)
+	@staticmethod
+	def getFaresForTrunkBus():
+		return DataGovService.getResults(DataGovService.TRUNK_BUS_RESOURCE_ID)
 
-	def getFaresForMRTLRT(self):
-		return self.getResults(DataGovService.MRT_LRT_RESOURCE_ID)
+	@staticmethod
+	def getFaresForMRTLRT():
+		return DataGovService.getResults(DataGovService.MRT_LRT_RESOURCE_ID)
 
 
 class LTADataMallService():
 	BUS_SERVICES_API_URL = 'http://datamall2.mytransport.sg/ltaodataservice/BusServices'
 
-	def getBusServices(self):
+	@staticmethod
+	def getBusServices():
 		bus_service_list = []
 
 		while True:

@@ -37,7 +37,7 @@ class InterpretLocationAPI(APIView):
 		plaintext_location_serializer.is_valid(raise_exception=True)
 
 		# Find candidate locations
-		data = plaintext_location_serializer.data
+		data = plaintext_location_serializer.validated_data
 		location_list = LocationController.getLocations(data["plaintext"])
 
 		# Serialize output
@@ -112,7 +112,7 @@ class FindRoutesAPI(APIView):
 		route_query_serializer.is_valid(raise_exception=True)
 
 		# Find candidate locations
-		data = route_query_serializer.data
+		data = route_query_serializer.validated_data
 		route_list = FindRoutesController(**data).findRoutes()
 
 		routes_serializer = RouteListSerializer({

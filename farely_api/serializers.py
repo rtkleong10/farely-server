@@ -6,8 +6,8 @@ class PlaintextLocationSerializer(serializers.Serializer):
 
 class LocationSerializer(serializers.Serializer):
 	name = serializers.CharField()
-	latitude = serializers.FloatField()
-	longitude = serializers.FloatField()
+	lat = serializers.FloatField()
+	lng = serializers.FloatField()
 
 class LocationListSerializer(serializers.Serializer):
 	locations = LocationSerializer(many=True)
@@ -22,12 +22,12 @@ class RouteQuerySerializer(serializers.Serializer):
 class DirectionStepSerializer(serializers.Serializer):
 	travel_mode = serializers.ChoiceField(choices=TravelMode.choices())
 	line = serializers.CharField()
-	travel_time = serializers.TimeField()
+	travel_time = serializers.DurationField()
 	departure_stop = LocationSerializer()
 	arrival_stop = LocationSerializer()
 
 class RouteSerializer(serializers.Serializer):
-	travel_time = serializers.TimeField()
+	travel_time = serializers.DurationField()
 	price = serializers.DecimalField(max_digits=None, decimal_places=2)
 	distance = serializers.FloatField()
 	direction_steps = DirectionStepSerializer(many=True)

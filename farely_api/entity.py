@@ -71,7 +71,7 @@ class Route():
 
 	"""
 
-	def __init__(self, price=0, travel_time=0, distance=0, direction_steps =[]):
+	def __init__(self, price=0, travel_time=timedelta(hours=1), distance=0, direction_steps =[]):
 		self.__price = price
 		self.__travel_time = travel_time
 		self.__distance = distance
@@ -119,7 +119,7 @@ class Route():
 class DirectionStep():
 	"""
 		Example:
-		e = DirectionStep("East-West Line", TravelMode.MRT ,"Orchard", "Boon Lay", 2.45, timedelta(hours=1))
+		e = DirectionStep("East-West Line", TravelMode.MRT ,"Orchard", "Boon Lay", 1, 2.45, timedelta(hours=1))
 		print(e)
 		d.arrival_stop = "Somerset"
 		d.departure_stop = "JurongEast"
@@ -130,11 +130,12 @@ class DirectionStep():
 		JurongEast to Somerset
 	"""
 
-	def __init__(self, line="", travel_mode=TravelMode.BUS, arrival_stop=None, departure_stop=None, distance=0, travel_time=timedelta(hours=1)):
+	def __init__(self, line="", travel_mode=TravelMode.BUS, arrival_stop=None, departure_stop=None, num_stops=0, distance=0, travel_time=timedelta(hours=1)):
 		self.__travel_mode = travel_mode
 		self.__line = line
 		self.__arrival_stop = arrival_stop
 		self.__departure_stop = departure_stop
+		self.__num_stops = num_stops
 		self.__distance = distance
 		self.__travel_time = travel_time
 
@@ -156,6 +157,10 @@ class DirectionStep():
 	@property
 	def departure_stop(self):
 		return self.__departure_stop
+
+	@property
+	def num_stops(self):
+		return self.__num_stops
 
 	@property
 	def distance(self):
@@ -180,6 +185,10 @@ class DirectionStep():
 	@departure_stop.setter
 	def departure_stop(self, departure_stop):
 		self.__departure_stop = departure_stop
+
+	@num_stops.setter
+	def num_stops(self, num_stops):
+		self.__num_stops = num_stops
 
 	@distance.setter
 	def distance(self, distance):
