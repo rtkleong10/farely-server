@@ -1,13 +1,14 @@
-from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import PlaintextLocationSerializer, LocationListSerializer, RouteQuerySerializer, RouteListSerializer
-from farely_server.settings import GOOGLE_MAPS_API_KEY
-import requests
+from .control import LocationController, FindRoutesController
 
 class InterpretLocationAPI(APIView):
 	"""
 	Interprets the plaintext location of the user and returns a list of candidate locations.
+
+	## Sample Query
+	`/api/interpret-location/?plaintext=ntu`
 
 	## Parameters
 	- plaintext: Plaintext location to find the candidate locations of
@@ -34,33 +35,14 @@ class InterpretLocationAPI(APIView):
 
 		# Raise exception if invalid
 		plaintext_location_serializer.is_valid(raise_exception=True)
-		print(plaintext_location_serializer.data)
 
-		# URL = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
-		# r = requests.get(url = URL, params = {
-		# 	'query': plaintext_location_serializer.data['plaintext'],
-		# 	'key': GOOGLE_MAPS_API_KEY	
-		# }) 
-		
-		# print(r.json())
-		# data = r.json()
-		# latitude = data['results'][0]['geometry']['location']['lat']
-		# longitude = data['results'][0]['geometry']['location']['lng']
-		# name = data['results'][0]['name']
+		# Find candidate locations
+		data = plaintext_location_serializer.validated_data
+		location_list = LocationController.getLocations(data["plaintext"])
 
+		# Serialize output
 		location_list_serializer = LocationListSerializer({
-			'locations': [
-				{
-					'name': 'NTU',
-					'latitude': 1.3,
-					'longitude': 1.2,
-				},
-				{
-					'name': 'NYJC',
-					'latitude': 1.3,
-					'longitude': 1.2,
-				},
-			]
+			'locations': location_list
 		})
 
 		return Response(location_list_serializer.data)
@@ -69,36 +51,38 @@ class FindRoutesAPI(APIView):
 	"""
 	Accepts a route query and returns a list of the best routes
 
+	## Sample Query
+	`/api/find-routes/?sort_mode=1&fare_type=1&departure_time=2020-02-02T12:00&departure_location=ntu|1|2&arrival_location=nie|2|3`
+
 	## Parameters
 	- sort_mode: The sorting mode (as an integer)
-		- 0: Sort by price
-		- 1: Sort by travel time
+		- 1: Sort by price
+		- 2: Sort by travel time
 	- fare_type: The fare type (as an integer)
-		- 0: Workfare transport concession card fare
-		- 1: Student card fare
-		- 2: Single trip
-		- 3: Senior citizen card fare
-		- 4: Persons with disabilities card fare
-		- 5: Adult card fare
+		- 1: Workfare transport concession card fare
+		- 2: Student card fare
+		- 3: Single trip
+		- 4: Senior citizen card fare
+		- 5: Persons with disabilities card fare
+		- 6: Adult card fare
 	- departure_time: The starting time of the route
 	- departure_location: The starting point of the route
-		- latitude
-		- longitude
+		- Format: name|latitude|longitude
 	- arrival_location: The end location of the route
-		- latitude
-		- longitude
+		- Format: name|latitude|longitude
 
 	## Return Format
 		{
 			routes: [
 				{
-					'time': ...,
-					'price': ...,
+					'travel_time': ..., // In hh:mm (e.g. 12:00)
+					'price': ..., // In SGD
+					'distance': ..., // In km
 					'directions': [
 						{
 							'transport_type': ...,
 							'line': ...,
-							'time': ...,
+							'travel_time': ...,
 							'departure_stop': {
 								'name': ...,
 								'latitude': ...,
@@ -127,10 +111,12 @@ class FindRoutesAPI(APIView):
 		# Raise exception if invalid
 		route_query_serializer.is_valid(raise_exception=True)
 
-		print(route_query_serializer.data)
+		# Find candidate locations
+		data = route_query_serializer.validated_data
+		route_list = FindRoutesController(**data).findRoutes()
 
 		routes_serializer = RouteListSerializer({
-			'routes': []
+			'routes': route_list
 		})
 
 		return Response(routes_serializer.data)
