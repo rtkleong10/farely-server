@@ -1,4 +1,16 @@
-from enum import IntEnum
+from enum import Enum, IntEnum
+
+class FareCategory(Enum):
+	MRT_LRT_EARLY = 1
+	MRT_LRT = 2
+	FEEDER_BUS = 3
+	EXPRESS_BUS = 4
+	TRUNK_BUS = 5
+	WALK = 6
+
+	@classmethod
+	def choices(cls):
+		return [(key.value, key.name) for key in cls]
 
 class FareType(IntEnum):
 	WORKFARE = 1
@@ -14,7 +26,7 @@ class FareType(IntEnum):
 
 class TravelMode(IntEnum):
 	BUS = 1
-	MRT = 2
+	MRT_LRT = 2
 	WALK = 3
 
 	@classmethod
