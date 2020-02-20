@@ -207,6 +207,12 @@ class DataGovService():
 class LTADataMallService():
 	BUS_SERVICES_API_URL = 'http://datamall2.mytransport.sg/ltaodataservice/BusServices'
 
+	FARE_CATEGORY_MAPPING = {
+		'FEEDER': FareCategory.FEEDER_BUS,
+		'EXPRESS': FareCategory.EXPRESS_BUS,
+		'TRUNK': FareCategory.TRUNK_BUS
+	}
+
 	@staticmethod
 	def getBusServices():
 		bus_service_list = []
@@ -239,7 +245,9 @@ class LTADataMallService():
 
 		for bus_service in bus_service_list:
 			service_no = bus_service[0]
-			category = bus_service[1]
-			bus_service_dict[service_no] = category
+			category = LTADataMallService.FARE_CATEGORY_MAPPING.get(bus_service[1])
+
+			if category != None:
+				bus_service_dict[service_no] = category
 
 		return bus_service_dict

@@ -1,6 +1,6 @@
 from enum import Enum, IntEnum
 
-class FareCategory(Enum):
+class FareCategory(IntEnum):
 	MRT_LRT_EARLY = 1
 	MRT_LRT = 2
 	FEEDER_BUS = 3

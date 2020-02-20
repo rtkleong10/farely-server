@@ -49,13 +49,7 @@ class FareController():
 				fare_category = FareCategory.MRT_LRT
 
 			elif step.travel_mode == TravelMode.BUS:
-				bus_type = self.getBusType(step.line)
-
-				if bus_type == 'EXPRESS':
-					fare_category = FareCategory.EXPRESS_BUS
-
-				elif bus_type == 'TRUNK':
-					fare_category = FareCategory.TRUNK_BUS
+				fare_category = self.getBusType(step.line)
 
 			elif step.travel_mode == TravelMode.WALK:
 				fare_category = FareCategory.WALK
@@ -65,7 +59,7 @@ class FareController():
 		return steps
 
 	def getBusType(self, serviceNo):
-		return self.__bus_services[serviceNo]
+		return self.__bus_services.get(serviceNo)
 
 	def getStepFare(self, fare_category, distance):
 		if fare_category == FareCategory.WALK or distance == 0:
@@ -78,7 +72,7 @@ class FareController():
 		distance_fare_table = self.__fare_table[fare_category]
 
 		for distance_range in distance_fare_table.keys():
-			if distance >= distance_range[0] and (distance < distance_range[1] or distance_range[1] == None):
+			if distance >= distance_range[0] and (distance_range[1] == None or distance < distance_range[1]):
 				return distance_fare_table[distance_range][fare_type]
 
 		return None
@@ -96,7 +90,7 @@ class FareController():
 
 			total_fare += current_fare
 
-		return total_fare / 100
+		return total_fare
 
 	def calculateCardFare(self):
 		total_fare = 0
@@ -136,10 +130,10 @@ class FareController():
 		fare_type = self.__fare_type
 
 		if fare_type == FareType.SINGLE_TRIP:
-			return self.calculateCashFare()
+			return self.calculateCashFare() / 100
 
 		else:
-			return self.calculateCardFare()
+			return self.calculateCardFare() / 100
 
 class LocationController():
 	@staticmethod
