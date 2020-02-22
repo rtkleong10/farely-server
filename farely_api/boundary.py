@@ -149,7 +149,7 @@ class DataGovService():
 		fare_table[(0, None)] = distance_fare_table
 
 		return {
-			FareCategory.EXPRESS_BUS: fare_table
+			FareCategory.FEEDER_BUS: fare_table
 		}
 
 	@staticmethod
