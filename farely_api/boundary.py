@@ -75,14 +75,27 @@ class DataGovService():
 
 	@staticmethod
 	def getResource(resource_id):
-		r = requests.get(
-			url=DataGovService.DATA_GOV_API_URL,
-			params={
-				'resource_id': resource_id
-			}
-		)
+		all_results = []
 
-		return r.json()
+		while True:
+			r = requests.get(
+				url=DataGovService.DATA_GOV_API_URL,
+				params={
+					'resource_id': resource_id,
+					'offset': len(all_results),
+				}
+			)
+
+			data = r.json()
+			results = data['result']['records']
+
+			# Stop if no more results to add
+			if len(results) == 0:
+				break
+
+			all_results.extend(results)
+
+		return all_results
 
 	@staticmethod
 	def parseDistanceRange(str):
@@ -132,8 +145,7 @@ class DataGovService():
 
 	@staticmethod
 	def getFaresForFeederBus():
-		data = DataGovService.getResource(DataGovService.FEEDER_BUS_RESOURCE_ID)
-		results = data['result']['records']
+		results = DataGovService.getResource(DataGovService.FEEDER_BUS_RESOURCE_ID)
 		result = results[0]
 
 		fare_table = {}
@@ -154,8 +166,7 @@ class DataGovService():
 
 	@staticmethod
 	def getFaresForExpressBus():
-		data = DataGovService.getResource(DataGovService.EXPRESS_BUS_RESOURCE_ID)
-		results = data['result']['records']
+		results = DataGovService.getResource(DataGovService.EXPRESS_BUS_RESOURCE_ID)
 
 		return {
 			FareCategory.EXPRESS_BUS: DataGovService.parseBusResults(results)
@@ -163,8 +174,7 @@ class DataGovService():
 
 	@staticmethod
 	def getFaresForTrunkBus():
-		data = DataGovService.getResource(DataGovService.TRUNK_BUS_RESOURCE_ID)
-		results = data['result']['records']
+		results = DataGovService.getResource(DataGovService.TRUNK_BUS_RESOURCE_ID)
 
 		return {
 			FareCategory.TRUNK_BUS: DataGovService.parseBusResults(results)
@@ -172,8 +182,7 @@ class DataGovService():
 
 	@staticmethod
 	def getFaresForMRTLRT():
-		data = DataGovService.getResource(DataGovService.MRT_LRT_RESOURCE_ID)
-		results = data['result']['records']
+		results = DataGovService.getResource(DataGovService.MRT_LRT_RESOURCE_ID)
 
 		fare_table = {}
 
