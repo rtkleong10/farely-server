@@ -186,7 +186,14 @@ class DataGovService():
 
 	@staticmethod
 	def getFaresForExpressBus():
-		results = DataGovService.getResource(DataGovService.EXPRESS_BUS_RESOURCE_ID)
+		try:
+			results = DataGovService.getResource(DataGovService.EXPRESS_BUS_RESOURCE_ID)
+		except Http404:
+			print("The url does not exist.")
+			return None
+		except:
+			print("There is an error in fetching Express Bus api data.\nReturn None")
+			return None
 
 		return {
 			FareCategory.EXPRESS_BUS: DataGovService.parseBusResults(results)
