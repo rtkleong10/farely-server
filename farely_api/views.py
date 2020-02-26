@@ -164,7 +164,7 @@ class CalculateFareAPI(APIView):
 
 	### Example
 		{
-			"fare": 1.2
+			"fare": 0.52
 		}
 	"""
 
@@ -180,7 +180,6 @@ class CalculateFareAPI(APIView):
 
 		# Find candidate locations
 		data = fare_query_serializer.validated_data
-		print(data)
 		fare = FareController(**data).calculateFare()
 
 		fare_response_serializer = FareResponseSerializer({

@@ -69,11 +69,11 @@ class FareController():
 			return None
 
 		fare_type = self.__fare_type
-		distance_fare_table = self.__fare_table[fare_category]
+		distance_fare_table = self.__fare_table.get(fare_category)
 
 		for distance_range in distance_fare_table.keys():
 			if distance >= distance_range[0] and (distance_range[1] == None or distance < distance_range[1]):
-				return distance_fare_table[distance_range][fare_type]
+				return distance_fare_table[distance_range].get(fare_type)
 
 		return None
 
@@ -130,10 +130,15 @@ class FareController():
 		fare_type = self.__fare_type
 
 		if fare_type == FareType.SINGLE_TRIP:
-			return self.calculateCashFare() / 100
+			total_fare = self.calculateCashFare()
 
 		else:
-			return self.calculateCardFare() / 100
+			total_fare = self.calculateCardFare()
+
+		if total_fare == None:
+			return None
+		else:
+			return total_fare / 100
 
 class LocationController():
 	@staticmethod

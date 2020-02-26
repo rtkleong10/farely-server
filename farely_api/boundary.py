@@ -1,8 +1,6 @@
 from datetime import datetime
 import re
 import requests
-from django.http import Http404, HttpResponse
-from requests import Response
 
 from .enum import FareType, FareCategory
 from farely_server.settings import GOOGLE_MAPS_API_KEY, LTA_API_KEY
@@ -44,7 +42,7 @@ class GoogleMapsService():
 
 
 class DataGovService():
-	#todo differentiate between different cash fare types & morning fare
+	#TODO Differentiate between different cash fare types
 	DATA_GOV_API_URL = 'https://data.gov.sg/api/action/datastore_search'
 	FEEDER_BUS_RESOURCE_ID = '310d0e0a-892f-48c4-abda-bfbdded8cb21'
 	EXPRESS_BUS_RESOURCE_ID = '32cf2f0a-7790-40f0-a6cd-929697edd3b8'
@@ -89,17 +87,14 @@ class DataGovService():
 						'offset': len(all_results),
 					}
 				)
-			except Http404:
-				print("The url does not exist.")
-				return None
-			except:
-				print("There is an error in fetching DataGovService api data.\nReturn {}")
-				r = Response()
-				r._content = b'{ "result" : {"records":[]} }'
-				return r
+				r.raise_for_status()
+
+
+			except Exception as e:
+				print(e)
+				break
 
 			data = r.json()
-			print(data)
 			results = data['result']['records']
 
 			# Stop if no more results to add
@@ -158,14 +153,11 @@ class DataGovService():
 
 	@staticmethod
 	def getFaresForFeederBus():
-		try:
-			results = DataGovService.getResource(DataGovService.FEEDER_BUS_RESOURCE_ID)
-		except Http404:
-			print("The url does not exist.")
-			return None
-		except:
-			print("There is an error in fetching Feeder Bus api data.\nReturn None")
-			return None
+		results = DataGovService.getResource(DataGovService.FEEDER_BUS_RESOURCE_ID)
+
+		if (len(results) != 1):
+			return {}
+
 		result = results[0]
 
 		fare_table = {}
@@ -186,14 +178,7 @@ class DataGovService():
 
 	@staticmethod
 	def getFaresForExpressBus():
-		try:
-			results = DataGovService.getResource(DataGovService.EXPRESS_BUS_RESOURCE_ID)
-		except Http404:
-			print("The url does not exist.")
-			return None
-		except:
-			print("There is an error in fetching Express Bus api data.\nReturn None")
-			return None
+		results = DataGovService.getResource(DataGovService.EXPRESS_BUS_RESOURCE_ID)
 
 		return {
 			FareCategory.EXPRESS_BUS: DataGovService.parseBusResults(results)
@@ -201,14 +186,7 @@ class DataGovService():
 
 	@staticmethod
 	def getFaresForTrunkBus():
-		try:
-			results = DataGovService.getResource(DataGovService.TRUNK_BUS_RESOURCE_ID)
-		except Http404:
-			print("The url does not exist.")
-			return None
-		except:
-			print("There is an error in fetching Trunk Bus api data.\nReturn None")
-			return None
+		results = DataGovService.getResource(DataGovService.TRUNK_BUS_RESOURCE_ID)
 
 		return {
 			FareCategory.TRUNK_BUS: DataGovService.parseBusResults(results)
@@ -216,14 +194,7 @@ class DataGovService():
 
 	@staticmethod
 	def getFaresForMRTLRT():
-		try:
-			results = DataGovService.getResource(DataGovService.MRT_LRT_RESOURCE_ID)
-		except Http404:
-			print("The url does not exist.")
-			return None
-		except:
-			print("There is an error in fetching MRT api data.\nReturn None")
-			return None
+		results = DataGovService.getResource(DataGovService.MRT_LRT_RESOURCE_ID)
 		
 		fare_table = {}
 
@@ -268,15 +239,22 @@ class LTADataMallService():
 		bus_service_list = []
 
 		while True:
-			r = requests.get(
-				url=LTADataMallService.BUS_SERVICES_API_URL,
-				headers={
-					'AccountKey': LTA_API_KEY,
-				},
-				params={
-					'$skip': len(bus_service_list)
-				}
-			)
+			try:
+				r = requests.get(
+					url=LTADataMallService.BUS_SERVICES_API_URL,
+					headers={
+						'AccountKey': LTA_API_KEY,
+					},
+					params={
+						'$skip': len(bus_service_list)
+					}
+				)
+
+				r.raise_for_status()
+
+			except Exception as e:
+				print(e)
+				break
 
 			data = r.json()
 			results = data['value']
