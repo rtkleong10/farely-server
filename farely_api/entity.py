@@ -2,57 +2,37 @@ from datetime import datetime, timedelta
 from .enum import SortMode, FareType, TravelMode
 
 class RouteQuery():
-	def __init__(self, sort_mode=SortMode.PRICE, fare_type=FareType.ADULT, departure_time=datetime.now(), departure_location=None, arrival_location=None):
-		self.__sort_mode = sort_mode
+	def __init__(self, fare_type=FareType.ADULT, origin="", destination=""):
 		self.__fare_type = fare_type
-		self.__departure_time = departure_time
-		self.__departure_location = departure_location
-		self.__arrival_location = arrival_location
-
+		self.__origin = origin
+		self.__destination = destination
 
 	def __repr__(self):
-		return "{} to {}".format(self.__departure_location, self.__arrival_location)
-
-	@property
-	def sort_mode(self):
-		return self.__sort_mode
+		return "{} to {}".format(self.__origin, self.__destination)
 
 	@property
 	def fare_type(self):
 		return self.__fare_type
 
 	@property
-	def departure_time(self):
-		return self.__departure_time
+	def origin(self):
+		return self.__origin
 
 	@property
-	def departure_location(self):
-		return self.__departure_location
-
-	@property
-	def arrival_location(self):
-		return self.__arrival_location
-
-	@sort_mode.setter
-	def sort_mode(self, sort_mode):
-		self.__sort_mode = sort_mode
+	def destination(self):
+		return self.__destination
 
 	@fare_type.setter
 	def fare_type(self, fare_type):
 		self.__fare_type = fare_type
 
-	@departure_time.setter
-	def departure_time(self, departure_time):
-		self.__departure_time = departure_time
+	@origin.setter
+	def origin(self, origin):
+		self.__origin = origin
 
-	@departure_location.setter
-	def departure_location(self, departure_location):
-		self.__departure_location = departure_location
-
-	@arrival_location.setter
-	def arrival_location(self, arrival_location):
-		self.__arrival_location = arrival_location
-
+	@destination.setter
+	def destination(self, destination):
+		self.__destination = destination
 
 class Route():
 	"""

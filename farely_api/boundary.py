@@ -7,34 +7,35 @@ from farely_server.settings import GOOGLE_MAPS_API_KEY, LTA_API_KEY
 
 
 class GoogleMapsService():
-	PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json'
+	# PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json'
 	DIRECTIONS_API_URL = 'https://maps.googleapis.com/maps/api/directions/json'
 
-	@staticmethod
-	def getLocations(plaintext):
-		r = requests.get(
-			url=GoogleMapsService.PLACES_API_URL,
-			params={
-				'key': GOOGLE_MAPS_API_KEY,
-				'inputtype': 'textquery',
-				'fields': 'name,geometry',
-				'input': plaintext,
-			}
-		)
+	# @staticmethod
+	# def getLocations(plaintext):
+	# 	r = requests.get(
+	# 		url=GoogleMapsService.PLACES_API_URL,
+	# 		params={
+	# 			'key': GOOGLE_MAPS_API_KEY,
+	# 			'inputtype': 'textquery',
+	# 			'fields': 'name,geometry',
+	# 			'input': plaintext,
+	# 		}
+	# 	)
+	#
+	# 	return r.json()
 
-		return r.json()
-
 	@staticmethod
-	def getDirections(departure_time, departure_location, arrival_location):
+	def getDirections(origin, destination):
 		r = requests.get(
 			url=GoogleMapsService.DIRECTIONS_API_URL,
 			params={
 				'key': GOOGLE_MAPS_API_KEY,
 				'mode': 'transit',
 				'units': 'metric',
-				'departure_time': int(datetime.timestamp(departure_time)),
-				'origin': '{},{}'.format(departure_location.lat, departure_location.lng),
-				'destination': '{},{}'.format(arrival_location.lat, arrival_location.lng),
+				'alternatives': True,
+				# 'departure_time': int(datetime.timestamp(departure_time)),
+				'origin': origin,
+				'destination': destination,
 			}
 		)
 

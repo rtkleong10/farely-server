@@ -1,26 +1,48 @@
 from .boundary import GoogleMapsService, DataGovService, LTADataMallService
 from .enum import FareType, TravelMode, FareCategory
 from .entity import Location, RouteQuery, Route, DirectionStep
+from .data import route_data
 
 class FindRoutesController():
-	def __init__(self, sort_mode, fare_type, departure_time, departure_location, arrival_location):
+	def __init__(self, fare_type, origin, destination):
 		fare_type = FareType(fare_type)
+		self.__route_query = RouteQuery(fare_type, origin, destination)
 
-		departure_location_arr = departure_location.split('|')
-		departure_location = Location(*departure_location_arr)
+	def getDirectionSteps(self, legs):
+		direction_steps = []
 
-		arrival_location_arr = arrival_location.split('|')
-		arrival_location = Location(*arrival_location_arr)
+		for leg in legs:
+			travel_mode = leg["travel_mode"]
+			start_location = leg["start_location"]
+			end_location = leg["end_location"]
+			distance = leg["distance"]["value"] / 1000
 
-		self.__route_query = RouteQuery(sort_mode, fare_type, departure_time, departure_location, arrival_location)
+			try:
+				line = leg["transit_details"]["line"]["name"]
+			except:
+				line = None
+
+			direction_steps.append(DirectionStep(travel_mode, start_location, end_location, distance, line))
+
+		return direction_steps
+
+	def addFareToRoute(self, route):
+		legs = route['legs']
+		direction_steps = self.getDirectionSteps(legs)
+		route['fare'] = FareController(self.__route_query.fare_type, direction_steps)
+
+		return route
 
 	def findRoutes(self):
 		# data = GoogleMapsService.getDirections(
-		# 	departure_time=self.__route_query.departure_time,
-		# 	departure_location=self.__route_query.departure_location,
-		# 	arrival_location=self.__route_query.arrival_location
+		# 	origin=self.__route_query.origin,
+		# 	destination=self.__route_query.destination
 		# )
-		# print(data)
+		data = route_data # A copy of a sample of the GoogleMaps output to limit API calls for testing
+		routes = data['routes']
+
+		for route in routes:
+			self.addFareToRoute(route)
 
 		return [
 			Route(direction_steps=[
@@ -140,22 +162,22 @@ class FareController():
 		else:
 			return total_fare / 100
 
-class LocationController():
-	@staticmethod
-	def getLocations(plaintext):
-		data = GoogleMapsService.getLocations(plaintext)
-
-		if 'candidates' not in data:
-			return []
-
-		results = data['candidates']
-		location_list = []
-
-		for result in results:
-			name = result['name']
-			location = result['geometry']['location']
-			latitude = location['lat']
-			longitude = location['lng']
-			location_list.append(Location(name, latitude, longitude))
-
-		return location_list
+# class LocationController():
+# 	@staticmethod
+# 	def getLocations(plaintext):
+# 		data = GoogleMapsService.getLocations(plaintext)
+#
+# 		if 'candidates' not in data:
+# 			return []
+#
+# 		results = data['candidates']
+# 		location_list = []
+#
+# 		for result in results:
+# 			name = result['name']
+# 			location = result['geometry']['location']
+# 			latitude = location['lat']
+# 			longitude = location['lng']
+# 			location_list.append(Location(name, latitude, longitude))
+#
+# 		return location_list
