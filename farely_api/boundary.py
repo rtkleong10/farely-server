@@ -1,39 +1,41 @@
 from datetime import datetime
 import re
 import requests
+
 from .enum import FareType, FareCategory
 from farely_server.settings import GOOGLE_MAPS_API_KEY, LTA_API_KEY
 
 
 class GoogleMapsService():
-	PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json'
+	# PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json'
 	DIRECTIONS_API_URL = 'https://maps.googleapis.com/maps/api/directions/json'
 
-	@staticmethod
-	def getLocations(plaintext):
-		r = requests.get(
-			url=GoogleMapsService.PLACES_API_URL,
-			params={
-				'key': GOOGLE_MAPS_API_KEY,
-				'inputtype': 'textquery',
-				'fields': 'name,geometry',
-				'input': plaintext,
-			}
-		)
+	# @staticmethod
+	# def getLocations(plaintext):
+	# 	r = requests.get(
+	# 		url=GoogleMapsService.PLACES_API_URL,
+	# 		params={
+	# 			'key': GOOGLE_MAPS_API_KEY,
+	# 			'inputtype': 'textquery',
+	# 			'fields': 'name,geometry',
+	# 			'input': plaintext,
+	# 		}
+	# 	)
+	#
+	# 	return r.json()
 
-		return r.json()
-
 	@staticmethod
-	def getDirections(departure_time, departure_location, arrival_location):
+	def getDirections(origin, destination):
 		r = requests.get(
 			url=GoogleMapsService.DIRECTIONS_API_URL,
 			params={
 				'key': GOOGLE_MAPS_API_KEY,
 				'mode': 'transit',
 				'units': 'metric',
-				'departure_time': int(datetime.timestamp(departure_time)),
-				'origin': '{},{}'.format(departure_location.lat, departure_location.lng),
-				'destination': '{},{}'.format(arrival_location.lat, arrival_location.lng),
+				'alternatives': True,
+				# 'departure_time': int(datetime.timestamp(departure_time)),
+				'origin': origin,
+				'destination': destination,
 			}
 		)
 
@@ -41,7 +43,7 @@ class GoogleMapsService():
 
 
 class DataGovService():
-	#todo differentiate between different cash fare types & morning fare
+	#TODO Differentiate between different cash fare types
 	DATA_GOV_API_URL = 'https://data.gov.sg/api/action/datastore_search'
 	FEEDER_BUS_RESOURCE_ID = '310d0e0a-892f-48c4-abda-bfbdded8cb21'
 	EXPRESS_BUS_RESOURCE_ID = '32cf2f0a-7790-40f0-a6cd-929697edd3b8'
@@ -78,13 +80,20 @@ class DataGovService():
 		all_results = []
 
 		while True:
-			r = requests.get(
-				url=DataGovService.DATA_GOV_API_URL,
-				params={
-					'resource_id': resource_id,
-					'offset': len(all_results),
-				}
-			)
+			try:
+				r = requests.get(
+					url=DataGovService.DATA_GOV_API_URL,
+					params={
+						'resource_id': resource_id,
+						'offset': len(all_results),
+					}
+				)
+				r.raise_for_status()
+
+
+			except Exception as e:
+				print(e)
+				break
 
 			data = r.json()
 			results = data['result']['records']
@@ -146,6 +155,10 @@ class DataGovService():
 	@staticmethod
 	def getFaresForFeederBus():
 		results = DataGovService.getResource(DataGovService.FEEDER_BUS_RESOURCE_ID)
+
+		if (len(results) != 1):
+			return {}
+
 		result = results[0]
 
 		fare_table = {}
@@ -183,7 +196,7 @@ class DataGovService():
 	@staticmethod
 	def getFaresForMRTLRT():
 		results = DataGovService.getResource(DataGovService.MRT_LRT_RESOURCE_ID)
-
+		
 		fare_table = {}
 
 		for result in results:
@@ -227,15 +240,22 @@ class LTADataMallService():
 		bus_service_list = []
 
 		while True:
-			r = requests.get(
-				url=LTADataMallService.BUS_SERVICES_API_URL,
-				headers={
-					'AccountKey': LTA_API_KEY,
-				},
-				params={
-					'$skip': len(bus_service_list)
-				}
-			)
+			try:
+				r = requests.get(
+					url=LTADataMallService.BUS_SERVICES_API_URL,
+					headers={
+						'AccountKey': LTA_API_KEY,
+					},
+					params={
+						'$skip': len(bus_service_list)
+					}
+				)
+
+				r.raise_for_status()
+
+			except Exception as e:
+				print(e)
+				break
 
 			data = r.json()
 			results = data['value']

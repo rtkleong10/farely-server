@@ -1,32 +1,53 @@
 from .boundary import GoogleMapsService, DataGovService, LTADataMallService
 from .enum import FareType, TravelMode, FareCategory
 from .entity import Location, RouteQuery, Route, DirectionStep
+from .data import route_data
 
 class FindRoutesController():
-	def __init__(self, sort_mode, fare_type, departure_time, departure_location, arrival_location):
+	def __init__(self, fare_type, origin, destination):
 		fare_type = FareType(fare_type)
+		self.__route_query = RouteQuery(fare_type, origin, destination)
 
-		departure_location_arr = departure_location.split('|')
-		departure_location = Location(*departure_location_arr)
+	def getDirectionSteps(self, legs):
+		# TODO: Make this & the DirectionSteps class match
+		direction_steps = []
 
-		arrival_location_arr = arrival_location.split('|')
-		arrival_location = Location(*arrival_location_arr)
+		for leg in legs:
+			travel_mode = leg["travel_mode"]
+			start_location = leg["start_location"]
+			end_location = leg["end_location"]
+			distance = leg["distance"]["value"] / 1000
 
-		self.__route_query = RouteQuery(sort_mode, fare_type, departure_time, departure_location, arrival_location)
+			try:
+				line = leg["transit_details"]["line"]["name"]
+			except:
+				line = None
+
+			direction_steps.append(DirectionStep(travel_mode, start_location, end_location, distance, line))
+
+		return direction_steps
+
+	def addRouteDetails(self, route):
+		legs = route['legs']
+
+		# Add Fare
+		direction_steps = self.getDirectionSteps(legs)
+		route['fare'] = FareController(self.__route_query.fare_type, direction_steps)
+
+		# TODO: Add checkpoint info to the route (route['checkpoints'])
 
 	def findRoutes(self):
 		# data = GoogleMapsService.getDirections(
-		# 	departure_time=self.__route_query.departure_time,
-		# 	departure_location=self.__route_query.departure_location,
-		# 	arrival_location=self.__route_query.arrival_location
+		# 	origin=self.__route_query.origin,
+		# 	destination=self.__route_query.destination
 		# )
-		# print(data)
+		data = route_data # A copy of a sample of the GoogleMaps output to limit API calls for testing
+		routes = data['routes']
 
-		return [
-			Route(direction_steps=[
-				DirectionStep('EW', TravelMode.BUS, Location('NTU', 1, 1), Location('NTU', 1, 1.00001), 1, 1)
-			])
-		]
+		for route in routes:
+			self.addRouteDetails(route)
+
+		return routes
 
 
 class FareController():
@@ -69,11 +90,11 @@ class FareController():
 			return None
 
 		fare_type = self.__fare_type
-		distance_fare_table = self.__fare_table[fare_category]
+		distance_fare_table = self.__fare_table.get(fare_category)
 
 		for distance_range in distance_fare_table.keys():
 			if distance >= distance_range[0] and (distance_range[1] == None or distance < distance_range[1]):
-				return distance_fare_table[distance_range][fare_type]
+				return distance_fare_table[distance_range].get(fare_type)
 
 		return None
 
@@ -130,27 +151,32 @@ class FareController():
 		fare_type = self.__fare_type
 
 		if fare_type == FareType.SINGLE_TRIP:
-			return self.calculateCashFare() / 100
+			total_fare = self.calculateCashFare()
 
 		else:
-			return self.calculateCardFare() / 100
+			total_fare = self.calculateCardFare()
 
-class LocationController():
-	@staticmethod
-	def getLocations(plaintext):
-		data = GoogleMapsService.getLocations(plaintext)
+		if total_fare == None:
+			return None
+		else:
+			return total_fare / 100
 
-		if 'candidates' not in data:
-			return []
-
-		results = data['candidates']
-		location_list = []
-
-		for result in results:
-			name = result['name']
-			location = result['geometry']['location']
-			latitude = location['lat']
-			longitude = location['lng']
-			location_list.append(Location(name, latitude, longitude))
-
-		return location_list
+# class LocationController():
+# 	@staticmethod
+# 	def getLocations(plaintext):
+# 		data = GoogleMapsService.getLocations(plaintext)
+#
+# 		if 'candidates' not in data:
+# 			return []
+#
+# 		results = data['candidates']
+# 		location_list = []
+#
+# 		for result in results:
+# 			name = result['name']
+# 			location = result['geometry']['location']
+# 			latitude = location['lat']
+# 			longitude = location['lng']
+# 			location_list.append(Location(name, latitude, longitude))
+#
+# 		return location_list
