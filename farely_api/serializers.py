@@ -44,14 +44,6 @@ class CheckPointSerializer(serializers.Serializer):
 	lng = serializers.FloatField()
 	travel_mode = serializers.ChoiceField(choices=TravelMode.choices())
 
-class RoutesSerializer(serializers.Serializer):
-	fare = serializers.FloatField()
-	checkpoints = CheckPointSerializer(many=True)
-
-class RouteResponseSerializer(serializers.Serializer):
-	geocoded_waypoints = serializers.JSONField()
-	routes = RoutesSerializer(many=True)
-
 class DirectionStepSerializer(serializers.Serializer):
 	distance = serializers.FloatField()
 	travel_mode = serializers.ChoiceField(choices=TravelMode.choices())

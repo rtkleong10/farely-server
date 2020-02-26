@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import RouteQuerySerializer, RouteResponseSerializer, FareQuerySerializer, FareResponseSerializer
+from .serializers import RouteQuerySerializer, FareQuerySerializer, FareResponseSerializer
 from .control import FindRoutesController, FareController
 
 # class InterpretLocationAPI(APIView):
@@ -83,9 +83,7 @@ class FindRoutesAPI(APIView):
 		data = route_query_serializer.validated_data
 		route_response = FindRoutesController(**data).findRoutes()
 
-		# route_response_serializer = RouteResponseSerializer(route_response)
-
-		return Response("")#route_response_serializer.data)
+		return Response(route_response)
 
 class CalculateFareAPI(APIView):
 	"""

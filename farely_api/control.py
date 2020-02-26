@@ -9,6 +9,7 @@ class FindRoutesController():
 		self.__route_query = RouteQuery(fare_type, origin, destination)
 
 	def getDirectionSteps(self, legs):
+		# TODO: Make this & the DirectionSteps class match
 		direction_steps = []
 
 		for leg in legs:
@@ -26,12 +27,14 @@ class FindRoutesController():
 
 		return direction_steps
 
-	def addFareToRoute(self, route):
+	def addRouteDetails(self, route):
 		legs = route['legs']
+
+		# Add Fare
 		direction_steps = self.getDirectionSteps(legs)
 		route['fare'] = FareController(self.__route_query.fare_type, direction_steps)
 
-		return route
+		# TODO: Add checkpoint info to the route (route['checkpoints'])
 
 	def findRoutes(self):
 		# data = GoogleMapsService.getDirections(
@@ -42,13 +45,9 @@ class FindRoutesController():
 		routes = data['routes']
 
 		for route in routes:
-			self.addFareToRoute(route)
+			self.addRouteDetails(route)
 
-		return [
-			Route(direction_steps=[
-				DirectionStep('EW', TravelMode.BUS, Location('NTU', 1, 1), Location('NTU', 1, 1.00001), 1, 1)
-			])
-		]
+		return routes
 
 
 class FareController():
