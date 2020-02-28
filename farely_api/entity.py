@@ -110,13 +110,14 @@ class DirectionStep():
 		JurongEast to Somerset
 	"""
 
-	def __init__(self, line="", travel_mode=TravelMode.BUS, arrival_stop=None, departure_stop=None, num_stops=0, distance=0, travel_time=timedelta(hours=1)):
+	def __init__(self, line="", travel_mode=TravelMode.BUS, arrival_stop=None, departure_stop=None, num_stops=0, distance=0, duration=0, travel_time=timedelta(hours=1)):
 		self.__travel_mode = travel_mode
 		self.__line = line
 		self.__arrival_stop = arrival_stop
 		self.__departure_stop = departure_stop
 		self.__num_stops = num_stops
 		self.__distance = distance
+		self.__duration = duration
 		self.__travel_time = travel_time
 
 	def __repr__(self):
@@ -147,6 +148,10 @@ class DirectionStep():
 		return self.__distance
 
 	@property
+	def duration(self):
+		return self.__duration
+
+	@property
 	def travel_time(self):
 		return self.__travel_time
 
@@ -173,6 +178,10 @@ class DirectionStep():
 	@distance.setter
 	def distance(self, distance):
 		self.__distance = distance
+
+	@duration.setter
+	def duration(self , duration):
+		self.__duration = duration
 
 	@travel_time.setter
 	def travel_time(self, travel_time):
