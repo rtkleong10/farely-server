@@ -1,7 +1,7 @@
 from .boundary import GoogleMapsService, DataGovService, LTADataMallService
 from .enum import FareType, TravelMode, FareCategory
 from .entity import RouteQuery, DirectionStep
-from .data import route_data
+from datetime import timedelta
 
 class FindRoutesController():
 	def __init__(self, fare_type, origin, destination):
@@ -12,7 +12,7 @@ class FindRoutesController():
 		departure_stop = step["start_location"]
 		arrival_stop = step["end_location"]
 		distance = step["distance"]["value"] / 1000
-		duration = step["duration"]["value"]
+		duration = timedelta(seconds=step["duration"]["value"])
 
 		return DirectionStep(
 			travel_mode=TravelMode.WALK,
@@ -28,7 +28,7 @@ class FindRoutesController():
 		arrival_stop = step["transit_details"]["arrival_stop"]["location"]
 		num_stops = step["transit_details"]["num_stops"]
 		distance = step["distance"]["value"] / 1000
-		duration = step["duration"]["value"]
+		duration = timedelta(seconds=step["duration"]["value"])
 
 		travel_mode = None
 		mode = step["transit_details"]["line"]["vehicle"]["type"]
