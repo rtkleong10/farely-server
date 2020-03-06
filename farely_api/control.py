@@ -1,6 +1,6 @@
 from .boundary import GoogleMapsService, DataGovService, LTADataMallService
 from .enum import FareType, TravelMode, FareCategory
-from .entity import Location, RouteQuery, Route, DirectionStep
+from .entity import RouteQuery, DirectionStep
 from .data import route_data
 
 class FindRoutesController():
@@ -9,77 +9,89 @@ class FindRoutesController():
 		self.__route_query = RouteQuery(fare_type, origin, destination)
 
 	def getWalkingStep(self, step):
-		travel_mode = TravelMode.WALK
-		line = None
-		arrival_stop = None
-		departure_stop = None
-		num_stops = 0
-		distance = step["distance"]["value"]
-		travel_time = step["duration"]["value"]
-		return (line, travel_mode, arrival_stop, departure_stop, num_stops, distance, travel_time)
+		departure_stop = step["start_location"]
+		arrival_stop = step["end_location"]
+		distance = step["distance"]["value"] / 1000
+		duration = step["duration"]["value"]
+
+		return DirectionStep(
+			travel_mode=TravelMode.WALK,
+			arrival_stop=arrival_stop,
+			departure_stop=departure_stop,
+			distance=distance,
+			duration=duration
+		)
 
 	def getTransitStep(self, step):
-		mode = step["transit_details"]["line"]["vehicle"]["type"]
 		line = step["transit_details"]["line"]["name"]
-		arrival_stop = step["transit_details"]["arrival_stop"]
-		departure_stop = step["transit_details"]["departure_stop"]
+		departure_stop = step["transit_details"]["departure_stop"]["location"]
+		arrival_stop = step["transit_details"]["arrival_stop"]["location"]
 		num_stops = step["transit_details"]["num_stops"]
-		distance = step["distance"]["value"]
-		travel_time = step["duration"]["value"]
+		distance = step["distance"]["value"] / 1000
+		duration = step["duration"]["value"]
+
+		travel_mode = None
+		mode = step["transit_details"]["line"]["vehicle"]["type"]
+
 		if (mode == "SUBWAY"):
 			travel_mode = TravelMode.MRT_LRT
 		elif (mode == "BUS"):
 			travel_mode = TravelMode.BUS
-		return line, travel_mode, arrival_stop, departure_stop, num_stops, distance, travel_time
+
+		return DirectionStep(
+			line=line,
+			travel_mode=travel_mode,
+			arrival_stop=arrival_stop,
+			departure_stop=departure_stop,
+			num_stops=num_stops,
+			distance=distance,
+			duration=duration
+		)
 
 	def getDirectionSteps(self, legs):
-		# TODO: Make this & the DirectionSteps class match
-		#ignore inner step because inner step contains detailed directions for walking or driving steps in transit directions
-		#no waypoint = 1 leg
 		direction_steps = []
 
 		for leg in legs:
 			steps = leg['steps']
-			for step in steps:
-				"""
-				distance			#in meters
-				travel_time 	#in seconds
-				"""
-				travel_mode = step["travel_mode"]
-				if(travel_mode == "TRANSIT"):
-					line, travel_mode, arrival_stop, departure_stop, num_stops, distance, travel_time  = self.getTransitStep(step)
-				elif(travel_mode == "WALKING"):
-					line, travel_mode, arrival_stop, departure_stop, num_stops, distance, travel_time = self.getWalkingStep(step)
-				else:
-					pass
 
-				direction_steps.append(DirectionStep(line, travel_mode, arrival_stop, departure_stop, num_stops, distance, travel_time))
+			for step in steps:
+				travel_mode = step["travel_mode"]
+				if travel_mode == "TRANSIT":
+					direction_steps.append(self.getTransitStep(step))
+
+				elif travel_mode == "WALKING":
+					direction_steps.append(self.getWalkingStep(step))
 
 		return direction_steps
 
 	def addRouteDetails(self, route):
 		legs = route['legs']
+		direction_steps = self.getDirectionSteps(legs)
 
 		# Add Fare
-		direction_steps = self.getDirectionSteps(legs)
 		fareController = FareController(self.__route_query.fare_type, direction_steps)
 		route['fare'] = fareController.calculateFare()
 
-		# TODO: Add checkpoint info to the route (route['checkpoints'])
+		# Add checkpoint info
+		checkpoints = []
+
+		for direction_step in direction_steps[1:]:
+			checkpoints.append(direction_step.departure_stop)
+
+		route['checkpoints'] = checkpoints
 
 	def findRoutes(self):
-		# data = GoogleMapsService.getDirections(
-		# 	origin=self.__route_query.origin,
-		# 	destination=self.__route_query.destination
-		# )
-		data = route_data # A copy of a sample of the GoogleMaps output to limit API calls for testing
+		data = GoogleMapsService.getDirections(
+			origin=self.__route_query.origin,
+			destination=self.__route_query.destination
+		)
+
 		routes = data['routes']
 
 		for route in routes:
 			self.addRouteDetails(route)
 
-		return routes
-
+		return data
 
 class FareController():
 	# Refer to https://www.smrt.com.sg/Portals/0/Journey%20with%20Us/PTC0339_19%20PTC%20Conclusion%20Fare%20Table%20Brochure%20FA.pdf
@@ -127,6 +139,7 @@ class FareController():
 			if distance >= distance_range[0] and (distance_range[1] == None or distance < distance_range[1]):
 				return distance_fare_table[distance_range].get(fare_type)
 
+		print(distance)
 		return None
 
 	def calculateCashFare(self):

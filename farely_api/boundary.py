@@ -7,25 +7,11 @@ from farely_server.settings import GOOGLE_MAPS_API_KEY, LTA_API_KEY
 
 
 class GoogleMapsService():
-	# PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json'
 	DIRECTIONS_API_URL = 'https://maps.googleapis.com/maps/api/directions/json'
-
-	# @staticmethod
-	# def getLocations(plaintext):
-	# 	r = requests.get(
-	# 		url=GoogleMapsService.PLACES_API_URL,
-	# 		params={
-	# 			'key': GOOGLE_MAPS_API_KEY,
-	# 			'inputtype': 'textquery',
-	# 			'fields': 'name,geometry',
-	# 			'input': plaintext,
-	# 		}
-	# 	)
-	#
-	# 	return r.json()
 
 	@staticmethod
 	def getDirections(origin, destination):
+		# TODO: Add departure time
 		r = requests.get(
 			url=GoogleMapsService.DIRECTIONS_API_URL,
 			params={
@@ -34,6 +20,7 @@ class GoogleMapsService():
 				'units': 'metric',
 				'alternatives': True,
 				# 'departure_time': int(datetime.timestamp(departure_time)),
+				'region': 'sg',
 				'origin': origin,
 				'destination': destination,
 			}
@@ -109,9 +96,9 @@ class DataGovService():
 	@staticmethod
 	def parseDistanceRange(str):
 		"""
-			'38.3 km - 39.2 km': (38.3, 39.2)
-			'Up to 3.2 km': (0, 3.2)
-			'Over 30.2 km': (30.2)
+			'38.3 km - 39.2 km': (38.3, 39.3) (38.2 ≤ x < 39.3)
+			'Up to 3.2 km': (0, 3.3) (< 3.3)
+			'Over 30.2 km': (30.3) (x ≥ 30.2)
 			Otherwise: (0, None)
 		"""
 
@@ -122,10 +109,10 @@ class DataGovService():
 
 		if re.match(from_to_regex, str):
 			match = re.match(from_to_regex, str)
-			return (float(match[1]), float(match[2]))
+			return (float(match[1]), float(match[2]) + 0.1)
 
 		elif re.match(up_to_regex, str):
-			return (0, float(re.match(up_to_regex, str)[1]))
+			return (0, float(re.match(up_to_regex, str)[1]) + 0.1)
 
 		elif re.match(over_regex, str):
 			return (float(re.match(over_regex, str)[1]), None)
