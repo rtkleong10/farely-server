@@ -1,2 +1,1 @@
-
-web: gunicorn myproject.wsgi
+web: gunicorn farely_server.wsgi
