@@ -115,3 +115,31 @@ class DirectionStep():
 	@duration.setter
 	def duration(self , duration):
 		self.__duration = duration
+
+class Location():
+	def __init__(self, lat=0, lng=0):
+		self.__lat = lat
+		self.__lng = lng
+
+	def __init__(self, dict):
+		self.__lat = dict["lat"]
+		self.__lng = dict["lng"]
+
+	def __repr__(self):
+		return '({}, {})'.format(self.__lat, self.__lng)
+
+	@property
+	def lat(self):
+		return self.__lat
+
+	@property
+	def lng(self):
+		return self.__lng
+
+	@lat.setter
+	def lat(self, lat):
+		self.__lat = lat
+
+	@lng.setter
+	def lng(self, lng):
+		self.__lng = lng

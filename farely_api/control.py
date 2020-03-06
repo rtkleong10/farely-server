@@ -1,6 +1,6 @@
 from .boundary import GoogleMapsService, DataGovService, LTADataMallService
 from .enum import FareType, TravelMode, FareCategory
-from .entity import RouteQuery, DirectionStep
+from .entity import RouteQuery, DirectionStep, Location
 from datetime import timedelta
 
 class FindRoutesController():
@@ -9,8 +9,8 @@ class FindRoutesController():
 		self.__route_query = RouteQuery(fare_type, origin, destination)
 
 	def getWalkingStep(self, step):
-		departure_stop = step["start_location"]
-		arrival_stop = step["end_location"]
+		departure_stop = Location(step["start_location"])
+		arrival_stop = Location(step["end_location"])
 		distance = step["distance"]["value"] / 1000
 		duration = timedelta(seconds=step["duration"]["value"])
 
@@ -24,8 +24,8 @@ class FindRoutesController():
 
 	def getTransitStep(self, step):
 		line = step["transit_details"]["line"]["name"]
-		departure_stop = step["transit_details"]["departure_stop"]["location"]
-		arrival_stop = step["transit_details"]["arrival_stop"]["location"]
+		departure_stop = Location(step["transit_details"]["departure_stop"]["location"])
+		arrival_stop = Location(step["transit_details"]["arrival_stop"]["location"])
 		num_stops = step["transit_details"]["num_stops"]
 		distance = step["distance"]["value"] / 1000
 		duration = timedelta(seconds=step["duration"]["value"])
@@ -75,8 +75,16 @@ class FindRoutesController():
 		# Add checkpoint info
 		checkpoints = []
 
-		for direction_step in direction_steps[1:]:
-			checkpoints.append(direction_step.departure_stop)
+		for direction_step in direction_steps:
+			departure_stop = direction_step.departure_stop
+
+			checkpoint = {
+				"lat": departure_stop.lat,
+				"lng": departure_stop.lng,
+				"travel_mode": direction_step.travel_mode,
+			}
+
+			checkpoints.append(checkpoint)
 
 		route['checkpoints'] = checkpoints
 
