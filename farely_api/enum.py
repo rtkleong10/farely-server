@@ -32,11 +32,3 @@ class TravelMode(IntEnum):
 	@classmethod
 	def choices(cls):
 		return [(key.value, key.name) for key in cls]
-
-class SortMode(IntEnum):
-	PRICE = 1
-	TRAVEL_TIME = 2
-
-	@classmethod
-	def choices(cls):
-		return [(key.value, key.name) for key in cls]

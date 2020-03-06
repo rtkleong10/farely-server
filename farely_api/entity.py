@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta
-from .enum import SortMode, FareType, TravelMode
+from datetime import timedelta
+from .enum import FareType, TravelMode
 
 class RouteQuery():
 	def __init__(self, fare_type=FareType.ADULT, origin="", destination=""):
@@ -34,68 +34,6 @@ class RouteQuery():
 	def destination(self, destination):
 		self.__destination = destination
 
-class Route():
-	"""
-	e = Route()
-	d = DirectionStep("East west", TravelMode.MRT, "Somerset", "BoonLay", 15, timedelta(hours=1))
-	f = DirectionStep("East west", TravelMode.MRT, "Orchard", "Jurong East", 15, timedelta(hours=1))
-	e.directionSteps = [d,f]
-	print(e)
-
-	output:
-	BoonLay to Somerset
-	Jurong East to Orchard
-	Total Fare: 0
-	Total Travel Time: 0
-	Total Distance: 0
-
-	"""
-
-	def __init__(self, price=0, travel_time=timedelta(hours=1), distance=0, direction_steps =[]):
-		self.__price = price
-		self.__travel_time = travel_time
-		self.__distance = distance
-		self.__direction_steps = direction_steps
-
-	def __repr__(self):
-		for i in range(len(self.__direction_steps)):
-			print(self.__direction_steps[i])
-
-		return 'Total Fare: {}\nTotal Travel Time: {}\nTotal Distance: {}'.format(self.__price, self.__travel_time, self.__distance)
-
-	@property
-	def price(self):
-		return self.__price
-
-	@property
-	def travel_time(self):
-		return self.__travel_time
-
-	@property
-	def distance(self):
-		return self.__distance
-
-	@property
-	def direction_steps(self):
-		return self.__direction_steps
-
-	@direction_steps.setter
-	def direction_steps(self, direction_steps):
-		self.__direction_steps = direction_steps
-
-	@price.setter
-	def price(self, price):
-		self.__price = price
-
-	@travel_time.setter
-	def travel_time(self, travel_time):
-		self.__travel_time = travel_time
-
-	@distance.setter
-	def distance(self, distance):
-		self.__distance = distance
-
-
 class DirectionStep():
 	"""
 		Example:
@@ -110,17 +48,17 @@ class DirectionStep():
 		JurongEast to Somerset
 	"""
 
-	def __init__(self, line="", travel_mode=TravelMode.BUS, arrival_stop=None, departure_stop=None, num_stops=0, distance=0, travel_time=timedelta(hours=1)):
+	def __init__(self, line="", travel_mode=TravelMode.BUS, arrival_stop=None, departure_stop=None, num_stops=0, distance=0, duration=timedelta(hours=1)):
 		self.__travel_mode = travel_mode
 		self.__line = line
 		self.__arrival_stop = arrival_stop
 		self.__departure_stop = departure_stop
 		self.__num_stops = num_stops
 		self.__distance = distance
-		self.__travel_time = travel_time
+		self.__duration = duration
 
 	def __repr__(self):
-		return '{} to {}'.format(self.__departure_stop, self.__arrival_stop)
+		return '{} ({}) {} to {}'.format(self.__travel_mode, self.__line, self.__departure_stop, self.__arrival_stop)
 
 	@property
 	def travel_mode(self):
@@ -147,8 +85,8 @@ class DirectionStep():
 		return self.__distance
 
 	@property
-	def travel_time(self):
-		return self.__travel_time
+	def duration(self):
+		return self.__duration
 
 	@travel_mode.setter
 	def travel_mode(self, travel_mode):
@@ -174,51 +112,6 @@ class DirectionStep():
 	def distance(self, distance):
 		self.__distance = distance
 
-	@travel_time.setter
-	def travel_time(self, travel_time):
-		self.__travel_time = travel_time
-
-
-class Location():
-	"""
-	e = Location("ntu", 1.0, 2.5)
-	print(e)
-	e.name = "nus"
-	print(e)
-
-	output:
-	ntu: (1.0, 2.5)
-	nus: (1.0, 2.5)
-	"""
-
-	def __init__(self, name="", lat=0, lng=0):
-		self.__name = name
-		self.__lat = lat
-		self.__lng = lng
-
-	def __repr__(self):
-		return '{}: ({}, {})'.format(self.__name, self.__lat, self.__lng)
-
-	@property
-	def name(self):
-		return self.__name
-
-	@property
-	def lat(self):
-		return self.__lat
-
-	@property
-	def lng(self):
-		return self.__lng
-
-	@name.setter
-	def name(self, name):
-		self.__name = name
-
-	@lat.setter
-	def lat(self, lat):
-		self.__lat = lat
-
-	@lng.setter
-	def lng(self, lng):
-		self.__lng = lng
+	@duration.setter
+	def duration(self , duration):
+		self.__duration = duration
