@@ -8,22 +8,52 @@ class FindRoutesController():
 		fare_type = FareType(fare_type)
 		self.__route_query = RouteQuery(fare_type, origin, destination)
 
+	def getWalkingStep(self, step):
+		travel_mode = TravelMode.WALK
+		line = None
+		arrival_stop = None
+		departure_stop = None
+		num_stops = 0
+		distance = step["distance"]["value"]
+		travel_time = step["duration"]["value"]
+		return (line, travel_mode, arrival_stop, departure_stop, num_stops, distance, travel_time)
+
+	def getTransitStep(self, step):
+		mode = step["transit_details"]["line"]["vehicle"]["type"]
+		line = step["transit_details"]["line"]["name"]
+		arrival_stop = step["transit_details"]["arrival_stop"]
+		departure_stop = step["transit_details"]["departure_stop"]
+		num_stops = step["transit_details"]["num_stops"]
+		distance = step["distance"]["value"]
+		travel_time = step["duration"]["value"]
+		if (mode == "SUBWAY"):
+			travel_mode = TravelMode.MRT_LRT
+		elif (mode == "BUS"):
+			travel_mode = TravelMode.BUS
+		return line, travel_mode, arrival_stop, departure_stop, num_stops, distance, travel_time
+
 	def getDirectionSteps(self, legs):
 		# TODO: Make this & the DirectionSteps class match
+		#ignore inner step because inner step contains detailed directions for walking or driving steps in transit directions
+		#no waypoint = 1 leg
 		direction_steps = []
 
 		for leg in legs:
-			travel_mode = leg["travel_mode"]
-			start_location = leg["start_location"]
-			end_location = leg["end_location"]
-			distance = leg["distance"]["value"] / 1000
+			steps = leg['steps']
+			for step in steps:
+				"""
+				distance			#in meters
+				travel_time 	#in seconds
+				"""
+				travel_mode = step["travel_mode"]
+				if(travel_mode == "TRANSIT"):
+					line, travel_mode, arrival_stop, departure_stop, num_stops, distance, travel_time  = self.getTransitStep(step)
+				elif(travel_mode == "WALKING"):
+					line, travel_mode, arrival_stop, departure_stop, num_stops, distance, travel_time = self.getWalkingStep(step)
+				else:
+					pass
 
-			try:
-				line = leg["transit_details"]["line"]["name"]
-			except:
-				line = None
-
-			direction_steps.append(DirectionStep(travel_mode, start_location, end_location, distance, line))
+				direction_steps.append(DirectionStep(line, travel_mode, arrival_stop, departure_stop, num_stops, distance, travel_time))
 
 		return direction_steps
 
@@ -32,7 +62,8 @@ class FindRoutesController():
 
 		# Add Fare
 		direction_steps = self.getDirectionSteps(legs)
-		route['fare'] = FareController(self.__route_query.fare_type, direction_steps)
+		fareController = FareController(self.__route_query.fare_type, direction_steps)
+		route['fare'] = fareController.calculateFare()
 
 		# TODO: Add checkpoint info to the route (route['checkpoints'])
 
