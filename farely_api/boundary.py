@@ -18,7 +18,7 @@ class GoogleMapsService():
 				'key': GOOGLE_MAPS_API_KEY,
 				'mode': 'transit',
 				'units': 'metric',
-				'alternatives': True,
+				'alternatives': 'true',
 				# 'departure_time': int(datetime.timestamp(departure_time)),
 				'region': 'sg',
 				'origin': origin,
