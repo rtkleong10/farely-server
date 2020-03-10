@@ -147,7 +147,6 @@ class FareController():
 			if distance >= distance_range[0] and (distance_range[1] == None or distance < distance_range[1]):
 				return distance_fare_table[distance_range].get(fare_type)
 
-		print(distance)
 		return None
 
 	def calculateCashFare(self):
