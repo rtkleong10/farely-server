@@ -7,6 +7,7 @@ class FindRoutesController():
 	def __init__(self, fare_type, origin, destination):
 		fare_type = FareType(fare_type)
 		self.__route_query = RouteQuery(fare_type, origin, destination)
+		self.__fare_controller = FareController()
 
 	def getWalkingStep(self, step):
 		departure_stop = Location(step["start_location"])
@@ -69,8 +70,7 @@ class FindRoutesController():
 		direction_steps = self.getDirectionSteps(legs)
 
 		# Add Fare
-		fareController = FareController(self.__route_query.fare_type, direction_steps)
-		route['fare'] = fareController.calculateFare()
+		route['fare'] = self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
 
 		# Add checkpoint info
 		checkpoints = []
@@ -103,11 +103,9 @@ class FindRoutesController():
 
 class FareController():
 	# Refer to https://www.smrt.com.sg/Portals/0/Journey%20with%20Us/PTC0339_19%20PTC%20Conclusion%20Fare%20Table%20Brochure%20FA.pdf
-	def __init__(self, fare_type, direction_steps):
+	def __init__(self):
 		self.__fare_table = DataGovService.getFareTable()
 		self.__bus_services = LTADataMallService.getBusServices()
-		self.__fare_type = fare_type
-		self.__steps = self.parseSteps(direction_steps)
 
 	def parseSteps(self, direction_steps):
 		steps = []
@@ -133,14 +131,13 @@ class FareController():
 	def getBusType(self, serviceNo):
 		return self.__bus_services.get(serviceNo)
 
-	def getStepFare(self, fare_category, distance):
+	def getStepFare(self, fare_type, fare_category, distance):
 		if fare_category == FareCategory.WALK or distance == 0:
 			return 0
 
 		if fare_category == None:
 			return None
 
-		fare_type = self.__fare_type
 		distance_fare_table = self.__fare_table.get(fare_category)
 
 		for distance_range in distance_fare_table.keys():
@@ -149,10 +146,10 @@ class FareController():
 
 		return None
 
-	def calculateCashFare(self):
+	def calculateCashFare(self, steps):
 		total_fare = 0
 
-		for step in self.__steps:
+		for step in steps:
 			fare_category = step[0]
 			distance = step[1]
 			current_fare = self.getStepFare(fare_category, distance)
@@ -164,14 +161,14 @@ class FareController():
 
 		return total_fare
 
-	def calculateCardFare(self):
+	def calculateCardFare(self, fare_type, steps):
 		total_fare = 0
 
 		current_fare_category = None
 		current_distance = 0
 		MRT_LRT_GROUP_CATEGORY = [FareCategory.MRT_LRT, FareCategory.TRUNK_BUS]
 
-		for step in self.__steps:
+		for step in steps:
 			fare_category = step[0]
 			distance = step[1]
 
@@ -179,7 +176,7 @@ class FareController():
 				current_distance += distance
 
 			else:
-				current_fare = self.getStepFare(current_fare_category, current_distance)
+				current_fare = self.getStepFare(fare_type, current_fare_category, current_distance)
 
 				if current_fare == None:
 					return None
@@ -189,7 +186,7 @@ class FareController():
 				current_fare_category = fare_category
 				current_distance = distance
 
-		current_fare = self.getStepFare(current_fare_category, current_distance)
+		current_fare = self.getStepFare(fare_type, current_fare_category, current_distance)
 
 		if current_fare == None:
 			return None
@@ -198,14 +195,14 @@ class FareController():
 
 		return total_fare
 
-	def calculateFare(self):
-		fare_type = self.__fare_type
+	def calculateFare(self, fare_type, direction_steps):
+		steps = self.parseSteps(direction_steps)
 
 		if fare_type == FareType.SINGLE_TRIP:
-			total_fare = self.calculateCashFare()
+			total_fare = self.calculateCashFare(steps)
 
 		else:
-			total_fare = self.calculateCardFare()
+			total_fare = self.calculateCardFare(fare_type, steps)
 
 		if total_fare == None:
 			return None
