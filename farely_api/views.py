@@ -154,7 +154,7 @@ class CalculateFareAPI(APIView):
 
 		# Find candidate locations
 		data = fare_query_serializer.validated_data
-		fare = FareController(**data).calculateFare()
+		fare = FareController().calculateFare(**data)
 
 		fare_response_serializer = FareResponseSerializer({
 			'fare': fare
