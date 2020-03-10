@@ -57,4 +57,4 @@ class FareQuerySerializer(serializers.Serializer):
 	direction_steps = DirectionStepSerializer(many=True)
 
 class FareResponseSerializer(serializers.Serializer):
-	fare = serializers.DecimalField(max_digits=None, decimal_places=2)
+	fare = serializers.FloatField()
