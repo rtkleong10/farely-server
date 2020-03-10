@@ -93,3 +93,5 @@ db.sqlite3
 venv/
 Pipfile
 Pipfile.lock
+
+staticfiles/
