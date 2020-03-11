@@ -126,6 +126,7 @@ class FareController():
 
 			steps.append((fare_category, distance))
 
+
 		return steps
 
 	def getBusType(self, serviceNo):
@@ -152,7 +153,7 @@ class FareController():
 		for step in steps:
 			fare_category = step[0]
 			distance = step[1]
-			current_fare = self.getStepFare(fare_category, distance)
+			current_fare = self.getStepFare(FareType.SINGLE_TRIP,fare_category, distance)
 
 			if current_fare == None:
 				return None
