@@ -141,6 +141,9 @@ class FareController():
 
 		distance_fare_table = self.__fare_table.get(fare_category)
 
+		if distance_fare_table == None:
+			return None
+
 		for distance_range in distance_fare_table.keys():
 			if distance >= distance_range[0] and (distance_range[1] == None or distance < distance_range[1]):
 				return distance_fare_table[distance_range].get(fare_type)
