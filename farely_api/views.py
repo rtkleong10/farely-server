@@ -3,50 +3,6 @@ from rest_framework.views import APIView
 from .serializers import RouteQuerySerializer, FareQuerySerializer, FareResponseSerializer
 from .control import FindRoutesController, FareController
 
-# class InterpretLocationAPI(APIView):
-# 	"""
-# 	Interprets the plaintext location of the user and returns a list of candidate locations.
-#
-# 	## Sample Query
-# 	`/api/interpret-location/?plaintext=ntu`
-#
-# 	## Parameters
-# 	- plaintext: Plaintext location to find the candidate locations of
-#
-# 	## Return Format
-# 		{
-# 			locations: [
-# 				{
-# 					'name': ...,
-# 					'latitude': ...,
-# 					'longitude': ...
-# 				},
-# 				...
-# 			]
-# 		}
-# 	"""
-#
-# 	def get_view_name(self):
-# 		return "Interpret Location API"
-#
-# 	def get(self, request):
-# 		# Serialize input
-# 		plaintext_location_serializer = PlaintextLocationSerializer(data=request.query_params)
-#
-# 		# Raise exception if invalid
-# 		plaintext_location_serializer.is_valid(raise_exception=True)
-#
-# 		# Find candidate locations
-# 		data = plaintext_location_serializer.validated_data
-# 		location_list = LocationController.getLocations(data["plaintext"])
-#
-# 		# Serialize output
-# 		location_list_serializer = LocationListSerializer({
-# 			'locations': location_list
-# 		})
-#
-# 		return Response(location_list_serializer.data)
-
 class FindRoutesAPI(APIView):
 	"""
 	Accepts a route query and returns a list of the best routes
