@@ -3,10 +3,12 @@ from enum import Enum, IntEnum
 class FareCategory(IntEnum):
 	MRT_LRT_EARLY = 1
 	MRT_LRT = 2
-	FEEDER_BUS = 3
-	EXPRESS_BUS = 4
-	TRUNK_BUS = 5
-	WALK = 6
+	WALK = 3
+	FEEDER_BUS = 4
+	EXPRESS_BUS = 5
+	TRUNK_BUS = 6
+	NIGHT_BUS = 7
+	FLAT_FARE_2_BUS = 8
 
 	@classmethod
 	def choices(cls):
