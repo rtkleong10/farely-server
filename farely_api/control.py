@@ -101,6 +101,105 @@ class FindRoutesController():
 
 		return data
 
+# Fare set to $2
+class DummyFindRoutesController():
+	def __init__(self, fare_type, origin, destination):
+		fare_type = FareType(fare_type)
+		self.__route_query = RouteQuery(fare_type, origin, destination)
+		# self.__fare_controller = FareController()
+
+	def getWalkingStep(self, step):
+		departure_stop = Location(step["start_location"])
+		arrival_stop = Location(step["end_location"])
+		distance = step["distance"]["value"] / 1000
+		duration = timedelta(seconds=step["duration"]["value"])
+
+		return DirectionStep(
+			travel_mode=TravelMode.WALK,
+			arrival_stop=arrival_stop,
+			departure_stop=departure_stop,
+			distance=distance,
+			duration=duration
+		)
+
+	def getTransitStep(self, step):
+		line = step["transit_details"]["line"]["name"]
+		departure_stop = Location(step["transit_details"]["departure_stop"]["location"])
+		arrival_stop = Location(step["transit_details"]["arrival_stop"]["location"])
+		num_stops = step["transit_details"]["num_stops"]
+		distance = step["distance"]["value"] / 1000
+		duration = timedelta(seconds=step["duration"]["value"])
+
+		travel_mode = None
+		mode = step["transit_details"]["line"]["vehicle"]["type"]
+
+		if (mode == "SUBWAY"):
+			travel_mode = TravelMode.MRT_LRT
+		elif (mode == "BUS"):
+			travel_mode = TravelMode.BUS
+
+		return DirectionStep(
+			line=line,
+			travel_mode=travel_mode,
+			arrival_stop=arrival_stop,
+			departure_stop=departure_stop,
+			num_stops=num_stops,
+			distance=distance,
+			duration=duration
+		)
+
+	def getDirectionSteps(self, legs):
+		direction_steps = []
+
+		for leg in legs:
+			steps = leg['steps']
+
+			for step in steps:
+				travel_mode = step["travel_mode"]
+				if travel_mode == "TRANSIT":
+					direction_steps.append(self.getTransitStep(step))
+
+				elif travel_mode == "WALKING":
+					direction_steps.append(self.getWalkingStep(step))
+
+		return direction_steps
+
+	def addRouteDetails(self, route):
+		legs = route['legs']
+		direction_steps = self.getDirectionSteps(legs)
+
+		# Add Fare
+		route['fare'] = 2 # self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
+
+		# Add checkpoint info
+		checkpoints = []
+
+		for direction_step in direction_steps:
+			departure_stop = direction_step.departure_stop
+
+			checkpoint = {
+				"lat": departure_stop.lat,
+				"lng": departure_stop.lng,
+				"travel_mode": direction_step.travel_mode,
+			}
+
+			checkpoints.append(checkpoint)
+
+		route['checkpoints'] = checkpoints
+
+	def findRoutes(self):
+		data = GoogleMapsService.getDirections(
+			origin=self.__route_query.origin,
+			destination=self.__route_query.destination
+		)
+
+		routes = data['routes']
+
+		for route in routes:
+			self.addRouteDetails(route)
+
+		return data
+
 class FareController():
 	# Refer to https://www.smrt.com.sg/Portals/0/Journey%20with%20Us/PTC0339_19%20PTC%20Conclusion%20Fare%20Table%20Brochure%20FA.pdf
 	def __init__(self):
@@ -140,6 +239,9 @@ class FareController():
 			return None
 
 		distance_fare_table = self.__fare_table.get(fare_category)
+
+		if distance_fare_table == None:
+			return None
 
 		for distance_range in distance_fare_table.keys():
 			if distance >= distance_range[0] and (distance_range[1] == None or distance < distance_range[1]):
