@@ -9,3 +9,4 @@ Server to handle the backend service for Farely application
 ## Deployment Links
 - Find Routes: https://rtkleong10-farely-server.herokuapp.com/api/find-routes/
 - Calculate Fare: https://rtkleong10-farely-server.herokuapp.com/api/calculate-fare/
+- Dummy Find Routes: https://rtkleong10-farely-server.herokuapp.com/api/dummy-find-routes/
