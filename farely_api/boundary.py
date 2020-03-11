@@ -206,6 +206,17 @@ class DataGovService():
 		return fare_table
 
 	@staticmethod
+	def getStaticFares():
+		return {
+			FareCategory.NIGHT_BUS: {
+				(0, None): 4.50
+			},
+			FareCategory.FLAT_FARE_2_BUS: {
+				(0, None): 2
+			},
+		}
+
+	@staticmethod
 	def getFareTable():
 		fare_table = DataGovService.getFaresForFeederBus()
 		fare_table.update(DataGovService.getFaresForExpressBus())
@@ -219,7 +230,15 @@ class LTADataMallService():
 	FARE_CATEGORY_MAPPING = {
 		'FEEDER': FareCategory.FEEDER_BUS,
 		'EXPRESS': FareCategory.EXPRESS_BUS,
-		'TRUNK': FareCategory.TRUNK_BUS
+		'TRUNK': FareCategory.TRUNK_BUS,
+		'NIGHT SERVICE': FareCategory.NIGHT_BUS,
+		'NIGHT RIDER': FareCategory.NIGHT_BUS,
+		'FLAT FARE $2.00': FareCategory.FLAT_FARE_2_BUS,
+
+		# TRUNK BUS used as estimation because the actual bus fare for these bus types aren't provided by the Government API
+		'INDUSTRIAL': FareCategory.TRUNK_BUS,
+		'TOWNLINK': FareCategory.TRUNK_BUS,
+		'2-TIER FLAT FARE': FareCategory.TRUNK_BUS,
 	}
 
 	@staticmethod
