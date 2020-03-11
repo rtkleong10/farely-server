@@ -147,12 +147,13 @@ class FareController():
 		return None
 
 	def calculateCashFare(self, steps):
+		fare_type = FareType.SINGLE_TRIP
 		total_fare = 0
 
 		for step in steps:
 			fare_category = step[0]
 			distance = step[1]
-			current_fare = self.getStepFare(fare_category, distance)
+			current_fare = self.getStepFare(fare_type, fare_category, distance)
 
 			if current_fare == None:
 				return None
