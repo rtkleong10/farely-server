@@ -222,6 +222,7 @@ class DataGovService():
 		fare_table.update(DataGovService.getFaresForExpressBus())
 		fare_table.update(DataGovService.getFaresForTrunkBus())
 		fare_table.update(DataGovService.getFaresForMRTLRT())
+		fare_table.update(DataGovService.getStaticFares())
 		return fare_table
 
 class LTADataMallService():
