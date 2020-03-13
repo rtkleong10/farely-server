@@ -63,29 +63,30 @@ class FindRoutesController():
 		return direction_steps
 
 	def addRouteDetails(self, route):
-		leg = route['legs'][0]
+		legs = route['legs']
 
-		steps = leg['steps']
-		direction_steps = self.getDirectionSteps(steps)
+		for leg in legs:
+			steps = leg['steps']
+			direction_steps = self.getDirectionSteps(steps)
 
-		# Add Fare
-		leg['fare'] = self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
+			# Add Fare
+			leg['fare'] = self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
 
-		# Add checkpoint info
-		checkpoints = []
+			# Add checkpoint info
+			checkpoints = []
 
-		for direction_step in direction_steps:
-			departure_stop = direction_step.departure_stop
+			for direction_step in direction_steps:
+				departure_stop = direction_step.departure_stop
 
-			checkpoint = {
-				"lat": departure_stop.lat,
-				"lng": departure_stop.lng,
-				"travel_mode": direction_step.travel_mode,
-			}
+				checkpoint = {
+					"lat": departure_stop.lat,
+					"lng": departure_stop.lng,
+					"travel_mode": direction_step.travel_mode,
+				}
 
-			checkpoints.append(checkpoint)
+				checkpoints.append(checkpoint)
 
-		leg['checkpoints'] = checkpoints
+			leg['checkpoints'] = checkpoints
 
 	def findRoutes(self):
 		data = GoogleMapsService.getDirections(
