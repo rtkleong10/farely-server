@@ -308,23 +308,3 @@ class FareController():
 			return None
 		else:
 			return total_fare / 100
-
-# class LocationController():
-# 	@staticmethod
-# 	def getLocations(plaintext):
-# 		data = GoogleMapsService.getLocations(plaintext)
-#
-# 		if 'candidates' not in data:
-# 			return []
-#
-# 		results = data['candidates']
-# 		location_list = []
-#
-# 		for result in results:
-# 			name = result['name']
-# 			location = result['geometry']['location']
-# 			latitude = location['lat']
-# 			longitude = location['lng']
-# 			location_list.append(Location(name, latitude, longitude))
-#
-# 		return location_list
