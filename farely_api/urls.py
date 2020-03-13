@@ -1,10 +1,9 @@
 from django.urls import path
-from . import views
+from . import apis
 
 app_name = 'api'
 
 urlpatterns = [
-	path('find-routes/', views.FindRoutesAPI.as_view(), name='find-routes'),
-	path('calculate-fare/', views.CalculateFareAPI.as_view(), name='calculate-fare'),
-	path('dummy-find-routes/', views.DummyFindRoutesAPI.as_view(), name='dummy-find-routes'),
+	path('find-routes/', apis.FindRoutesApi.as_view(), name='find-routes'),
+	path('dummy-find-routes/', apis.DummyFindRoutesApi.as_view(), name='dummy-find-routes'),
 ]
