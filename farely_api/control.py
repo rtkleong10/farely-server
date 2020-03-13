@@ -49,28 +49,27 @@ class FindRoutesController():
 			duration=duration
 		)
 
-	def getDirectionSteps(self, legs):
+	def getDirectionSteps(self, steps):
 		direction_steps = []
 
-		for leg in legs:
-			steps = leg['steps']
+		for step in steps:
+			travel_mode = step["travel_mode"]
+			if travel_mode == "TRANSIT":
+				direction_steps.append(self.getTransitStep(step))
 
-			for step in steps:
-				travel_mode = step["travel_mode"]
-				if travel_mode == "TRANSIT":
-					direction_steps.append(self.getTransitStep(step))
-
-				elif travel_mode == "WALKING":
-					direction_steps.append(self.getWalkingStep(step))
+			elif travel_mode == "WALKING":
+				direction_steps.append(self.getWalkingStep(step))
 
 		return direction_steps
 
 	def addRouteDetails(self, route):
-		legs = route['legs']
-		direction_steps = self.getDirectionSteps(legs)
+		leg = route['legs'][0]
+
+		steps = leg['steps']
+		direction_steps = self.getDirectionSteps(steps)
 
 		# Add Fare
-		route['fare'] = self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
+		leg['fare'] = self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
 
 		# Add checkpoint info
 		checkpoints = []
@@ -86,7 +85,7 @@ class FindRoutesController():
 
 			checkpoints.append(checkpoint)
 
-		route['checkpoints'] = checkpoints
+		leg['checkpoints'] = checkpoints
 
 	def findRoutes(self):
 		data = GoogleMapsService.getDirections(
@@ -106,7 +105,6 @@ class DummyFindRoutesController():
 	def __init__(self, fare_type, origin, destination):
 		fare_type = FareType(fare_type)
 		self.__route_query = RouteQuery(fare_type, origin, destination)
-		# self.__fare_controller = FareController()
 
 	def getWalkingStep(self, step):
 		departure_stop = Location(step["start_location"])
@@ -148,28 +146,27 @@ class DummyFindRoutesController():
 			duration=duration
 		)
 
-	def getDirectionSteps(self, legs):
+	def getDirectionSteps(self, steps):
 		direction_steps = []
 
-		for leg in legs:
-			steps = leg['steps']
+		for step in steps:
+			travel_mode = step["travel_mode"]
+			if travel_mode == "TRANSIT":
+				direction_steps.append(self.getTransitStep(step))
 
-			for step in steps:
-				travel_mode = step["travel_mode"]
-				if travel_mode == "TRANSIT":
-					direction_steps.append(self.getTransitStep(step))
-
-				elif travel_mode == "WALKING":
-					direction_steps.append(self.getWalkingStep(step))
+			elif travel_mode == "WALKING":
+				direction_steps.append(self.getWalkingStep(step))
 
 		return direction_steps
 
 	def addRouteDetails(self, route):
-		legs = route['legs']
-		direction_steps = self.getDirectionSteps(legs)
+		leg = route['legs'][0]
+
+		steps = leg['steps']
+		direction_steps = self.getDirectionSteps(steps)
 
 		# Add Fare
-		route['fare'] = 2 # self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
+		leg['fare'] = 2
 
 		# Add checkpoint info
 		checkpoints = []
@@ -185,7 +182,7 @@ class DummyFindRoutesController():
 
 			checkpoints.append(checkpoint)
 
-		route['checkpoints'] = checkpoints
+		leg['checkpoints'] = checkpoints
 
 	def findRoutes(self):
 		data = GoogleMapsService.getDirections(
