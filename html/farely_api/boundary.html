@@ -1,0 +1,1105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.5" />
+<title>farely_api.boundary API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>farely_api.boundary</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from datetime import datetime
+import re
+import requests
+
+from .enum import FareType, FareCategory
+from farely_server.settings import GOOGLE_MAPS_API_KEY, LTA_API_KEY
+
+
+class GoogleMapsService():
+        DIRECTIONS_API_URL = &#39;https://maps.googleapis.com/maps/api/directions/json&#39;
+
+        @staticmethod
+        def getDirections(origin, destination):
+                # TODO: Add departure time
+                r = requests.get(
+                        url=GoogleMapsService.DIRECTIONS_API_URL,
+                        params={
+                                &#39;key&#39;: GOOGLE_MAPS_API_KEY,
+                                &#39;mode&#39;: &#39;transit&#39;,
+                                &#39;units&#39;: &#39;metric&#39;,
+                                &#39;alternatives&#39;: &#39;true&#39;,
+                                # &#39;departure_time&#39;: int(datetime.timestamp(departure_time)),
+                                &#39;region&#39;: &#39;sg&#39;,
+                                &#39;origin&#39;: origin,
+                                &#39;destination&#39;: destination,
+                        }
+                )
+
+                return r.json()
+
+
+class DataGovService():
+        #TODO Differentiate between different cash fare types
+        DATA_GOV_API_URL = &#39;https://data.gov.sg/api/action/datastore_search&#39;
+        FEEDER_BUS_RESOURCE_ID = &#39;310d0e0a-892f-48c4-abda-bfbdded8cb21&#39;
+        EXPRESS_BUS_RESOURCE_ID = &#39;32cf2f0a-7790-40f0-a6cd-929697edd3b8&#39;
+        TRUNK_BUS_RESOURCE_ID = &#39;7a5c22f0-71da-4c24-b419-84322b54ce17&#39;
+        MRT_LRT_RESOURCE_ID = &#39;e496ae38-989e-4eac-977d-e64c9e91a20f&#39;
+
+        BUS_FARE_TYPE_MAPPING = {
+                &#39;adult_card_fare_per_ride&#39;: FareType.ADULT,
+                &#39;adult_cash_fare_per_ride&#39;: FareType.SINGLE_TRIP,
+                &#39;senior_citizen_card_fare_per_ride&#39;: FareType.SENIOR_CITIZEN,
+                &#39;student_card_fare_per_ride&#39;: FareType.STUDENT,
+                &#39;workfare_transport_concession_card_fare_per_ride&#39;: FareType.WORKFARE,
+                &#39;persons_with_disabilities_card_fare_per_ride&#39;: FareType.PERSONS_WITH_DISABILITIES,
+                &#39;cash_fare_per_ride&#39;: FareType.SINGLE_TRIP,
+        }
+
+        MRT_LRT_FARE_TYPE_MAPPING = {
+                &#39;Adult card fare&#39;: FareType.ADULT,
+                &#39;Single trip&#39;: FareType.SINGLE_TRIP,
+                &#39;Senior citizen card fare&#39;: FareType.SENIOR_CITIZEN,
+                &#39;Student card fare&#39;: FareType.STUDENT,
+                &#39;Workfare transport concession card fare&#39;: FareType.WORKFARE,
+                &#39;Persons with diabilities card fare&#39;: FareType.PERSONS_WITH_DISABILITIES,
+        }
+
+        MRT_LRT_FARE_CATEGORY_MAPPING = {
+                &#39;Before 7.45am  (Weekdays excluding public holidays)&#39;: FareCategory.MRT_LRT_EARLY,
+                &#39;All other timings&#39;: FareCategory.MRT_LRT,
+                &#39;All timings&#39;: FareCategory.MRT_LRT
+        }
+
+        @staticmethod
+        def getResource(resource_id):
+                all_results = []
+
+                while True:
+                        try:
+                                r = requests.get(
+                                        url=DataGovService.DATA_GOV_API_URL,
+                                        params={
+                                                &#39;resource_id&#39;: resource_id,
+                                                &#39;offset&#39;: len(all_results),
+                                        }
+                                )
+                                r.raise_for_status()
+
+
+                        except Exception as e:
+                                print(e)
+                                break
+
+                        data = r.json()
+                        results = data[&#39;result&#39;][&#39;records&#39;]
+
+                        # Stop if no more results to add
+                        if len(results) == 0:
+                                break
+
+                        all_results.extend(results)
+
+                return all_results
+
+        @staticmethod
+        def parseDistanceRange(str):
+                &#34;&#34;&#34;
+                        &#39;38.3 km - 39.2 km&#39;: (38.3, 39.3) (38.2 ≤ x &lt; 39.3)
+                        &#39;Up to 3.2 km&#39;: (0, 3.3) (&lt; 3.3)
+                        &#39;Over 30.2 km&#39;: (30.3) (x ≥ 30.2)
+                        Otherwise: (0, None)
+                &#34;&#34;&#34;
+
+                decimal_num_regex = r&#39;\d*\.?\d*&#39;
+                from_to_regex = r&#39;({0}) km - ({0}) km&#39;.format(decimal_num_regex)
+                up_to_regex = r&#39;Up to ({}) km&#39;.format(decimal_num_regex)
+                over_regex = r&#39;Over ({}) km&#39;.format(decimal_num_regex)
+
+                if re.match(from_to_regex, str):
+                        match = re.match(from_to_regex, str)
+                        return (float(match[1]), float(match[2]) + 0.1)
+
+                elif re.match(up_to_regex, str):
+                        return (0, float(re.match(up_to_regex, str)[1]) + 0.1)
+
+                elif re.match(over_regex, str):
+                        return (float(re.match(over_regex, str)[1]), None)
+
+                else:
+                        return (0, None)
+
+        @staticmethod
+        def parseBusResults(results):
+                fare_table = {}
+
+                for result in results:
+                        distance_range = DataGovService.parseDistanceRange(result[&#39;distance&#39;])
+
+                        distance_fare_table = {}
+
+                        for key in DataGovService.BUS_FARE_TYPE_MAPPING.keys():
+                                if key in result:
+                                        fare_type = DataGovService.BUS_FARE_TYPE_MAPPING[key]
+                                        fare = result[key]
+                                        distance_fare_table[fare_type] = float(fare)
+
+                        fare_table[distance_range] = distance_fare_table
+
+                return fare_table
+
+        @staticmethod
+        def getFaresForFeederBus():
+                results = DataGovService.getResource(DataGovService.FEEDER_BUS_RESOURCE_ID)
+
+                if (len(results) != 1):
+                        return {}
+
+                result = results[0]
+
+                fare_table = {}
+
+                distance_fare_table = {}
+
+                for key in DataGovService.BUS_FARE_TYPE_MAPPING.keys():
+                        if key in result:
+                                fare_type = DataGovService.BUS_FARE_TYPE_MAPPING[key]
+                                fare = result[key]
+                                distance_fare_table[fare_type] = float(fare)
+
+                fare_table[(0, None)] = distance_fare_table
+
+                return {
+                        FareCategory.FEEDER_BUS: fare_table
+                }
+
+        @staticmethod
+        def getFaresForExpressBus():
+                results = DataGovService.getResource(DataGovService.EXPRESS_BUS_RESOURCE_ID)
+
+                return {
+                        FareCategory.EXPRESS_BUS: DataGovService.parseBusResults(results)
+                }
+
+        @staticmethod
+        def getFaresForTrunkBus():
+                results = DataGovService.getResource(DataGovService.TRUNK_BUS_RESOURCE_ID)
+
+                return {
+                        FareCategory.TRUNK_BUS: DataGovService.parseBusResults(results)
+                }
+
+        @staticmethod
+        def getFaresForMRTLRT():
+                results = DataGovService.getResource(DataGovService.MRT_LRT_RESOURCE_ID)
+                
+                fare_table = {}
+
+                for result in results:
+                        fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING[result[&#39;fare_type&#39;]]
+                        fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING[result[&#39;applicable_time&#39;]]
+
+                        distance_range = DataGovService.parseDistanceRange(result[&#39;distance&#39;])
+                        fare = result[&#39;fare_per_ride&#39;]
+
+                        if fare_category not in fare_table:
+                                fare_table[fare_category] = {
+                                        distance_range: {}
+                                }
+
+                        elif distance_range not in fare_table[fare_category]:
+                                fare_table[fare_category][distance_range] = {}
+
+                        fare_table[fare_category][distance_range][fare_type] = float(fare)
+
+                return fare_table
+
+        @staticmethod
+        def getStaticFares():
+                return {
+                        FareCategory.NIGHT_BUS: {
+                                (0, None): 4.50
+                        },
+                        FareCategory.FLAT_FARE_2_BUS: {
+                                (0, None): 2
+                        },
+                }
+
+        @staticmethod
+        def getFareTable():
+                fare_table = DataGovService.getFaresForFeederBus()
+                fare_table.update(DataGovService.getFaresForExpressBus())
+                fare_table.update(DataGovService.getFaresForTrunkBus())
+                fare_table.update(DataGovService.getFaresForMRTLRT())
+                fare_table.update(DataGovService.getStaticFares())
+                return fare_table
+
+class LTADataMallService():
+        BUS_SERVICES_API_URL = &#39;http://datamall2.mytransport.sg/ltaodataservice/BusServices&#39;
+
+        FARE_CATEGORY_MAPPING = {
+                &#39;FEEDER&#39;: FareCategory.FEEDER_BUS,
+                &#39;EXPRESS&#39;: FareCategory.EXPRESS_BUS,
+                &#39;TRUNK&#39;: FareCategory.TRUNK_BUS,
+                &#39;NIGHT SERVICE&#39;: FareCategory.NIGHT_BUS,
+                &#39;NIGHT RIDER&#39;: FareCategory.NIGHT_BUS,
+                &#39;FLAT FARE $2.00&#39;: FareCategory.FLAT_FARE_2_BUS,
+
+                # TRUNK BUS used as estimation because the actual bus fare for these bus types aren&#39;t provided by the Government API
+                &#39;INDUSTRIAL&#39;: FareCategory.TRUNK_BUS,
+                &#39;TOWNLINK&#39;: FareCategory.TRUNK_BUS,
+                &#39;2-TIER FLAT FARE&#39;: FareCategory.TRUNK_BUS,
+        }
+
+        @staticmethod
+        def getBusServices():
+                bus_service_list = []
+
+                while True:
+                        try:
+                                r = requests.get(
+                                        url=LTADataMallService.BUS_SERVICES_API_URL,
+                                        headers={
+                                                &#39;AccountKey&#39;: LTA_API_KEY,
+                                        },
+                                        params={
+                                                &#39;$skip&#39;: len(bus_service_list)
+                                        }
+                                )
+
+                                r.raise_for_status()
+
+                        except Exception as e:
+                                print(e)
+                                break
+
+                        data = r.json()
+                        results = data[&#39;value&#39;]
+
+                        # Stop if no more results to add
+                        if len(results) == 0:
+                                break
+
+                        for result in results:
+                                service_no = result[&#39;ServiceNo&#39;]
+                                category = result[&#39;Category&#39;]
+                                bus_service_list.append((service_no, category))
+
+                # Convert into dictionary
+                bus_service_dict = {}
+
+                for bus_service in bus_service_list:
+                        service_no = bus_service[0]
+                        category = LTADataMallService.FARE_CATEGORY_MAPPING.get(bus_service[1])
+
+                        if category != None:
+                                bus_service_dict[service_no] = category
+
+                return bus_service_dict</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="farely_api.boundary.DataGovService"><code class="flex name class">
+<span>class <span class="ident">DataGovService</span></span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DataGovService():
+        #TODO Differentiate between different cash fare types
+        DATA_GOV_API_URL = &#39;https://data.gov.sg/api/action/datastore_search&#39;
+        FEEDER_BUS_RESOURCE_ID = &#39;310d0e0a-892f-48c4-abda-bfbdded8cb21&#39;
+        EXPRESS_BUS_RESOURCE_ID = &#39;32cf2f0a-7790-40f0-a6cd-929697edd3b8&#39;
+        TRUNK_BUS_RESOURCE_ID = &#39;7a5c22f0-71da-4c24-b419-84322b54ce17&#39;
+        MRT_LRT_RESOURCE_ID = &#39;e496ae38-989e-4eac-977d-e64c9e91a20f&#39;
+
+        BUS_FARE_TYPE_MAPPING = {
+                &#39;adult_card_fare_per_ride&#39;: FareType.ADULT,
+                &#39;adult_cash_fare_per_ride&#39;: FareType.SINGLE_TRIP,
+                &#39;senior_citizen_card_fare_per_ride&#39;: FareType.SENIOR_CITIZEN,
+                &#39;student_card_fare_per_ride&#39;: FareType.STUDENT,
+                &#39;workfare_transport_concession_card_fare_per_ride&#39;: FareType.WORKFARE,
+                &#39;persons_with_disabilities_card_fare_per_ride&#39;: FareType.PERSONS_WITH_DISABILITIES,
+                &#39;cash_fare_per_ride&#39;: FareType.SINGLE_TRIP,
+        }
+
+        MRT_LRT_FARE_TYPE_MAPPING = {
+                &#39;Adult card fare&#39;: FareType.ADULT,
+                &#39;Single trip&#39;: FareType.SINGLE_TRIP,
+                &#39;Senior citizen card fare&#39;: FareType.SENIOR_CITIZEN,
+                &#39;Student card fare&#39;: FareType.STUDENT,
+                &#39;Workfare transport concession card fare&#39;: FareType.WORKFARE,
+                &#39;Persons with diabilities card fare&#39;: FareType.PERSONS_WITH_DISABILITIES,
+        }
+
+        MRT_LRT_FARE_CATEGORY_MAPPING = {
+                &#39;Before 7.45am  (Weekdays excluding public holidays)&#39;: FareCategory.MRT_LRT_EARLY,
+                &#39;All other timings&#39;: FareCategory.MRT_LRT,
+                &#39;All timings&#39;: FareCategory.MRT_LRT
+        }
+
+        @staticmethod
+        def getResource(resource_id):
+                all_results = []
+
+                while True:
+                        try:
+                                r = requests.get(
+                                        url=DataGovService.DATA_GOV_API_URL,
+                                        params={
+                                                &#39;resource_id&#39;: resource_id,
+                                                &#39;offset&#39;: len(all_results),
+                                        }
+                                )
+                                r.raise_for_status()
+
+
+                        except Exception as e:
+                                print(e)
+                                break
+
+                        data = r.json()
+                        results = data[&#39;result&#39;][&#39;records&#39;]
+
+                        # Stop if no more results to add
+                        if len(results) == 0:
+                                break
+
+                        all_results.extend(results)
+
+                return all_results
+
+        @staticmethod
+        def parseDistanceRange(str):
+                &#34;&#34;&#34;
+                        &#39;38.3 km - 39.2 km&#39;: (38.3, 39.3) (38.2 ≤ x &lt; 39.3)
+                        &#39;Up to 3.2 km&#39;: (0, 3.3) (&lt; 3.3)
+                        &#39;Over 30.2 km&#39;: (30.3) (x ≥ 30.2)
+                        Otherwise: (0, None)
+                &#34;&#34;&#34;
+
+                decimal_num_regex = r&#39;\d*\.?\d*&#39;
+                from_to_regex = r&#39;({0}) km - ({0}) km&#39;.format(decimal_num_regex)
+                up_to_regex = r&#39;Up to ({}) km&#39;.format(decimal_num_regex)
+                over_regex = r&#39;Over ({}) km&#39;.format(decimal_num_regex)
+
+                if re.match(from_to_regex, str):
+                        match = re.match(from_to_regex, str)
+                        return (float(match[1]), float(match[2]) + 0.1)
+
+                elif re.match(up_to_regex, str):
+                        return (0, float(re.match(up_to_regex, str)[1]) + 0.1)
+
+                elif re.match(over_regex, str):
+                        return (float(re.match(over_regex, str)[1]), None)
+
+                else:
+                        return (0, None)
+
+        @staticmethod
+        def parseBusResults(results):
+                fare_table = {}
+
+                for result in results:
+                        distance_range = DataGovService.parseDistanceRange(result[&#39;distance&#39;])
+
+                        distance_fare_table = {}
+
+                        for key in DataGovService.BUS_FARE_TYPE_MAPPING.keys():
+                                if key in result:
+                                        fare_type = DataGovService.BUS_FARE_TYPE_MAPPING[key]
+                                        fare = result[key]
+                                        distance_fare_table[fare_type] = float(fare)
+
+                        fare_table[distance_range] = distance_fare_table
+
+                return fare_table
+
+        @staticmethod
+        def getFaresForFeederBus():
+                results = DataGovService.getResource(DataGovService.FEEDER_BUS_RESOURCE_ID)
+
+                if (len(results) != 1):
+                        return {}
+
+                result = results[0]
+
+                fare_table = {}
+
+                distance_fare_table = {}
+
+                for key in DataGovService.BUS_FARE_TYPE_MAPPING.keys():
+                        if key in result:
+                                fare_type = DataGovService.BUS_FARE_TYPE_MAPPING[key]
+                                fare = result[key]
+                                distance_fare_table[fare_type] = float(fare)
+
+                fare_table[(0, None)] = distance_fare_table
+
+                return {
+                        FareCategory.FEEDER_BUS: fare_table
+                }
+
+        @staticmethod
+        def getFaresForExpressBus():
+                results = DataGovService.getResource(DataGovService.EXPRESS_BUS_RESOURCE_ID)
+
+                return {
+                        FareCategory.EXPRESS_BUS: DataGovService.parseBusResults(results)
+                }
+
+        @staticmethod
+        def getFaresForTrunkBus():
+                results = DataGovService.getResource(DataGovService.TRUNK_BUS_RESOURCE_ID)
+
+                return {
+                        FareCategory.TRUNK_BUS: DataGovService.parseBusResults(results)
+                }
+
+        @staticmethod
+        def getFaresForMRTLRT():
+                results = DataGovService.getResource(DataGovService.MRT_LRT_RESOURCE_ID)
+                
+                fare_table = {}
+
+                for result in results:
+                        fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING[result[&#39;fare_type&#39;]]
+                        fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING[result[&#39;applicable_time&#39;]]
+
+                        distance_range = DataGovService.parseDistanceRange(result[&#39;distance&#39;])
+                        fare = result[&#39;fare_per_ride&#39;]
+
+                        if fare_category not in fare_table:
+                                fare_table[fare_category] = {
+                                        distance_range: {}
+                                }
+
+                        elif distance_range not in fare_table[fare_category]:
+                                fare_table[fare_category][distance_range] = {}
+
+                        fare_table[fare_category][distance_range][fare_type] = float(fare)
+
+                return fare_table
+
+        @staticmethod
+        def getStaticFares():
+                return {
+                        FareCategory.NIGHT_BUS: {
+                                (0, None): 4.50
+                        },
+                        FareCategory.FLAT_FARE_2_BUS: {
+                                (0, None): 2
+                        },
+                }
+
+        @staticmethod
+        def getFareTable():
+                fare_table = DataGovService.getFaresForFeederBus()
+                fare_table.update(DataGovService.getFaresForExpressBus())
+                fare_table.update(DataGovService.getFaresForTrunkBus())
+                fare_table.update(DataGovService.getFaresForMRTLRT())
+                fare_table.update(DataGovService.getStaticFares())
+                return fare_table</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="farely_api.boundary.DataGovService.BUS_FARE_TYPE_MAPPING"><code class="name">var <span class="ident">BUS_FARE_TYPE_MAPPING</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="farely_api.boundary.DataGovService.DATA_GOV_API_URL"><code class="name">var <span class="ident">DATA_GOV_API_URL</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="farely_api.boundary.DataGovService.EXPRESS_BUS_RESOURCE_ID"><code class="name">var <span class="ident">EXPRESS_BUS_RESOURCE_ID</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="farely_api.boundary.DataGovService.FEEDER_BUS_RESOURCE_ID"><code class="name">var <span class="ident">FEEDER_BUS_RESOURCE_ID</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="farely_api.boundary.DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING"><code class="name">var <span class="ident">MRT_LRT_FARE_CATEGORY_MAPPING</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="farely_api.boundary.DataGovService.MRT_LRT_FARE_TYPE_MAPPING"><code class="name">var <span class="ident">MRT_LRT_FARE_TYPE_MAPPING</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="farely_api.boundary.DataGovService.MRT_LRT_RESOURCE_ID"><code class="name">var <span class="ident">MRT_LRT_RESOURCE_ID</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="farely_api.boundary.DataGovService.TRUNK_BUS_RESOURCE_ID"><code class="name">var <span class="ident">TRUNK_BUS_RESOURCE_ID</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="farely_api.boundary.DataGovService.getFareTable"><code class="name flex">
+<span>def <span class="ident">getFareTable</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def getFareTable():
+        fare_table = DataGovService.getFaresForFeederBus()
+        fare_table.update(DataGovService.getFaresForExpressBus())
+        fare_table.update(DataGovService.getFaresForTrunkBus())
+        fare_table.update(DataGovService.getFaresForMRTLRT())
+        fare_table.update(DataGovService.getStaticFares())
+        return fare_table</code></pre>
+</details>
+</dd>
+<dt id="farely_api.boundary.DataGovService.getFaresForExpressBus"><code class="name flex">
+<span>def <span class="ident">getFaresForExpressBus</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def getFaresForExpressBus():
+        results = DataGovService.getResource(DataGovService.EXPRESS_BUS_RESOURCE_ID)
+
+        return {
+                FareCategory.EXPRESS_BUS: DataGovService.parseBusResults(results)
+        }</code></pre>
+</details>
+</dd>
+<dt id="farely_api.boundary.DataGovService.getFaresForFeederBus"><code class="name flex">
+<span>def <span class="ident">getFaresForFeederBus</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def getFaresForFeederBus():
+        results = DataGovService.getResource(DataGovService.FEEDER_BUS_RESOURCE_ID)
+
+        if (len(results) != 1):
+                return {}
+
+        result = results[0]
+
+        fare_table = {}
+
+        distance_fare_table = {}
+
+        for key in DataGovService.BUS_FARE_TYPE_MAPPING.keys():
+                if key in result:
+                        fare_type = DataGovService.BUS_FARE_TYPE_MAPPING[key]
+                        fare = result[key]
+                        distance_fare_table[fare_type] = float(fare)
+
+        fare_table[(0, None)] = distance_fare_table
+
+        return {
+                FareCategory.FEEDER_BUS: fare_table
+        }</code></pre>
+</details>
+</dd>
+<dt id="farely_api.boundary.DataGovService.getFaresForMRTLRT"><code class="name flex">
+<span>def <span class="ident">getFaresForMRTLRT</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def getFaresForMRTLRT():
+        results = DataGovService.getResource(DataGovService.MRT_LRT_RESOURCE_ID)
+        
+        fare_table = {}
+
+        for result in results:
+                fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING[result[&#39;fare_type&#39;]]
+                fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING[result[&#39;applicable_time&#39;]]
+
+                distance_range = DataGovService.parseDistanceRange(result[&#39;distance&#39;])
+                fare = result[&#39;fare_per_ride&#39;]
+
+                if fare_category not in fare_table:
+                        fare_table[fare_category] = {
+                                distance_range: {}
+                        }
+
+                elif distance_range not in fare_table[fare_category]:
+                        fare_table[fare_category][distance_range] = {}
+
+                fare_table[fare_category][distance_range][fare_type] = float(fare)
+
+        return fare_table</code></pre>
+</details>
+</dd>
+<dt id="farely_api.boundary.DataGovService.getFaresForTrunkBus"><code class="name flex">
+<span>def <span class="ident">getFaresForTrunkBus</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def getFaresForTrunkBus():
+        results = DataGovService.getResource(DataGovService.TRUNK_BUS_RESOURCE_ID)
+
+        return {
+                FareCategory.TRUNK_BUS: DataGovService.parseBusResults(results)
+        }</code></pre>
+</details>
+</dd>
+<dt id="farely_api.boundary.DataGovService.getResource"><code class="name flex">
+<span>def <span class="ident">getResource</span></span>(<span>resource_id)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def getResource(resource_id):
+        all_results = []
+
+        while True:
+                try:
+                        r = requests.get(
+                                url=DataGovService.DATA_GOV_API_URL,
+                                params={
+                                        &#39;resource_id&#39;: resource_id,
+                                        &#39;offset&#39;: len(all_results),
+                                }
+                        )
+                        r.raise_for_status()
+
+
+                except Exception as e:
+                        print(e)
+                        break
+
+                data = r.json()
+                results = data[&#39;result&#39;][&#39;records&#39;]
+
+                # Stop if no more results to add
+                if len(results) == 0:
+                        break
+
+                all_results.extend(results)
+
+        return all_results</code></pre>
+</details>
+</dd>
+<dt id="farely_api.boundary.DataGovService.getStaticFares"><code class="name flex">
+<span>def <span class="ident">getStaticFares</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def getStaticFares():
+        return {
+                FareCategory.NIGHT_BUS: {
+                        (0, None): 4.50
+                },
+                FareCategory.FLAT_FARE_2_BUS: {
+                        (0, None): 2
+                },
+        }</code></pre>
+</details>
+</dd>
+<dt id="farely_api.boundary.DataGovService.parseBusResults"><code class="name flex">
+<span>def <span class="ident">parseBusResults</span></span>(<span>results)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def parseBusResults(results):
+        fare_table = {}
+
+        for result in results:
+                distance_range = DataGovService.parseDistanceRange(result[&#39;distance&#39;])
+
+                distance_fare_table = {}
+
+                for key in DataGovService.BUS_FARE_TYPE_MAPPING.keys():
+                        if key in result:
+                                fare_type = DataGovService.BUS_FARE_TYPE_MAPPING[key]
+                                fare = result[key]
+                                distance_fare_table[fare_type] = float(fare)
+
+                fare_table[distance_range] = distance_fare_table
+
+        return fare_table</code></pre>
+</details>
+</dd>
+<dt id="farely_api.boundary.DataGovService.parseDistanceRange"><code class="name flex">
+<span>def <span class="ident">parseDistanceRange</span></span>(<span>str)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>'38.3 km - 39.2 km': (38.3, 39.3) (38.2 ≤ x &lt; 39.3)
+'Up to 3.2 km': (0, 3.3) (&lt; 3.3)
+'Over 30.2 km': (30.3) (x ≥ 30.2)
+Otherwise: (0, None)</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def parseDistanceRange(str):
+        &#34;&#34;&#34;
+                &#39;38.3 km - 39.2 km&#39;: (38.3, 39.3) (38.2 ≤ x &lt; 39.3)
+                &#39;Up to 3.2 km&#39;: (0, 3.3) (&lt; 3.3)
+                &#39;Over 30.2 km&#39;: (30.3) (x ≥ 30.2)
+                Otherwise: (0, None)
+        &#34;&#34;&#34;
+
+        decimal_num_regex = r&#39;\d*\.?\d*&#39;
+        from_to_regex = r&#39;({0}) km - ({0}) km&#39;.format(decimal_num_regex)
+        up_to_regex = r&#39;Up to ({}) km&#39;.format(decimal_num_regex)
+        over_regex = r&#39;Over ({}) km&#39;.format(decimal_num_regex)
+
+        if re.match(from_to_regex, str):
+                match = re.match(from_to_regex, str)
+                return (float(match[1]), float(match[2]) + 0.1)
+
+        elif re.match(up_to_regex, str):
+                return (0, float(re.match(up_to_regex, str)[1]) + 0.1)
+
+        elif re.match(over_regex, str):
+                return (float(re.match(over_regex, str)[1]), None)
+
+        else:
+                return (0, None)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="farely_api.boundary.GoogleMapsService"><code class="flex name class">
+<span>class <span class="ident">GoogleMapsService</span></span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GoogleMapsService():
+        DIRECTIONS_API_URL = &#39;https://maps.googleapis.com/maps/api/directions/json&#39;
+
+        @staticmethod
+        def getDirections(origin, destination):
+                # TODO: Add departure time
+                r = requests.get(
+                        url=GoogleMapsService.DIRECTIONS_API_URL,
+                        params={
+                                &#39;key&#39;: GOOGLE_MAPS_API_KEY,
+                                &#39;mode&#39;: &#39;transit&#39;,
+                                &#39;units&#39;: &#39;metric&#39;,
+                                &#39;alternatives&#39;: &#39;true&#39;,
+                                # &#39;departure_time&#39;: int(datetime.timestamp(departure_time)),
+                                &#39;region&#39;: &#39;sg&#39;,
+                                &#39;origin&#39;: origin,
+                                &#39;destination&#39;: destination,
+                        }
+                )
+
+                return r.json()</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="farely_api.boundary.GoogleMapsService.DIRECTIONS_API_URL"><code class="name">var <span class="ident">DIRECTIONS_API_URL</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="farely_api.boundary.GoogleMapsService.getDirections"><code class="name flex">
+<span>def <span class="ident">getDirections</span></span>(<span>origin, destination)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def getDirections(origin, destination):
+        # TODO: Add departure time
+        r = requests.get(
+                url=GoogleMapsService.DIRECTIONS_API_URL,
+                params={
+                        &#39;key&#39;: GOOGLE_MAPS_API_KEY,
+                        &#39;mode&#39;: &#39;transit&#39;,
+                        &#39;units&#39;: &#39;metric&#39;,
+                        &#39;alternatives&#39;: &#39;true&#39;,
+                        # &#39;departure_time&#39;: int(datetime.timestamp(departure_time)),
+                        &#39;region&#39;: &#39;sg&#39;,
+                        &#39;origin&#39;: origin,
+                        &#39;destination&#39;: destination,
+                }
+        )
+
+        return r.json()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="farely_api.boundary.LTADataMallService"><code class="flex name class">
+<span>class <span class="ident">LTADataMallService</span></span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class LTADataMallService():
+        BUS_SERVICES_API_URL = &#39;http://datamall2.mytransport.sg/ltaodataservice/BusServices&#39;
+
+        FARE_CATEGORY_MAPPING = {
+                &#39;FEEDER&#39;: FareCategory.FEEDER_BUS,
+                &#39;EXPRESS&#39;: FareCategory.EXPRESS_BUS,
+                &#39;TRUNK&#39;: FareCategory.TRUNK_BUS,
+                &#39;NIGHT SERVICE&#39;: FareCategory.NIGHT_BUS,
+                &#39;NIGHT RIDER&#39;: FareCategory.NIGHT_BUS,
+                &#39;FLAT FARE $2.00&#39;: FareCategory.FLAT_FARE_2_BUS,
+
+                # TRUNK BUS used as estimation because the actual bus fare for these bus types aren&#39;t provided by the Government API
+                &#39;INDUSTRIAL&#39;: FareCategory.TRUNK_BUS,
+                &#39;TOWNLINK&#39;: FareCategory.TRUNK_BUS,
+                &#39;2-TIER FLAT FARE&#39;: FareCategory.TRUNK_BUS,
+        }
+
+        @staticmethod
+        def getBusServices():
+                bus_service_list = []
+
+                while True:
+                        try:
+                                r = requests.get(
+                                        url=LTADataMallService.BUS_SERVICES_API_URL,
+                                        headers={
+                                                &#39;AccountKey&#39;: LTA_API_KEY,
+                                        },
+                                        params={
+                                                &#39;$skip&#39;: len(bus_service_list)
+                                        }
+                                )
+
+                                r.raise_for_status()
+
+                        except Exception as e:
+                                print(e)
+                                break
+
+                        data = r.json()
+                        results = data[&#39;value&#39;]
+
+                        # Stop if no more results to add
+                        if len(results) == 0:
+                                break
+
+                        for result in results:
+                                service_no = result[&#39;ServiceNo&#39;]
+                                category = result[&#39;Category&#39;]
+                                bus_service_list.append((service_no, category))
+
+                # Convert into dictionary
+                bus_service_dict = {}
+
+                for bus_service in bus_service_list:
+                        service_no = bus_service[0]
+                        category = LTADataMallService.FARE_CATEGORY_MAPPING.get(bus_service[1])
+
+                        if category != None:
+                                bus_service_dict[service_no] = category
+
+                return bus_service_dict</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="farely_api.boundary.LTADataMallService.BUS_SERVICES_API_URL"><code class="name">var <span class="ident">BUS_SERVICES_API_URL</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="farely_api.boundary.LTADataMallService.FARE_CATEGORY_MAPPING"><code class="name">var <span class="ident">FARE_CATEGORY_MAPPING</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="farely_api.boundary.LTADataMallService.getBusServices"><code class="name flex">
+<span>def <span class="ident">getBusServices</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def getBusServices():
+        bus_service_list = []
+
+        while True:
+                try:
+                        r = requests.get(
+                                url=LTADataMallService.BUS_SERVICES_API_URL,
+                                headers={
+                                        &#39;AccountKey&#39;: LTA_API_KEY,
+                                },
+                                params={
+                                        &#39;$skip&#39;: len(bus_service_list)
+                                }
+                        )
+
+                        r.raise_for_status()
+
+                except Exception as e:
+                        print(e)
+                        break
+
+                data = r.json()
+                results = data[&#39;value&#39;]
+
+                # Stop if no more results to add
+                if len(results) == 0:
+                        break
+
+                for result in results:
+                        service_no = result[&#39;ServiceNo&#39;]
+                        category = result[&#39;Category&#39;]
+                        bus_service_list.append((service_no, category))
+
+        # Convert into dictionary
+        bus_service_dict = {}
+
+        for bus_service in bus_service_list:
+                service_no = bus_service[0]
+                category = LTADataMallService.FARE_CATEGORY_MAPPING.get(bus_service[1])
+
+                if category != None:
+                        bus_service_dict[service_no] = category
+
+        return bus_service_dict</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="farely_api" href="index.html">farely_api</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="farely_api.boundary.DataGovService" href="#farely_api.boundary.DataGovService">DataGovService</a></code></h4>
+<ul class="">
+<li><code><a title="farely_api.boundary.DataGovService.BUS_FARE_TYPE_MAPPING" href="#farely_api.boundary.DataGovService.BUS_FARE_TYPE_MAPPING">BUS_FARE_TYPE_MAPPING</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.DATA_GOV_API_URL" href="#farely_api.boundary.DataGovService.DATA_GOV_API_URL">DATA_GOV_API_URL</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.EXPRESS_BUS_RESOURCE_ID" href="#farely_api.boundary.DataGovService.EXPRESS_BUS_RESOURCE_ID">EXPRESS_BUS_RESOURCE_ID</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.FEEDER_BUS_RESOURCE_ID" href="#farely_api.boundary.DataGovService.FEEDER_BUS_RESOURCE_ID">FEEDER_BUS_RESOURCE_ID</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING" href="#farely_api.boundary.DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING">MRT_LRT_FARE_CATEGORY_MAPPING</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.MRT_LRT_FARE_TYPE_MAPPING" href="#farely_api.boundary.DataGovService.MRT_LRT_FARE_TYPE_MAPPING">MRT_LRT_FARE_TYPE_MAPPING</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.MRT_LRT_RESOURCE_ID" href="#farely_api.boundary.DataGovService.MRT_LRT_RESOURCE_ID">MRT_LRT_RESOURCE_ID</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.TRUNK_BUS_RESOURCE_ID" href="#farely_api.boundary.DataGovService.TRUNK_BUS_RESOURCE_ID">TRUNK_BUS_RESOURCE_ID</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.getFareTable" href="#farely_api.boundary.DataGovService.getFareTable">getFareTable</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.getFaresForExpressBus" href="#farely_api.boundary.DataGovService.getFaresForExpressBus">getFaresForExpressBus</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.getFaresForFeederBus" href="#farely_api.boundary.DataGovService.getFaresForFeederBus">getFaresForFeederBus</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.getFaresForMRTLRT" href="#farely_api.boundary.DataGovService.getFaresForMRTLRT">getFaresForMRTLRT</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.getFaresForTrunkBus" href="#farely_api.boundary.DataGovService.getFaresForTrunkBus">getFaresForTrunkBus</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.getResource" href="#farely_api.boundary.DataGovService.getResource">getResource</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.getStaticFares" href="#farely_api.boundary.DataGovService.getStaticFares">getStaticFares</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.parseBusResults" href="#farely_api.boundary.DataGovService.parseBusResults">parseBusResults</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.parseDistanceRange" href="#farely_api.boundary.DataGovService.parseDistanceRange">parseDistanceRange</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="farely_api.boundary.GoogleMapsService" href="#farely_api.boundary.GoogleMapsService">GoogleMapsService</a></code></h4>
+<ul class="">
+<li><code><a title="farely_api.boundary.GoogleMapsService.DIRECTIONS_API_URL" href="#farely_api.boundary.GoogleMapsService.DIRECTIONS_API_URL">DIRECTIONS_API_URL</a></code></li>
+<li><code><a title="farely_api.boundary.GoogleMapsService.getDirections" href="#farely_api.boundary.GoogleMapsService.getDirections">getDirections</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="farely_api.boundary.LTADataMallService" href="#farely_api.boundary.LTADataMallService">LTADataMallService</a></code></h4>
+<ul class="">
+<li><code><a title="farely_api.boundary.LTADataMallService.BUS_SERVICES_API_URL" href="#farely_api.boundary.LTADataMallService.BUS_SERVICES_API_URL">BUS_SERVICES_API_URL</a></code></li>
+<li><code><a title="farely_api.boundary.LTADataMallService.FARE_CATEGORY_MAPPING" href="#farely_api.boundary.LTADataMallService.FARE_CATEGORY_MAPPING">FARE_CATEGORY_MAPPING</a></code></li>
+<li><code><a title="farely_api.boundary.LTADataMallService.getBusServices" href="#farely_api.boundary.LTADataMallService.getBusServices">getBusServices</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.5</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

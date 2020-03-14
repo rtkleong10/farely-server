@@ -9,7 +9,10 @@ Server to handle the backend service for Farely application
 ## How to Run Tests
 1. `./manage.py test`
 
+## How to Generate Docs
+1. Delete the old docs (`html` folder)
+2. `pdoc --html farely_api`
+
 ## Deployment Links
 - Find Routes: https://rtkleong10-farely-server.herokuapp.com/api/find-routes/
-- Calculate Fare: https://rtkleong10-farely-server.herokuapp.com/api/calculate-fare/
 - Dummy Find Routes: https://rtkleong10-farely-server.herokuapp.com/api/dummy-find-routes/

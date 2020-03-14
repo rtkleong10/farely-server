@@ -1,0 +1,1203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.5" />
+<title>farely_api.control API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>farely_api.control</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from .boundary import GoogleMapsService, DataGovService, LTADataMallService
+from .enum import FareType, TravelMode, FareCategory
+from .entity import RouteQuery, DirectionStep, Location
+from datetime import timedelta
+
+class FindRoutesController():
+        def __init__(self, fare_type, origin, destination):
+                fare_type = FareType(fare_type)
+                self.__route_query = RouteQuery(fare_type, origin, destination)
+                self.__fare_controller = FareController()
+
+        def getWalkingStep(self, step):
+                departure_stop = Location(step[&#34;start_location&#34;])
+                arrival_stop = Location(step[&#34;end_location&#34;])
+                distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
+                duration = timedelta(seconds=step[&#34;duration&#34;][&#34;value&#34;])
+
+                return DirectionStep(
+                        travel_mode=TravelMode.WALK,
+                        arrival_stop=arrival_stop,
+                        departure_stop=departure_stop,
+                        distance=distance,
+                        duration=duration
+                )
+
+        def getTransitStep(self, step):
+                line = step[&#34;transit_details&#34;][&#34;line&#34;][&#34;name&#34;]
+                departure_stop = Location(step[&#34;transit_details&#34;][&#34;departure_stop&#34;][&#34;location&#34;])
+                arrival_stop = Location(step[&#34;transit_details&#34;][&#34;arrival_stop&#34;][&#34;location&#34;])
+                num_stops = step[&#34;transit_details&#34;][&#34;num_stops&#34;]
+                distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
+                duration = timedelta(seconds=step[&#34;duration&#34;][&#34;value&#34;])
+
+                travel_mode = None
+                mode = step[&#34;transit_details&#34;][&#34;line&#34;][&#34;vehicle&#34;][&#34;type&#34;]
+
+                if (mode == &#34;SUBWAY&#34;):
+                        travel_mode = TravelMode.MRT_LRT
+                elif (mode == &#34;BUS&#34;):
+                        travel_mode = TravelMode.BUS
+
+                return DirectionStep(
+                        line=line,
+                        travel_mode=travel_mode,
+                        arrival_stop=arrival_stop,
+                        departure_stop=departure_stop,
+                        num_stops=num_stops,
+                        distance=distance,
+                        duration=duration
+                )
+
+        def getDirectionSteps(self, steps):
+                direction_steps = []
+
+                for step in steps:
+                        travel_mode = step[&#34;travel_mode&#34;]
+                        if travel_mode == &#34;TRANSIT&#34;:
+                                direction_steps.append(self.getTransitStep(step))
+
+                        elif travel_mode == &#34;WALKING&#34;:
+                                direction_steps.append(self.getWalkingStep(step))
+
+                return direction_steps
+
+        def addRouteDetails(self, route):
+                legs = route[&#39;legs&#39;]
+
+                for leg in legs:
+                        steps = leg[&#39;steps&#39;]
+                        direction_steps = self.getDirectionSteps(steps)
+
+                        # Add Fare
+                        leg[&#39;fare&#39;] = self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
+
+                        # Add checkpoint info
+                        checkpoints = []
+
+                        for direction_step in direction_steps:
+                                departure_stop = direction_step.departure_stop
+
+                                checkpoint = {
+                                        &#34;lat&#34;: departure_stop.lat,
+                                        &#34;lng&#34;: departure_stop.lng,
+                                        &#34;travel_mode&#34;: direction_step.travel_mode,
+                                }
+
+                                checkpoints.append(checkpoint)
+
+                        leg[&#39;checkpoints&#39;] = checkpoints
+
+        def findRoutes(self):
+                data = GoogleMapsService.getDirections(
+                        origin=self.__route_query.origin,
+                        destination=self.__route_query.destination
+                )
+
+                routes = data[&#39;routes&#39;]
+
+                for route in routes:
+                        self.addRouteDetails(route)
+
+                return data
+
+# Fare set to $2
+class DummyFindRoutesController():
+        def __init__(self, fare_type, origin, destination):
+                fare_type = FareType(fare_type)
+                self.__route_query = RouteQuery(fare_type, origin, destination)
+
+        def getWalkingStep(self, step):
+                departure_stop = Location(step[&#34;start_location&#34;])
+                arrival_stop = Location(step[&#34;end_location&#34;])
+                distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
+                duration = timedelta(seconds=step[&#34;duration&#34;][&#34;value&#34;])
+
+                return DirectionStep(
+                        travel_mode=TravelMode.WALK,
+                        arrival_stop=arrival_stop,
+                        departure_stop=departure_stop,
+                        distance=distance,
+                        duration=duration
+                )
+
+        def getTransitStep(self, step):
+                line = step[&#34;transit_details&#34;][&#34;line&#34;][&#34;name&#34;]
+                departure_stop = Location(step[&#34;transit_details&#34;][&#34;departure_stop&#34;][&#34;location&#34;])
+                arrival_stop = Location(step[&#34;transit_details&#34;][&#34;arrival_stop&#34;][&#34;location&#34;])
+                num_stops = step[&#34;transit_details&#34;][&#34;num_stops&#34;]
+                distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
+                duration = timedelta(seconds=step[&#34;duration&#34;][&#34;value&#34;])
+
+                travel_mode = None
+                mode = step[&#34;transit_details&#34;][&#34;line&#34;][&#34;vehicle&#34;][&#34;type&#34;]
+
+                if (mode == &#34;SUBWAY&#34;):
+                        travel_mode = TravelMode.MRT_LRT
+                elif (mode == &#34;BUS&#34;):
+                        travel_mode = TravelMode.BUS
+
+                return DirectionStep(
+                        line=line,
+                        travel_mode=travel_mode,
+                        arrival_stop=arrival_stop,
+                        departure_stop=departure_stop,
+                        num_stops=num_stops,
+                        distance=distance,
+                        duration=duration
+                )
+
+        def getDirectionSteps(self, steps):
+                direction_steps = []
+
+                for step in steps:
+                        travel_mode = step[&#34;travel_mode&#34;]
+                        if travel_mode == &#34;TRANSIT&#34;:
+                                direction_steps.append(self.getTransitStep(step))
+
+                        elif travel_mode == &#34;WALKING&#34;:
+                                direction_steps.append(self.getWalkingStep(step))
+
+                return direction_steps
+
+        def addRouteDetails(self, route):
+                leg = route[&#39;legs&#39;][0]
+
+                steps = leg[&#39;steps&#39;]
+                direction_steps = self.getDirectionSteps(steps)
+
+                # Add Fare
+                leg[&#39;fare&#39;] = 2
+
+                # Add checkpoint info
+                checkpoints = []
+
+                for direction_step in direction_steps:
+                        departure_stop = direction_step.departure_stop
+
+                        checkpoint = {
+                                &#34;lat&#34;: departure_stop.lat,
+                                &#34;lng&#34;: departure_stop.lng,
+                                &#34;travel_mode&#34;: direction_step.travel_mode,
+                        }
+
+                        checkpoints.append(checkpoint)
+
+                leg[&#39;checkpoints&#39;] = checkpoints
+
+        def findRoutes(self):
+                data = GoogleMapsService.getDirections(
+                        origin=self.__route_query.origin,
+                        destination=self.__route_query.destination
+                )
+
+                routes = data[&#39;routes&#39;]
+
+                for route in routes:
+                        self.addRouteDetails(route)
+
+                return data
+
+class FareController():
+        # Refer to https://www.smrt.com.sg/Portals/0/Journey%20with%20Us/PTC0339_19%20PTC%20Conclusion%20Fare%20Table%20Brochure%20FA.pdf
+        def __init__(self):
+                self.__fare_table = DataGovService.getFareTable()
+                self.__bus_services = LTADataMallService.getBusServices()
+
+        def parseSteps(self, direction_steps):
+                steps = []
+
+                for step in direction_steps:
+                        distance = step.distance
+
+                        fare_category = None
+
+                        if step.travel_mode == TravelMode.MRT_LRT:
+                                fare_category = FareCategory.MRT_LRT
+
+                        elif step.travel_mode == TravelMode.BUS:
+                                fare_category = self.getBusType(step.line)
+
+                        elif step.travel_mode == TravelMode.WALK:
+                                fare_category = FareCategory.WALK
+
+                        steps.append((fare_category, distance))
+
+
+                return steps
+
+        def getBusType(self, serviceNo):
+                return self.__bus_services.get(serviceNo)
+
+        def getStepFare(self, fare_type, fare_category, distance):
+                if fare_category == FareCategory.WALK or distance == 0:
+                        return 0
+
+                if fare_category == None:
+                        return None
+
+                distance_fare_table = self.__fare_table.get(fare_category)
+
+                if distance_fare_table == None:
+                        return None
+
+                for distance_range in distance_fare_table.keys():
+                        if distance &gt;= distance_range[0] and (distance_range[1] == None or distance &lt; distance_range[1]):
+                                return distance_fare_table[distance_range].get(fare_type)
+
+                return None
+
+        def calculateCashFare(self, steps):
+                total_fare = 0
+
+                for step in steps:
+                        fare_category = step[0]
+                        distance = step[1]
+                        current_fare = self.getStepFare(FareType.SINGLE_TRIP,fare_category, distance)
+
+                        if current_fare == None:
+                                return None
+
+                        total_fare += current_fare
+
+                return total_fare
+
+        def calculateCardFare(self, fare_type, steps):
+                total_fare = 0
+
+                current_fare_category = None
+                current_distance = 0
+                MRT_LRT_GROUP_CATEGORY = [FareCategory.MRT_LRT, FareCategory.TRUNK_BUS]
+
+                for step in steps:
+                        fare_category = step[0]
+                        distance = step[1]
+
+                        if (fare_category == current_fare_category) or (current_fare_category in MRT_LRT_GROUP_CATEGORY and fare_category in MRT_LRT_GROUP_CATEGORY):
+                                current_distance += distance
+
+                        else:
+                                current_fare = self.getStepFare(fare_type, current_fare_category, current_distance)
+
+                                if current_fare == None:
+                                        return None
+
+                                total_fare += current_fare
+
+                                current_fare_category = fare_category
+                                current_distance = distance
+
+                current_fare = self.getStepFare(fare_type, current_fare_category, current_distance)
+
+                if current_fare == None:
+                        return None
+
+                total_fare += current_fare
+
+                return total_fare
+
+        def calculateFare(self, fare_type, direction_steps):
+                steps = self.parseSteps(direction_steps)
+
+                if fare_type == FareType.SINGLE_TRIP:
+                        total_fare = self.calculateCashFare(steps)
+
+                else:
+                        total_fare = self.calculateCardFare(fare_type, steps)
+
+                if total_fare == None:
+                        return None
+                else:
+                        return total_fare / 100</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="farely_api.control.DummyFindRoutesController"><code class="flex name class">
+<span>class <span class="ident">DummyFindRoutesController</span></span>
+<span>(</span><span>fare_type, origin, destination)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DummyFindRoutesController():
+        def __init__(self, fare_type, origin, destination):
+                fare_type = FareType(fare_type)
+                self.__route_query = RouteQuery(fare_type, origin, destination)
+
+        def getWalkingStep(self, step):
+                departure_stop = Location(step[&#34;start_location&#34;])
+                arrival_stop = Location(step[&#34;end_location&#34;])
+                distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
+                duration = timedelta(seconds=step[&#34;duration&#34;][&#34;value&#34;])
+
+                return DirectionStep(
+                        travel_mode=TravelMode.WALK,
+                        arrival_stop=arrival_stop,
+                        departure_stop=departure_stop,
+                        distance=distance,
+                        duration=duration
+                )
+
+        def getTransitStep(self, step):
+                line = step[&#34;transit_details&#34;][&#34;line&#34;][&#34;name&#34;]
+                departure_stop = Location(step[&#34;transit_details&#34;][&#34;departure_stop&#34;][&#34;location&#34;])
+                arrival_stop = Location(step[&#34;transit_details&#34;][&#34;arrival_stop&#34;][&#34;location&#34;])
+                num_stops = step[&#34;transit_details&#34;][&#34;num_stops&#34;]
+                distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
+                duration = timedelta(seconds=step[&#34;duration&#34;][&#34;value&#34;])
+
+                travel_mode = None
+                mode = step[&#34;transit_details&#34;][&#34;line&#34;][&#34;vehicle&#34;][&#34;type&#34;]
+
+                if (mode == &#34;SUBWAY&#34;):
+                        travel_mode = TravelMode.MRT_LRT
+                elif (mode == &#34;BUS&#34;):
+                        travel_mode = TravelMode.BUS
+
+                return DirectionStep(
+                        line=line,
+                        travel_mode=travel_mode,
+                        arrival_stop=arrival_stop,
+                        departure_stop=departure_stop,
+                        num_stops=num_stops,
+                        distance=distance,
+                        duration=duration
+                )
+
+        def getDirectionSteps(self, steps):
+                direction_steps = []
+
+                for step in steps:
+                        travel_mode = step[&#34;travel_mode&#34;]
+                        if travel_mode == &#34;TRANSIT&#34;:
+                                direction_steps.append(self.getTransitStep(step))
+
+                        elif travel_mode == &#34;WALKING&#34;:
+                                direction_steps.append(self.getWalkingStep(step))
+
+                return direction_steps
+
+        def addRouteDetails(self, route):
+                leg = route[&#39;legs&#39;][0]
+
+                steps = leg[&#39;steps&#39;]
+                direction_steps = self.getDirectionSteps(steps)
+
+                # Add Fare
+                leg[&#39;fare&#39;] = 2
+
+                # Add checkpoint info
+                checkpoints = []
+
+                for direction_step in direction_steps:
+                        departure_stop = direction_step.departure_stop
+
+                        checkpoint = {
+                                &#34;lat&#34;: departure_stop.lat,
+                                &#34;lng&#34;: departure_stop.lng,
+                                &#34;travel_mode&#34;: direction_step.travel_mode,
+                        }
+
+                        checkpoints.append(checkpoint)
+
+                leg[&#39;checkpoints&#39;] = checkpoints
+
+        def findRoutes(self):
+                data = GoogleMapsService.getDirections(
+                        origin=self.__route_query.origin,
+                        destination=self.__route_query.destination
+                )
+
+                routes = data[&#39;routes&#39;]
+
+                for route in routes:
+                        self.addRouteDetails(route)
+
+                return data</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="farely_api.control.DummyFindRoutesController.addRouteDetails"><code class="name flex">
+<span>def <span class="ident">addRouteDetails</span></span>(<span>self, route)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def addRouteDetails(self, route):
+        leg = route[&#39;legs&#39;][0]
+
+        steps = leg[&#39;steps&#39;]
+        direction_steps = self.getDirectionSteps(steps)
+
+        # Add Fare
+        leg[&#39;fare&#39;] = 2
+
+        # Add checkpoint info
+        checkpoints = []
+
+        for direction_step in direction_steps:
+                departure_stop = direction_step.departure_stop
+
+                checkpoint = {
+                        &#34;lat&#34;: departure_stop.lat,
+                        &#34;lng&#34;: departure_stop.lng,
+                        &#34;travel_mode&#34;: direction_step.travel_mode,
+                }
+
+                checkpoints.append(checkpoint)
+
+        leg[&#39;checkpoints&#39;] = checkpoints</code></pre>
+</details>
+</dd>
+<dt id="farely_api.control.DummyFindRoutesController.findRoutes"><code class="name flex">
+<span>def <span class="ident">findRoutes</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def findRoutes(self):
+        data = GoogleMapsService.getDirections(
+                origin=self.__route_query.origin,
+                destination=self.__route_query.destination
+        )
+
+        routes = data[&#39;routes&#39;]
+
+        for route in routes:
+                self.addRouteDetails(route)
+
+        return data</code></pre>
+</details>
+</dd>
+<dt id="farely_api.control.DummyFindRoutesController.getDirectionSteps"><code class="name flex">
+<span>def <span class="ident">getDirectionSteps</span></span>(<span>self, steps)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getDirectionSteps(self, steps):
+        direction_steps = []
+
+        for step in steps:
+                travel_mode = step[&#34;travel_mode&#34;]
+                if travel_mode == &#34;TRANSIT&#34;:
+                        direction_steps.append(self.getTransitStep(step))
+
+                elif travel_mode == &#34;WALKING&#34;:
+                        direction_steps.append(self.getWalkingStep(step))
+
+        return direction_steps</code></pre>
+</details>
+</dd>
+<dt id="farely_api.control.DummyFindRoutesController.getTransitStep"><code class="name flex">
+<span>def <span class="ident">getTransitStep</span></span>(<span>self, step)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getTransitStep(self, step):
+        line = step[&#34;transit_details&#34;][&#34;line&#34;][&#34;name&#34;]
+        departure_stop = Location(step[&#34;transit_details&#34;][&#34;departure_stop&#34;][&#34;location&#34;])
+        arrival_stop = Location(step[&#34;transit_details&#34;][&#34;arrival_stop&#34;][&#34;location&#34;])
+        num_stops = step[&#34;transit_details&#34;][&#34;num_stops&#34;]
+        distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
+        duration = timedelta(seconds=step[&#34;duration&#34;][&#34;value&#34;])
+
+        travel_mode = None
+        mode = step[&#34;transit_details&#34;][&#34;line&#34;][&#34;vehicle&#34;][&#34;type&#34;]
+
+        if (mode == &#34;SUBWAY&#34;):
+                travel_mode = TravelMode.MRT_LRT
+        elif (mode == &#34;BUS&#34;):
+                travel_mode = TravelMode.BUS
+
+        return DirectionStep(
+                line=line,
+                travel_mode=travel_mode,
+                arrival_stop=arrival_stop,
+                departure_stop=departure_stop,
+                num_stops=num_stops,
+                distance=distance,
+                duration=duration
+        )</code></pre>
+</details>
+</dd>
+<dt id="farely_api.control.DummyFindRoutesController.getWalkingStep"><code class="name flex">
+<span>def <span class="ident">getWalkingStep</span></span>(<span>self, step)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getWalkingStep(self, step):
+        departure_stop = Location(step[&#34;start_location&#34;])
+        arrival_stop = Location(step[&#34;end_location&#34;])
+        distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
+        duration = timedelta(seconds=step[&#34;duration&#34;][&#34;value&#34;])
+
+        return DirectionStep(
+                travel_mode=TravelMode.WALK,
+                arrival_stop=arrival_stop,
+                departure_stop=departure_stop,
+                distance=distance,
+                duration=duration
+        )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="farely_api.control.FareController"><code class="flex name class">
+<span>class <span class="ident">FareController</span></span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FareController():
+        # Refer to https://www.smrt.com.sg/Portals/0/Journey%20with%20Us/PTC0339_19%20PTC%20Conclusion%20Fare%20Table%20Brochure%20FA.pdf
+        def __init__(self):
+                self.__fare_table = DataGovService.getFareTable()
+                self.__bus_services = LTADataMallService.getBusServices()
+
+        def parseSteps(self, direction_steps):
+                steps = []
+
+                for step in direction_steps:
+                        distance = step.distance
+
+                        fare_category = None
+
+                        if step.travel_mode == TravelMode.MRT_LRT:
+                                fare_category = FareCategory.MRT_LRT
+
+                        elif step.travel_mode == TravelMode.BUS:
+                                fare_category = self.getBusType(step.line)
+
+                        elif step.travel_mode == TravelMode.WALK:
+                                fare_category = FareCategory.WALK
+
+                        steps.append((fare_category, distance))
+
+
+                return steps
+
+        def getBusType(self, serviceNo):
+                return self.__bus_services.get(serviceNo)
+
+        def getStepFare(self, fare_type, fare_category, distance):
+                if fare_category == FareCategory.WALK or distance == 0:
+                        return 0
+
+                if fare_category == None:
+                        return None
+
+                distance_fare_table = self.__fare_table.get(fare_category)
+
+                if distance_fare_table == None:
+                        return None
+
+                for distance_range in distance_fare_table.keys():
+                        if distance &gt;= distance_range[0] and (distance_range[1] == None or distance &lt; distance_range[1]):
+                                return distance_fare_table[distance_range].get(fare_type)
+
+                return None
+
+        def calculateCashFare(self, steps):
+                total_fare = 0
+
+                for step in steps:
+                        fare_category = step[0]
+                        distance = step[1]
+                        current_fare = self.getStepFare(FareType.SINGLE_TRIP,fare_category, distance)
+
+                        if current_fare == None:
+                                return None
+
+                        total_fare += current_fare
+
+                return total_fare
+
+        def calculateCardFare(self, fare_type, steps):
+                total_fare = 0
+
+                current_fare_category = None
+                current_distance = 0
+                MRT_LRT_GROUP_CATEGORY = [FareCategory.MRT_LRT, FareCategory.TRUNK_BUS]
+
+                for step in steps:
+                        fare_category = step[0]
+                        distance = step[1]
+
+                        if (fare_category == current_fare_category) or (current_fare_category in MRT_LRT_GROUP_CATEGORY and fare_category in MRT_LRT_GROUP_CATEGORY):
+                                current_distance += distance
+
+                        else:
+                                current_fare = self.getStepFare(fare_type, current_fare_category, current_distance)
+
+                                if current_fare == None:
+                                        return None
+
+                                total_fare += current_fare
+
+                                current_fare_category = fare_category
+                                current_distance = distance
+
+                current_fare = self.getStepFare(fare_type, current_fare_category, current_distance)
+
+                if current_fare == None:
+                        return None
+
+                total_fare += current_fare
+
+                return total_fare
+
+        def calculateFare(self, fare_type, direction_steps):
+                steps = self.parseSteps(direction_steps)
+
+                if fare_type == FareType.SINGLE_TRIP:
+                        total_fare = self.calculateCashFare(steps)
+
+                else:
+                        total_fare = self.calculateCardFare(fare_type, steps)
+
+                if total_fare == None:
+                        return None
+                else:
+                        return total_fare / 100</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="farely_api.control.FareController.calculateCardFare"><code class="name flex">
+<span>def <span class="ident">calculateCardFare</span></span>(<span>self, fare_type, steps)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculateCardFare(self, fare_type, steps):
+        total_fare = 0
+
+        current_fare_category = None
+        current_distance = 0
+        MRT_LRT_GROUP_CATEGORY = [FareCategory.MRT_LRT, FareCategory.TRUNK_BUS]
+
+        for step in steps:
+                fare_category = step[0]
+                distance = step[1]
+
+                if (fare_category == current_fare_category) or (current_fare_category in MRT_LRT_GROUP_CATEGORY and fare_category in MRT_LRT_GROUP_CATEGORY):
+                        current_distance += distance
+
+                else:
+                        current_fare = self.getStepFare(fare_type, current_fare_category, current_distance)
+
+                        if current_fare == None:
+                                return None
+
+                        total_fare += current_fare
+
+                        current_fare_category = fare_category
+                        current_distance = distance
+
+        current_fare = self.getStepFare(fare_type, current_fare_category, current_distance)
+
+        if current_fare == None:
+                return None
+
+        total_fare += current_fare
+
+        return total_fare</code></pre>
+</details>
+</dd>
+<dt id="farely_api.control.FareController.calculateCashFare"><code class="name flex">
+<span>def <span class="ident">calculateCashFare</span></span>(<span>self, steps)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculateCashFare(self, steps):
+        total_fare = 0
+
+        for step in steps:
+                fare_category = step[0]
+                distance = step[1]
+                current_fare = self.getStepFare(FareType.SINGLE_TRIP,fare_category, distance)
+
+                if current_fare == None:
+                        return None
+
+                total_fare += current_fare
+
+        return total_fare</code></pre>
+</details>
+</dd>
+<dt id="farely_api.control.FareController.calculateFare"><code class="name flex">
+<span>def <span class="ident">calculateFare</span></span>(<span>self, fare_type, direction_steps)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculateFare(self, fare_type, direction_steps):
+        steps = self.parseSteps(direction_steps)
+
+        if fare_type == FareType.SINGLE_TRIP:
+                total_fare = self.calculateCashFare(steps)
+
+        else:
+                total_fare = self.calculateCardFare(fare_type, steps)
+
+        if total_fare == None:
+                return None
+        else:
+                return total_fare / 100</code></pre>
+</details>
+</dd>
+<dt id="farely_api.control.FareController.getBusType"><code class="name flex">
+<span>def <span class="ident">getBusType</span></span>(<span>self, serviceNo)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getBusType(self, serviceNo):
+        return self.__bus_services.get(serviceNo)</code></pre>
+</details>
+</dd>
+<dt id="farely_api.control.FareController.getStepFare"><code class="name flex">
+<span>def <span class="ident">getStepFare</span></span>(<span>self, fare_type, fare_category, distance)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getStepFare(self, fare_type, fare_category, distance):
+        if fare_category == FareCategory.WALK or distance == 0:
+                return 0
+
+        if fare_category == None:
+                return None
+
+        distance_fare_table = self.__fare_table.get(fare_category)
+
+        if distance_fare_table == None:
+                return None
+
+        for distance_range in distance_fare_table.keys():
+                if distance &gt;= distance_range[0] and (distance_range[1] == None or distance &lt; distance_range[1]):
+                        return distance_fare_table[distance_range].get(fare_type)
+
+        return None</code></pre>
+</details>
+</dd>
+<dt id="farely_api.control.FareController.parseSteps"><code class="name flex">
+<span>def <span class="ident">parseSteps</span></span>(<span>self, direction_steps)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parseSteps(self, direction_steps):
+        steps = []
+
+        for step in direction_steps:
+                distance = step.distance
+
+                fare_category = None
+
+                if step.travel_mode == TravelMode.MRT_LRT:
+                        fare_category = FareCategory.MRT_LRT
+
+                elif step.travel_mode == TravelMode.BUS:
+                        fare_category = self.getBusType(step.line)
+
+                elif step.travel_mode == TravelMode.WALK:
+                        fare_category = FareCategory.WALK
+
+                steps.append((fare_category, distance))
+
+
+        return steps</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="farely_api.control.FindRoutesController"><code class="flex name class">
+<span>class <span class="ident">FindRoutesController</span></span>
+<span>(</span><span>fare_type, origin, destination)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FindRoutesController():
+        def __init__(self, fare_type, origin, destination):
+                fare_type = FareType(fare_type)
+                self.__route_query = RouteQuery(fare_type, origin, destination)
+                self.__fare_controller = FareController()
+
+        def getWalkingStep(self, step):
+                departure_stop = Location(step[&#34;start_location&#34;])
+                arrival_stop = Location(step[&#34;end_location&#34;])
+                distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
+                duration = timedelta(seconds=step[&#34;duration&#34;][&#34;value&#34;])
+
+                return DirectionStep(
+                        travel_mode=TravelMode.WALK,
+                        arrival_stop=arrival_stop,
+                        departure_stop=departure_stop,
+                        distance=distance,
+                        duration=duration
+                )
+
+        def getTransitStep(self, step):
+                line = step[&#34;transit_details&#34;][&#34;line&#34;][&#34;name&#34;]
+                departure_stop = Location(step[&#34;transit_details&#34;][&#34;departure_stop&#34;][&#34;location&#34;])
+                arrival_stop = Location(step[&#34;transit_details&#34;][&#34;arrival_stop&#34;][&#34;location&#34;])
+                num_stops = step[&#34;transit_details&#34;][&#34;num_stops&#34;]
+                distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
+                duration = timedelta(seconds=step[&#34;duration&#34;][&#34;value&#34;])
+
+                travel_mode = None
+                mode = step[&#34;transit_details&#34;][&#34;line&#34;][&#34;vehicle&#34;][&#34;type&#34;]
+
+                if (mode == &#34;SUBWAY&#34;):
+                        travel_mode = TravelMode.MRT_LRT
+                elif (mode == &#34;BUS&#34;):
+                        travel_mode = TravelMode.BUS
+
+                return DirectionStep(
+                        line=line,
+                        travel_mode=travel_mode,
+                        arrival_stop=arrival_stop,
+                        departure_stop=departure_stop,
+                        num_stops=num_stops,
+                        distance=distance,
+                        duration=duration
+                )
+
+        def getDirectionSteps(self, steps):
+                direction_steps = []
+
+                for step in steps:
+                        travel_mode = step[&#34;travel_mode&#34;]
+                        if travel_mode == &#34;TRANSIT&#34;:
+                                direction_steps.append(self.getTransitStep(step))
+
+                        elif travel_mode == &#34;WALKING&#34;:
+                                direction_steps.append(self.getWalkingStep(step))
+
+                return direction_steps
+
+        def addRouteDetails(self, route):
+                legs = route[&#39;legs&#39;]
+
+                for leg in legs:
+                        steps = leg[&#39;steps&#39;]
+                        direction_steps = self.getDirectionSteps(steps)
+
+                        # Add Fare
+                        leg[&#39;fare&#39;] = self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
+
+                        # Add checkpoint info
+                        checkpoints = []
+
+                        for direction_step in direction_steps:
+                                departure_stop = direction_step.departure_stop
+
+                                checkpoint = {
+                                        &#34;lat&#34;: departure_stop.lat,
+                                        &#34;lng&#34;: departure_stop.lng,
+                                        &#34;travel_mode&#34;: direction_step.travel_mode,
+                                }
+
+                                checkpoints.append(checkpoint)
+
+                        leg[&#39;checkpoints&#39;] = checkpoints
+
+        def findRoutes(self):
+                data = GoogleMapsService.getDirections(
+                        origin=self.__route_query.origin,
+                        destination=self.__route_query.destination
+                )
+
+                routes = data[&#39;routes&#39;]
+
+                for route in routes:
+                        self.addRouteDetails(route)
+
+                return data</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="farely_api.control.FindRoutesController.addRouteDetails"><code class="name flex">
+<span>def <span class="ident">addRouteDetails</span></span>(<span>self, route)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def addRouteDetails(self, route):
+        legs = route[&#39;legs&#39;]
+
+        for leg in legs:
+                steps = leg[&#39;steps&#39;]
+                direction_steps = self.getDirectionSteps(steps)
+
+                # Add Fare
+                leg[&#39;fare&#39;] = self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
+
+                # Add checkpoint info
+                checkpoints = []
+
+                for direction_step in direction_steps:
+                        departure_stop = direction_step.departure_stop
+
+                        checkpoint = {
+                                &#34;lat&#34;: departure_stop.lat,
+                                &#34;lng&#34;: departure_stop.lng,
+                                &#34;travel_mode&#34;: direction_step.travel_mode,
+                        }
+
+                        checkpoints.append(checkpoint)
+
+                leg[&#39;checkpoints&#39;] = checkpoints</code></pre>
+</details>
+</dd>
+<dt id="farely_api.control.FindRoutesController.findRoutes"><code class="name flex">
+<span>def <span class="ident">findRoutes</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def findRoutes(self):
+        data = GoogleMapsService.getDirections(
+                origin=self.__route_query.origin,
+                destination=self.__route_query.destination
+        )
+
+        routes = data[&#39;routes&#39;]
+
+        for route in routes:
+                self.addRouteDetails(route)
+
+        return data</code></pre>
+</details>
+</dd>
+<dt id="farely_api.control.FindRoutesController.getDirectionSteps"><code class="name flex">
+<span>def <span class="ident">getDirectionSteps</span></span>(<span>self, steps)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getDirectionSteps(self, steps):
+        direction_steps = []
+
+        for step in steps:
+                travel_mode = step[&#34;travel_mode&#34;]
+                if travel_mode == &#34;TRANSIT&#34;:
+                        direction_steps.append(self.getTransitStep(step))
+
+                elif travel_mode == &#34;WALKING&#34;:
+                        direction_steps.append(self.getWalkingStep(step))
+
+        return direction_steps</code></pre>
+</details>
+</dd>
+<dt id="farely_api.control.FindRoutesController.getTransitStep"><code class="name flex">
+<span>def <span class="ident">getTransitStep</span></span>(<span>self, step)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getTransitStep(self, step):
+        line = step[&#34;transit_details&#34;][&#34;line&#34;][&#34;name&#34;]
+        departure_stop = Location(step[&#34;transit_details&#34;][&#34;departure_stop&#34;][&#34;location&#34;])
+        arrival_stop = Location(step[&#34;transit_details&#34;][&#34;arrival_stop&#34;][&#34;location&#34;])
+        num_stops = step[&#34;transit_details&#34;][&#34;num_stops&#34;]
+        distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
+        duration = timedelta(seconds=step[&#34;duration&#34;][&#34;value&#34;])
+
+        travel_mode = None
+        mode = step[&#34;transit_details&#34;][&#34;line&#34;][&#34;vehicle&#34;][&#34;type&#34;]
+
+        if (mode == &#34;SUBWAY&#34;):
+                travel_mode = TravelMode.MRT_LRT
+        elif (mode == &#34;BUS&#34;):
+                travel_mode = TravelMode.BUS
+
+        return DirectionStep(
+                line=line,
+                travel_mode=travel_mode,
+                arrival_stop=arrival_stop,
+                departure_stop=departure_stop,
+                num_stops=num_stops,
+                distance=distance,
+                duration=duration
+        )</code></pre>
+</details>
+</dd>
+<dt id="farely_api.control.FindRoutesController.getWalkingStep"><code class="name flex">
+<span>def <span class="ident">getWalkingStep</span></span>(<span>self, step)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getWalkingStep(self, step):
+        departure_stop = Location(step[&#34;start_location&#34;])
+        arrival_stop = Location(step[&#34;end_location&#34;])
+        distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
+        duration = timedelta(seconds=step[&#34;duration&#34;][&#34;value&#34;])
+
+        return DirectionStep(
+                travel_mode=TravelMode.WALK,
+                arrival_stop=arrival_stop,
+                departure_stop=departure_stop,
+                distance=distance,
+                duration=duration
+        )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="farely_api" href="index.html">farely_api</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="farely_api.control.DummyFindRoutesController" href="#farely_api.control.DummyFindRoutesController">DummyFindRoutesController</a></code></h4>
+<ul class="">
+<li><code><a title="farely_api.control.DummyFindRoutesController.addRouteDetails" href="#farely_api.control.DummyFindRoutesController.addRouteDetails">addRouteDetails</a></code></li>
+<li><code><a title="farely_api.control.DummyFindRoutesController.findRoutes" href="#farely_api.control.DummyFindRoutesController.findRoutes">findRoutes</a></code></li>
+<li><code><a title="farely_api.control.DummyFindRoutesController.getDirectionSteps" href="#farely_api.control.DummyFindRoutesController.getDirectionSteps">getDirectionSteps</a></code></li>
+<li><code><a title="farely_api.control.DummyFindRoutesController.getTransitStep" href="#farely_api.control.DummyFindRoutesController.getTransitStep">getTransitStep</a></code></li>
+<li><code><a title="farely_api.control.DummyFindRoutesController.getWalkingStep" href="#farely_api.control.DummyFindRoutesController.getWalkingStep">getWalkingStep</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="farely_api.control.FareController" href="#farely_api.control.FareController">FareController</a></code></h4>
+<ul class="two-column">
+<li><code><a title="farely_api.control.FareController.calculateCardFare" href="#farely_api.control.FareController.calculateCardFare">calculateCardFare</a></code></li>
+<li><code><a title="farely_api.control.FareController.calculateCashFare" href="#farely_api.control.FareController.calculateCashFare">calculateCashFare</a></code></li>
+<li><code><a title="farely_api.control.FareController.calculateFare" href="#farely_api.control.FareController.calculateFare">calculateFare</a></code></li>
+<li><code><a title="farely_api.control.FareController.getBusType" href="#farely_api.control.FareController.getBusType">getBusType</a></code></li>
+<li><code><a title="farely_api.control.FareController.getStepFare" href="#farely_api.control.FareController.getStepFare">getStepFare</a></code></li>
+<li><code><a title="farely_api.control.FareController.parseSteps" href="#farely_api.control.FareController.parseSteps">parseSteps</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="farely_api.control.FindRoutesController" href="#farely_api.control.FindRoutesController">FindRoutesController</a></code></h4>
+<ul class="">
+<li><code><a title="farely_api.control.FindRoutesController.addRouteDetails" href="#farely_api.control.FindRoutesController.addRouteDetails">addRouteDetails</a></code></li>
+<li><code><a title="farely_api.control.FindRoutesController.findRoutes" href="#farely_api.control.FindRoutesController.findRoutes">findRoutes</a></code></li>
+<li><code><a title="farely_api.control.FindRoutesController.getDirectionSteps" href="#farely_api.control.FindRoutesController.getDirectionSteps">getDirectionSteps</a></code></li>
+<li><code><a title="farely_api.control.FindRoutesController.getTransitStep" href="#farely_api.control.FindRoutesController.getTransitStep">getTransitStep</a></code></li>
+<li><code><a title="farely_api.control.FindRoutesController.getWalkingStep" href="#farely_api.control.FindRoutesController.getWalkingStep">getWalkingStep</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.5</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

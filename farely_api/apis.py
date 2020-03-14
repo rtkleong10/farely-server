@@ -8,7 +8,7 @@ class FindRoutesApi(APIView):
 	Accepts a route query and returns a list of the best routes
 
 	## Sample Query
-	`/api/find-routes/?fare_type=1&origin=1.3495031,103.7103219&destination=1.3143176,103.6835991`
+	`/api/find-routes/?fare_type=1&origin=boon+lay&destination=changi-airport`
 
 	## Parameters
 	- origin: Starting point of route
@@ -56,7 +56,7 @@ class DummyFindRoutesApi(APIView):
 	Accepts a route query and returns a list of the best routes
 
 	## Sample Query
-	`/api/dummy-find-routes/?fare_type=1&origin=1.3495031,103.7103219&destination=1.3143176,103.6835991`
+	`/api/dummy-find-routes/?fare_type=1&origin=boon+lay&destination=changi-airport`
 
 	## Parameters
 	- origin: Starting point of route
