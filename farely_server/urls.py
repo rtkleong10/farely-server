@@ -27,8 +27,6 @@ urlpatterns = [
 	path('favicon.ico/', favicon_view),
 
 	# Docs
-	re_path(r'^docs/farely_api/$', serve, {'document_root': os.path.join(BASE_DIR, 'html/farely_api'), 'path': 'index.html'}, name="docs-farely_api-index"),
-    re_path(r'^docs/farely_api/(.+)$', serve, {'document_root': os.path.join(BASE_DIR, 'html/farely_api')}, name="docs-farely_api"),
-	re_path(r'^docs/farely_server/$', serve, {'document_root': os.path.join(BASE_DIR, 'html/farely_server'), 'path': 'index.html'}, name="docs-farely_server-index"),
-    re_path(r'^docs/farely_server/(.+)$', serve, {'document_root': os.path.join(BASE_DIR, 'html/farely_server')}, name="docs-farely_server"),
+	re_path(r'^docs/$', serve, {'document_root': os.path.join(BASE_DIR, 'html/farely_api'), 'path': 'index.html'}, name="docs-index"),
+    re_path(r'^docs/(.+)$', serve, {'document_root': os.path.join(BASE_DIR, 'html/farely_api')}, name="docs"),
 ]
