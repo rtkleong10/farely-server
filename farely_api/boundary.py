@@ -1,23 +1,21 @@
-from datetime import datetime
+"""
+This module contains the boundary classes for the Farely API.
+"""
+
 import re
 import requests
-
 from .enum import FareType, FareCategory
 from farely_server.settings import GOOGLE_MAPS_API_KEY, LTA_API_KEY
 
-
 class GoogleMapsService():
 	"""
-	Calculates directions between locations using Google Map Direction API
-
+	This class is used to obtain the routes for a route query using the Google Map Direction API
 	"""
 	DIRECTIONS_API_URL = 'https://maps.googleapis.com/maps/api/directions/json'
 
 	@staticmethod
 	def getDirections(origin, destination):
-		# TODO: Add departure time
 		"""
-
 		:param origin: Starting location of route in textual format
 		:param destination: End location of route in textual format
 		:return: response from Google Maps Direction API in json format

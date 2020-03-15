@@ -1,3 +1,7 @@
+"""
+This module contains the unit testing for the control classes.
+"""
+
 from django.test import TestCase
 from farely_api.enum import FareType, TravelMode
 from farely_api.entity import DirectionStep

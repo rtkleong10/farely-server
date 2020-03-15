@@ -1,28 +1,28 @@
+"""
+This module contains the serializers for the Farely API. They are used to format the inputs and outputs of the API.
+"""
+
 from rest_framework import serializers
-from .enum import FareType, TravelMode
-from .entity import DirectionStep
+from .entity import RouteQuery
+from .enum import FareType
 
 class RouteQuerySerializer(serializers.Serializer):
+	"""
+	This class serializes route queries into `RouteQuery` objects.
+	"""
 	fare_type = serializers.ChoiceField(choices=FareType.choices())
 	origin = serializers.CharField()
 	destination = serializers.CharField()
 
-class CheckPointSerializer(serializers.Serializer):
-	lat = serializers.FloatField()
-	lng = serializers.FloatField()
-	travel_mode = serializers.ChoiceField(choices=TravelMode.choices())
-
-class DirectionStepSerializer(serializers.Serializer):
-	distance = serializers.FloatField()
-	travel_mode = serializers.ChoiceField(choices=TravelMode.choices())
-	line = serializers.CharField(required=False)
-
 	def to_internal_value(self, data):
-		return DirectionStep(**data)
+		"""
+		This method converts a route query into a `RouteQuery` object
 
-class FareQuerySerializer(serializers.Serializer):
-	fare_type = serializers.ChoiceField(choices=FareType.choices())
-	direction_steps = DirectionStepSerializer(many=True)
+		## Parameters
+		- `data`: A dictionary representing the route query
 
-class FareResponseSerializer(serializers.Serializer):
-	fare = serializers.FloatField()
+		## Returns
+		A `RouteQuery` object representing the route query
+		"""
+		data = super().to_internal_value(data)
+		return RouteQuery(**data)

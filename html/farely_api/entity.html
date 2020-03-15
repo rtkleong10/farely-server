@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.7.5" />
 <title>farely_api.entity API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="This module contains the entity classes for the Farely API." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,14 +20,38 @@
 <h1 class="title">Module <code>farely_api.entity</code></h1>
 </header>
 <section id="section-intro">
+<p>This module contains the entity classes for the Farely API.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from datetime import timedelta
+<pre><code class="python">&#34;&#34;&#34;
+This module contains the entity classes for the Farely API.
+&#34;&#34;&#34;
+
 from .enum import FareType, TravelMode
 
 class RouteQuery():
+        &#34;&#34;&#34;
+        This class creates route query objects. A route query is the query sent to the system when a user requests for best routes from an origin to a destination location.
+
+        ## Example
+        ```
+        from farely_api.entity import RouteQuery
+        from farely_api.enum import FareType
+
+        route_query = RouteQuery(
+                fare_type=FareType.ADULT,
+                origin=&#34;NTU&#34;,
+                destination=&#34;Changi Airport&#34;
+        )
+        print(query)
+        ```
+
+        ### Output
+        &gt; NTU to Changi Airport
+        &#34;&#34;&#34;
+
         def __init__(self, fare_type=FareType.ADULT, origin=&#34;&#34;, destination=&#34;&#34;):
                 self.__fare_type = fare_type
                 self.__origin = origin
@@ -38,14 +62,23 @@ class RouteQuery():
 
         @property
         def fare_type(self):
+                &#34;&#34;&#34;
+                The fare type of the route query. It contains a value of the `FareType` enum.
+                &#34;&#34;&#34;
                 return self.__fare_type
 
         @property
         def origin(self):
+                &#34;&#34;&#34;
+                The departure location of a route query. The departure location is the location from which the user wants the route to start. It contains a string representing the starting point (e.g. `&#34;NTU&#34;`).
+                &#34;&#34;&#34;
                 return self.__origin
 
         @property
         def destination(self):
+                &#34;&#34;&#34;
+                The arrival location of the route query. The arrival location is the location to which the user wants the route to end at. It contains a string representing the end point (e.g. `&#34;NTU&#34;`).
+                &#34;&#34;&#34;
                 return self.__destination
 
         @fare_type.setter
@@ -62,57 +95,71 @@ class RouteQuery():
 
 class DirectionStep():
         &#34;&#34;&#34;
-                Example:
-                e = DirectionStep(&#34;East-West Line&#34;, TravelMode.MRT ,&#34;Orchard&#34;, &#34;Boon Lay&#34;, 1, 2.45, timedelta(hours=1))
-                print(e)
-                d.arrival_stop = &#34;Somerset&#34;
-                d.departure_stop = &#34;JurongEast&#34;
-                print(d)
+        This class creates direction step objects. A direction step refers to a step in the directions of a route. A step consists of either taking a bus, taking a train or walking from one location to another.
 
-                Output:
-                Boon Lay to Orchard
-                JurongEast to Somerset
+        ## Example
+        ```
+        from farely_api.entity import DirectionStep, Location
+        from farely_api.enum import TravelMode
+
+        direction_step = DirectionStep(
+                line=&#34;East-West Line&#34;,
+                travel_mode=TravelMode.MRT_LRT,
+                departure_stop=Location(lat=1.0, lng=100.0),
+                arrival_stop=Location(lat=1.0, lng=101.0),
+                distance=2.45,
+        )
+        print(direction_step)
+        ```
+
+        ### Output
+        &gt; (1.0, 100.0) to (1.0, 101.0)
         &#34;&#34;&#34;
 
-        def __init__(self, line=&#34;&#34;, travel_mode=TravelMode.BUS, arrival_stop=None, departure_stop=None, num_stops=0, distance=0, duration=timedelta(hours=1)):
+        def __init__(self, line=&#34;&#34;, travel_mode=TravelMode.BUS, departure_stop=None, arrival_stop=None, distance=0):
                 self.__travel_mode = travel_mode
                 self.__line = line
                 self.__arrival_stop = arrival_stop
                 self.__departure_stop = departure_stop
-                self.__num_stops = num_stops
                 self.__distance = distance
-                self.__duration = duration
 
         def __repr__(self):
-                return &#39;{} ({}) {} to {}&#39;.format(self.__travel_mode, self.__line, self.__departure_stop, self.__arrival_stop)
+                return &#39;{} to {}&#39;.format(self.__departure_stop, self.__arrival_stop)
 
         @property
         def travel_mode(self):
+                &#34;&#34;&#34;
+                The travel mode of the route query. It contains a value of the `TravelMode` enum.
+                &#34;&#34;&#34;
                 return self.__travel_mode
 
         @property
         def line(self):
+                &#34;&#34;&#34;
+                The line of the direction step. The line refers to the name of the bus, MRT or LRT taken. It contains a string.
+                &#34;&#34;&#34;
                 return self.__line
 
         @property
-        def arrival_stop(self):
-                return self.__arrival_stop
-
-        @property
         def departure_stop(self):
+                &#34;&#34;&#34;
+                The location of the departure stop of the direction step. It contains a `Location` object.
+                &#34;&#34;&#34;
                 return self.__departure_stop
 
         @property
-        def num_stops(self):
-                return self.__num_stops
+        def arrival_stop(self):
+                &#34;&#34;&#34;
+                The location of the arrival stop of the direction step. It contains a `Location` object.
+                &#34;&#34;&#34;
+                return self.__arrival_stop
 
         @property
         def distance(self):
+                &#34;&#34;&#34;
+                The distance of the direction step in kilometres. It contains a number.
+                &#34;&#34;&#34;
                 return self.__distance
-
-        @property
-        def duration(self):
-                return self.__duration
 
         @travel_mode.setter
         def travel_mode(self, travel_mode):
@@ -122,44 +169,56 @@ class DirectionStep():
         def line(self, line):
                 self.__line = line
 
-        @arrival_stop.setter
-        def arrival_stop(self, arrival_stop):
-                self.__arrival_stop = arrival_stop
-
         @departure_stop.setter
         def departure_stop(self, departure_stop):
                 self.__departure_stop = departure_stop
 
-        @num_stops.setter
-        def num_stops(self, num_stops):
-                self.__num_stops = num_stops
+        @arrival_stop.setter
+        def arrival_stop(self, arrival_stop):
+                self.__arrival_stop = arrival_stop
 
         @distance.setter
         def distance(self, distance):
                 self.__distance = distance
 
-        @duration.setter
-        def duration(self , duration):
-                self.__duration = duration
-
 class Location():
+        &#34;&#34;&#34;
+        This class creates location objects. A location refers the latitude and longitude of a location.
+
+        ## Example
+        ```
+        from farely_api.entity import Location
+
+        location = Location(
+                lat=1.0,
+                lng=100.0
+        )
+        print(location)
+        ```
+
+        ### Output
+        &gt; (1.0, 100.0)
+        &#34;&#34;&#34;
+
         def __init__(self, lat=0, lng=0):
                 self.__lat = lat
                 self.__lng = lng
-
-        def __init__(self, dict):
-                self.__lat = dict[&#34;lat&#34;]
-                self.__lng = dict[&#34;lng&#34;]
 
         def __repr__(self):
                 return &#39;({}, {})&#39;.format(self.__lat, self.__lng)
 
         @property
         def lat(self):
+                &#34;&#34;&#34;
+                The latitude of the location. It contains a number.
+                &#34;&#34;&#34;
                 return self.__lat
 
         @property
         def lng(self):
+                &#34;&#34;&#34;
+                The longitude of the location. It contains a number.
+                &#34;&#34;&#34;
                 return self.__lng
 
         @lat.setter
@@ -182,75 +241,98 @@ class Location():
 <dl>
 <dt id="farely_api.entity.DirectionStep"><code class="flex name class">
 <span>class <span class="ident">DirectionStep</span></span>
-<span>(</span><span>line='', travel_mode=TravelMode.BUS, arrival_stop=None, departure_stop=None, num_stops=0, distance=0, duration=datetime.timedelta(seconds=3600))</span>
+<span>(</span><span>line='', travel_mode=TravelMode.BUS, departure_stop=None, arrival_stop=None, distance=0)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Example:
-e = DirectionStep("East-West Line", TravelMode.MRT ,"Orchard", "Boon Lay", 1, 2.45, timedelta(hours=1))
-print(e)
-d.arrival_stop = "Somerset"
-d.departure_stop = "JurongEast"
-print(d)</p>
-<p>Output:
-Boon Lay to Orchard
-JurongEast to Somerset</p></section>
+<section class="desc"><p>This class creates direction step objects. A direction step refers to a step in the directions of a route. A step consists of either taking a bus, taking a train or walking from one location to another.</p>
+<h2 id="example">Example</h2>
+<pre><code>from farely_api.entity import DirectionStep, Location
+from farely_api.enum import TravelMode
+
+direction_step = DirectionStep(
+        line=&quot;East-West Line&quot;,
+        travel_mode=TravelMode.MRT_LRT,
+        departure_stop=Location(lat=1.0, lng=100.0),
+        arrival_stop=Location(lat=1.0, lng=101.0),
+        distance=2.45,
+)
+print(direction_step)
+</code></pre>
+<h3 id="output">Output</h3>
+<blockquote>
+<p>(1.0, 100.0) to (1.0, 101.0)</p>
+</blockquote></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DirectionStep():
         &#34;&#34;&#34;
-                Example:
-                e = DirectionStep(&#34;East-West Line&#34;, TravelMode.MRT ,&#34;Orchard&#34;, &#34;Boon Lay&#34;, 1, 2.45, timedelta(hours=1))
-                print(e)
-                d.arrival_stop = &#34;Somerset&#34;
-                d.departure_stop = &#34;JurongEast&#34;
-                print(d)
+        This class creates direction step objects. A direction step refers to a step in the directions of a route. A step consists of either taking a bus, taking a train or walking from one location to another.
 
-                Output:
-                Boon Lay to Orchard
-                JurongEast to Somerset
+        ## Example
+        ```
+        from farely_api.entity import DirectionStep, Location
+        from farely_api.enum import TravelMode
+
+        direction_step = DirectionStep(
+                line=&#34;East-West Line&#34;,
+                travel_mode=TravelMode.MRT_LRT,
+                departure_stop=Location(lat=1.0, lng=100.0),
+                arrival_stop=Location(lat=1.0, lng=101.0),
+                distance=2.45,
+        )
+        print(direction_step)
+        ```
+
+        ### Output
+        &gt; (1.0, 100.0) to (1.0, 101.0)
         &#34;&#34;&#34;
 
-        def __init__(self, line=&#34;&#34;, travel_mode=TravelMode.BUS, arrival_stop=None, departure_stop=None, num_stops=0, distance=0, duration=timedelta(hours=1)):
+        def __init__(self, line=&#34;&#34;, travel_mode=TravelMode.BUS, departure_stop=None, arrival_stop=None, distance=0):
                 self.__travel_mode = travel_mode
                 self.__line = line
                 self.__arrival_stop = arrival_stop
                 self.__departure_stop = departure_stop
-                self.__num_stops = num_stops
                 self.__distance = distance
-                self.__duration = duration
 
         def __repr__(self):
-                return &#39;{} ({}) {} to {}&#39;.format(self.__travel_mode, self.__line, self.__departure_stop, self.__arrival_stop)
+                return &#39;{} to {}&#39;.format(self.__departure_stop, self.__arrival_stop)
 
         @property
         def travel_mode(self):
+                &#34;&#34;&#34;
+                The travel mode of the route query. It contains a value of the `TravelMode` enum.
+                &#34;&#34;&#34;
                 return self.__travel_mode
 
         @property
         def line(self):
+                &#34;&#34;&#34;
+                The line of the direction step. The line refers to the name of the bus, MRT or LRT taken. It contains a string.
+                &#34;&#34;&#34;
                 return self.__line
 
         @property
-        def arrival_stop(self):
-                return self.__arrival_stop
-
-        @property
         def departure_stop(self):
+                &#34;&#34;&#34;
+                The location of the departure stop of the direction step. It contains a `Location` object.
+                &#34;&#34;&#34;
                 return self.__departure_stop
 
         @property
-        def num_stops(self):
-                return self.__num_stops
+        def arrival_stop(self):
+                &#34;&#34;&#34;
+                The location of the arrival stop of the direction step. It contains a `Location` object.
+                &#34;&#34;&#34;
+                return self.__arrival_stop
 
         @property
         def distance(self):
+                &#34;&#34;&#34;
+                The distance of the direction step in kilometres. It contains a number.
+                &#34;&#34;&#34;
                 return self.__distance
-
-        @property
-        def duration(self):
-                return self.__duration
 
         @travel_mode.setter
         def travel_mode(self, travel_mode):
@@ -260,109 +342,92 @@ JurongEast to Somerset</p></section>
         def line(self, line):
                 self.__line = line
 
-        @arrival_stop.setter
-        def arrival_stop(self, arrival_stop):
-                self.__arrival_stop = arrival_stop
-
         @departure_stop.setter
         def departure_stop(self, departure_stop):
                 self.__departure_stop = departure_stop
 
-        @num_stops.setter
-        def num_stops(self, num_stops):
-                self.__num_stops = num_stops
+        @arrival_stop.setter
+        def arrival_stop(self, arrival_stop):
+                self.__arrival_stop = arrival_stop
 
         @distance.setter
         def distance(self, distance):
-                self.__distance = distance
-
-        @duration.setter
-        def duration(self , duration):
-                self.__duration = duration</code></pre>
+                self.__distance = distance</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>
 <dt id="farely_api.entity.DirectionStep.arrival_stop"><code class="name">var <span class="ident">arrival_stop</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The location of the arrival stop of the direction step. It contains a <a title="farely_api.entity.Location" href="#farely_api.entity.Location"><code>Location</code></a> object.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def arrival_stop(self):
+        &#34;&#34;&#34;
+        The location of the arrival stop of the direction step. It contains a `Location` object.
+        &#34;&#34;&#34;
         return self.__arrival_stop</code></pre>
 </details>
 </dd>
 <dt id="farely_api.entity.DirectionStep.departure_stop"><code class="name">var <span class="ident">departure_stop</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The location of the departure stop of the direction step. It contains a <a title="farely_api.entity.Location" href="#farely_api.entity.Location"><code>Location</code></a> object.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def departure_stop(self):
+        &#34;&#34;&#34;
+        The location of the departure stop of the direction step. It contains a `Location` object.
+        &#34;&#34;&#34;
         return self.__departure_stop</code></pre>
 </details>
 </dd>
 <dt id="farely_api.entity.DirectionStep.distance"><code class="name">var <span class="ident">distance</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The distance of the direction step in kilometres. It contains a number.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def distance(self):
+        &#34;&#34;&#34;
+        The distance of the direction step in kilometres. It contains a number.
+        &#34;&#34;&#34;
         return self.__distance</code></pre>
-</details>
-</dd>
-<dt id="farely_api.entity.DirectionStep.duration"><code class="name">var <span class="ident">duration</span></code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def duration(self):
-        return self.__duration</code></pre>
 </details>
 </dd>
 <dt id="farely_api.entity.DirectionStep.line"><code class="name">var <span class="ident">line</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The line of the direction step. The line refers to the name of the bus, MRT or LRT taken. It contains a string.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def line(self):
+        &#34;&#34;&#34;
+        The line of the direction step. The line refers to the name of the bus, MRT or LRT taken. It contains a string.
+        &#34;&#34;&#34;
         return self.__line</code></pre>
-</details>
-</dd>
-<dt id="farely_api.entity.DirectionStep.num_stops"><code class="name">var <span class="ident">num_stops</span></code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def num_stops(self):
-        return self.__num_stops</code></pre>
 </details>
 </dd>
 <dt id="farely_api.entity.DirectionStep.travel_mode"><code class="name">var <span class="ident">travel_mode</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The travel mode of the route query. It contains a value of the <code>TravelMode</code> enum.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def travel_mode(self):
+        &#34;&#34;&#34;
+        The travel mode of the route query. It contains a value of the `TravelMode` enum.
+        &#34;&#34;&#34;
         return self.__travel_mode</code></pre>
 </details>
 </dd>
@@ -370,32 +435,65 @@ def travel_mode(self):
 </dd>
 <dt id="farely_api.entity.Location"><code class="flex name class">
 <span>class <span class="ident">Location</span></span>
-<span>(</span><span>dict)</span>
+<span>(</span><span>lat=0, lng=0)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>This class creates location objects. A location refers the latitude and longitude of a location.</p>
+<h2 id="example">Example</h2>
+<pre><code>from farely_api.entity import Location
+
+location = Location(
+        lat=1.0,
+        lng=100.0
+)
+print(location)
+</code></pre>
+<h3 id="output">Output</h3>
+<blockquote>
+<p>(1.0, 100.0)</p>
+</blockquote></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Location():
+        &#34;&#34;&#34;
+        This class creates location objects. A location refers the latitude and longitude of a location.
+
+        ## Example
+        ```
+        from farely_api.entity import Location
+
+        location = Location(
+                lat=1.0,
+                lng=100.0
+        )
+        print(location)
+        ```
+
+        ### Output
+        &gt; (1.0, 100.0)
+        &#34;&#34;&#34;
+
         def __init__(self, lat=0, lng=0):
                 self.__lat = lat
                 self.__lng = lng
-
-        def __init__(self, dict):
-                self.__lat = dict[&#34;lat&#34;]
-                self.__lng = dict[&#34;lng&#34;]
 
         def __repr__(self):
                 return &#39;({}, {})&#39;.format(self.__lat, self.__lng)
 
         @property
         def lat(self):
+                &#34;&#34;&#34;
+                The latitude of the location. It contains a number.
+                &#34;&#34;&#34;
                 return self.__lat
 
         @property
         def lng(self):
+                &#34;&#34;&#34;
+                The longitude of the location. It contains a number.
+                &#34;&#34;&#34;
                 return self.__lng
 
         @lat.setter
@@ -410,25 +508,31 @@ def travel_mode(self):
 <dl>
 <dt id="farely_api.entity.Location.lat"><code class="name">var <span class="ident">lat</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The latitude of the location. It contains a number.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def lat(self):
+        &#34;&#34;&#34;
+        The latitude of the location. It contains a number.
+        &#34;&#34;&#34;
         return self.__lat</code></pre>
 </details>
 </dd>
 <dt id="farely_api.entity.Location.lng"><code class="name">var <span class="ident">lng</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The longitude of the location. It contains a number.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def lng(self):
+        &#34;&#34;&#34;
+        The longitude of the location. It contains a number.
+        &#34;&#34;&#34;
         return self.__lng</code></pre>
 </details>
 </dd>
@@ -439,12 +543,47 @@ def lng(self):
 <span>(</span><span>fare_type=FareType.ADULT, origin='', destination='')</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>This class creates route query objects. A route query is the query sent to the system when a user requests for best routes from an origin to a destination location.</p>
+<h2 id="example">Example</h2>
+<pre><code>from farely_api.entity import RouteQuery
+from farely_api.enum import FareType
+
+route_query = RouteQuery(
+        fare_type=FareType.ADULT,
+        origin=&quot;NTU&quot;,
+        destination=&quot;Changi Airport&quot;
+)
+print(query)
+</code></pre>
+<h3 id="output">Output</h3>
+<blockquote>
+<p>NTU to Changi Airport</p>
+</blockquote></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class RouteQuery():
+        &#34;&#34;&#34;
+        This class creates route query objects. A route query is the query sent to the system when a user requests for best routes from an origin to a destination location.
+
+        ## Example
+        ```
+        from farely_api.entity import RouteQuery
+        from farely_api.enum import FareType
+
+        route_query = RouteQuery(
+                fare_type=FareType.ADULT,
+                origin=&#34;NTU&#34;,
+                destination=&#34;Changi Airport&#34;
+        )
+        print(query)
+        ```
+
+        ### Output
+        &gt; NTU to Changi Airport
+        &#34;&#34;&#34;
+
         def __init__(self, fare_type=FareType.ADULT, origin=&#34;&#34;, destination=&#34;&#34;):
                 self.__fare_type = fare_type
                 self.__origin = origin
@@ -455,14 +594,23 @@ def lng(self):
 
         @property
         def fare_type(self):
+                &#34;&#34;&#34;
+                The fare type of the route query. It contains a value of the `FareType` enum.
+                &#34;&#34;&#34;
                 return self.__fare_type
 
         @property
         def origin(self):
+                &#34;&#34;&#34;
+                The departure location of a route query. The departure location is the location from which the user wants the route to start. It contains a string representing the starting point (e.g. `&#34;NTU&#34;`).
+                &#34;&#34;&#34;
                 return self.__origin
 
         @property
         def destination(self):
+                &#34;&#34;&#34;
+                The arrival location of the route query. The arrival location is the location to which the user wants the route to end at. It contains a string representing the end point (e.g. `&#34;NTU&#34;`).
+                &#34;&#34;&#34;
                 return self.__destination
 
         @fare_type.setter
@@ -481,37 +629,46 @@ def lng(self):
 <dl>
 <dt id="farely_api.entity.RouteQuery.destination"><code class="name">var <span class="ident">destination</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The arrival location of the route query. The arrival location is the location to which the user wants the route to end at. It contains a string representing the end point (e.g. <code>"NTU"</code>).</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def destination(self):
+        &#34;&#34;&#34;
+        The arrival location of the route query. The arrival location is the location to which the user wants the route to end at. It contains a string representing the end point (e.g. `&#34;NTU&#34;`).
+        &#34;&#34;&#34;
         return self.__destination</code></pre>
 </details>
 </dd>
 <dt id="farely_api.entity.RouteQuery.fare_type"><code class="name">var <span class="ident">fare_type</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The fare type of the route query. It contains a value of the <code>FareType</code> enum.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def fare_type(self):
+        &#34;&#34;&#34;
+        The fare type of the route query. It contains a value of the `FareType` enum.
+        &#34;&#34;&#34;
         return self.__fare_type</code></pre>
 </details>
 </dd>
 <dt id="farely_api.entity.RouteQuery.origin"><code class="name">var <span class="ident">origin</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The departure location of a route query. The departure location is the location from which the user wants the route to start. It contains a string representing the starting point (e.g. <code>"NTU"</code>).</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def origin(self):
+        &#34;&#34;&#34;
+        The departure location of a route query. The departure location is the location from which the user wants the route to start. It contains a string representing the starting point (e.g. `&#34;NTU&#34;`).
+        &#34;&#34;&#34;
         return self.__origin</code></pre>
 </details>
 </dd>
@@ -535,13 +692,11 @@ def origin(self):
 <ul>
 <li>
 <h4><code><a title="farely_api.entity.DirectionStep" href="#farely_api.entity.DirectionStep">DirectionStep</a></code></h4>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="farely_api.entity.DirectionStep.arrival_stop" href="#farely_api.entity.DirectionStep.arrival_stop">arrival_stop</a></code></li>
 <li><code><a title="farely_api.entity.DirectionStep.departure_stop" href="#farely_api.entity.DirectionStep.departure_stop">departure_stop</a></code></li>
 <li><code><a title="farely_api.entity.DirectionStep.distance" href="#farely_api.entity.DirectionStep.distance">distance</a></code></li>
-<li><code><a title="farely_api.entity.DirectionStep.duration" href="#farely_api.entity.DirectionStep.duration">duration</a></code></li>
 <li><code><a title="farely_api.entity.DirectionStep.line" href="#farely_api.entity.DirectionStep.line">line</a></code></li>
-<li><code><a title="farely_api.entity.DirectionStep.num_stops" href="#farely_api.entity.DirectionStep.num_stops">num_stops</a></code></li>
 <li><code><a title="farely_api.entity.DirectionStep.travel_mode" href="#farely_api.entity.DirectionStep.travel_mode">travel_mode</a></code></li>
 </ul>
 </li>
