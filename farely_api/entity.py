@@ -78,15 +78,15 @@ class DirectionStep():
 	direction_step = DirectionStep(
 		line="East-West Line",
 		travel_mode=TravelMode.MRT_LRT,
-		departure_stop=Location(lat=1.0, lng=100.0),
-		arrival_stop=Location(lat=1.0, lng=101.0),
+		departure_stop=Location(lat=1.0, lng=100.0, name="Start"),
+		arrival_stop=Location(lat=1.0, lng=101.0, name="End"),
 		distance=2.45,
 	)
 	print(direction_step)
 	```
 
 	### Output
-	> (1.0, 100.0) to (1.0, 101.0)
+	> Start (1.0, 100.0) to End (1.0, 101.0)
 	"""
 
 	def __init__(self, line="", travel_mode=TravelMode.BUS, departure_stop=None, arrival_stop=None, distance=0):
@@ -164,21 +164,23 @@ class Location():
 
 	location = Location(
 		lat=1.0,
-		lng=100.0
+		lng=100.0,
+		name="Somewhere"
 	)
 	print(location)
 	```
 
 	### Output
-	> (1.0, 100.0)
+	> Somewhere (1.0, 100.0)
 	"""
 
-	def __init__(self, lat=0, lng=0):
+	def __init__(self, lat=0, lng=0, name=""):
 		self.__lat = lat
 		self.__lng = lng
+		self.__name = name
 
 	def __repr__(self):
-		return '({}, {})'.format(self.__lat, self.__lng)
+		return '{} ({}, {})'.format(self.__name, self.__lat, self.__lng)
 
 	@property
 	def lat(self):
@@ -194,6 +196,13 @@ class Location():
 		"""
 		return self.__lng
 
+	@property
+	def name(self):
+		"""
+		The name of the location. It contains a string.
+		"""
+		return self.__name
+
 	@lat.setter
 	def lat(self, lat):
 		self.__lat = lat
@@ -201,3 +210,7 @@ class Location():
 	@lng.setter
 	def lng(self, lng):
 		self.__lng = lng
+
+	@name.setter
+	def name(self, name):
+		self.__name = name

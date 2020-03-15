@@ -32,13 +32,16 @@ This module contains the boundary classes for the Farely API.
 import re
 import requests
 from .enum import FareType, FareCategory
+from .entity import Location
 from farely_server.settings import GOOGLE_MAPS_API_KEY, LTA_API_KEY
+import geocoder
 
 class GoogleMapsService():
         &#34;&#34;&#34;
         This class is used to obtain the routes for a route query using the Google Map Direction API
         &#34;&#34;&#34;
         DIRECTIONS_API_URL = &#39;https://maps.googleapis.com/maps/api/directions/json&#39;
+        PLACES_API_URL = &#39;https://maps.googleapis.com/maps/api/place/textsearch/json&#39;
 
         @staticmethod
         def getDirections(origin, destination):
@@ -63,6 +66,23 @@ class GoogleMapsService():
 
                 return r.json()
 
+        @staticmethod
+        def getLocation(lat, lng):
+                r = geocoder.google(
+                        location=&#39;{},{}&#39;.format(lat, lng),
+                        method=&#39;places&#39;,
+                        key=GOOGLE_MAPS_API_KEY
+                )
+
+                name = r.name
+
+                location = Location(
+                        lat=lat,
+                        lng=lng,
+                        name=name
+                )
+
+                return location
 
 class DataGovService():
         &#34;&#34;&#34;
@@ -1085,6 +1105,7 @@ def parseDistanceRange(str):
         This class is used to obtain the routes for a route query using the Google Map Direction API
         &#34;&#34;&#34;
         DIRECTIONS_API_URL = &#39;https://maps.googleapis.com/maps/api/directions/json&#39;
+        PLACES_API_URL = &#39;https://maps.googleapis.com/maps/api/place/textsearch/json&#39;
 
         @staticmethod
         def getDirections(origin, destination):
@@ -1107,11 +1128,33 @@ def parseDistanceRange(str):
                         }
                 )
 
-                return r.json()</code></pre>
+                return r.json()
+
+        @staticmethod
+        def getLocation(lat, lng):
+                r = geocoder.google(
+                        location=&#39;{},{}&#39;.format(lat, lng),
+                        method=&#39;places&#39;,
+                        key=GOOGLE_MAPS_API_KEY
+                )
+
+                name = r.name
+
+                location = Location(
+                        lat=lat,
+                        lng=lng,
+                        name=name
+                )
+
+                return location</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
 <dt id="farely_api.boundary.GoogleMapsService.DIRECTIONS_API_URL"><code class="name">var <span class="ident">DIRECTIONS_API_URL</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="farely_api.boundary.GoogleMapsService.PLACES_API_URL"><code class="name">var <span class="ident">PLACES_API_URL</span></code></dt>
 <dd>
 <section class="desc"></section>
 </dd>
@@ -1151,6 +1194,34 @@ def getDirections(origin, destination):
         )
 
         return r.json()</code></pre>
+</details>
+</dd>
+<dt id="farely_api.boundary.GoogleMapsService.getLocation"><code class="name flex">
+<span>def <span class="ident">getLocation</span></span>(<span>lat, lng)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def getLocation(lat, lng):
+        r = geocoder.google(
+                location=&#39;{},{}&#39;.format(lat, lng),
+                method=&#39;places&#39;,
+                key=GOOGLE_MAPS_API_KEY
+        )
+
+        name = r.name
+
+        location = Location(
+                lat=lat,
+                lng=lng,
+                name=name
+        )
+
+        return location</code></pre>
 </details>
 </dd>
 </dl>
@@ -1357,7 +1428,9 @@ def getBusServices():
 <h4><code><a title="farely_api.boundary.GoogleMapsService" href="#farely_api.boundary.GoogleMapsService">GoogleMapsService</a></code></h4>
 <ul class="">
 <li><code><a title="farely_api.boundary.GoogleMapsService.DIRECTIONS_API_URL" href="#farely_api.boundary.GoogleMapsService.DIRECTIONS_API_URL">DIRECTIONS_API_URL</a></code></li>
+<li><code><a title="farely_api.boundary.GoogleMapsService.PLACES_API_URL" href="#farely_api.boundary.GoogleMapsService.PLACES_API_URL">PLACES_API_URL</a></code></li>
 <li><code><a title="farely_api.boundary.GoogleMapsService.getDirections" href="#farely_api.boundary.GoogleMapsService.getDirections">getDirections</a></code></li>
+<li><code><a title="farely_api.boundary.GoogleMapsService.getLocation" href="#farely_api.boundary.GoogleMapsService.getLocation">getLocation</a></code></li>
 </ul>
 </li>
 <li>
