@@ -5,13 +5,16 @@ This module contains the boundary classes for the Farely API.
 import re
 import requests
 from .enum import FareType, FareCategory
+from .entity import Location
 from farely_server.settings import GOOGLE_MAPS_API_KEY, LTA_API_KEY
+import geocoder
 
 class GoogleMapsService():
 	"""
 	This class is used to obtain the routes for a route query using the Google Map Direction API
 	"""
 	DIRECTIONS_API_URL = 'https://maps.googleapis.com/maps/api/directions/json'
+	PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
 
 	@staticmethod
 	def getDirections(origin, destination):
@@ -36,6 +39,23 @@ class GoogleMapsService():
 
 		return r.json()
 
+	@staticmethod
+	def getLocation(lat, lng):
+		r = geocoder.google(
+			location='{},{}'.format(lat, lng),
+			method='places',
+			key=GOOGLE_MAPS_API_KEY
+		)
+
+		name = r.name
+
+		location = Location(
+			lat=lat,
+			lng=lng,
+			name=name
+		)
+
+		return location
 
 class DataGovService():
 	"""

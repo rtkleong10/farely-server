@@ -43,8 +43,8 @@ class FindRoutesController():
 		## Returns
 		A `DirectionStep` object with attributes of the walking step
 		"""
-		departure_stop = Location(**step["start_location"])
-		arrival_stop = Location(**step["end_location"])
+		departure_stop = GoogleMapsService.getLocation(**step["start_location"])
+		arrival_stop = GoogleMapsService.getLocation(**step["end_location"])
 		distance = step["distance"]["value"] / 1000
 
 		return DirectionStep(
@@ -65,8 +65,14 @@ class FindRoutesController():
 		A `DirectionStep` object with attributes of the transit step
 		"""
 		line = step["transit_details"]["line"]["name"]
-		departure_stop = Location(**step["transit_details"]["departure_stop"]["location"])
-		arrival_stop = Location(**step["transit_details"]["arrival_stop"]["location"])
+		departure_stop = Location(
+			**step["transit_details"]["departure_stop"]["location"],
+			name=step["transit_details"]["departure_stop"]["name"],
+		)
+		arrival_stop = Location(
+			**step["transit_details"]["arrival_stop"]["location"],
+			name=step["transit_details"]["arrival_stop"]["name"],
+		)
 		distance = step["distance"]["value"] / 1000
 
 		travel_mode = None
@@ -136,6 +142,7 @@ class FindRoutesController():
 				checkpoint = {
 					"lat": departure_stop.lat,
 					"lng": departure_stop.lng,
+					"name": departure_stop.name,
 					"travel_mode": direction_step.travel_mode,
 				}
 
@@ -164,12 +171,43 @@ class FindRoutesController():
 
 # Fare set to $2
 class DummyFindRoutesController():
+	"""
+	This class processes a route query and returns the best routes from an origin to a destination location.
+
+	## Example
+	```
+	from farely_api.entity import RouteQuery
+	from farely_api.enum import FareType
+	from farely_api.control import FindRoutesController
+
+	route_query = RouteQuery(
+	fare_type=FareType.ADULT,
+	origin="NTU",
+	destination="Changi Airport"
+	)
+	routes = FindRoutesController(route_query).findRoutes()
+	print(routes)
+	```
+
+	### Output
+	> {'geocoded_waypoints': [{'geocoder_status': 'OK', 'place_id': 'ChIJY0QBmQoP2jERGYItxQAIu7g', 'types': ['establishment', 'point_of_interest', 'university']}, {'geocoder_status': 'OK', 'place_id': 'ChIJ483Qk9YX2jERA0VOQV7d1tY', 'types': ['airport', 'establishment', 'point_of_interest']}], 'routes': [...], 'status': 'OK'}
+	"""
+
 	def __init__(self, route_query):
 		self.__route_query = route_query
 
 	def getWalkingStep(self, step):
-		departure_stop = Location(**step["start_location"])
-		arrival_stop = Location(**step["end_location"])
+		"""
+		This method instantiates `DirectionStep` from a walking step of a route.
+
+		## Parameters
+		- `step`: A dictionary representing a walking step in the Google Maps Direction API Format
+
+		## Returns
+		A `DirectionStep` object with attributes of the walking step
+		"""
+		departure_stop = GoogleMapsService.getLocation(**step["start_location"])
+		arrival_stop = GoogleMapsService.getLocation(**step["end_location"])
 		distance = step["distance"]["value"] / 1000
 
 		return DirectionStep(
@@ -180,9 +218,24 @@ class DummyFindRoutesController():
 		)
 
 	def getTransitStep(self, step):
+		"""
+		This method instantiate a `DirectionStep` object from a transit step of a route.
+
+		## Parameters
+		- `step`: A dictionary representing a transit direction step in the Google Maps Direction API Format
+
+		## Returns
+		A `DirectionStep` object with attributes of the transit step
+		"""
 		line = step["transit_details"]["line"]["name"]
-		departure_stop = Location(**step["transit_details"]["departure_stop"]["location"])
-		arrival_stop = Location(**step["transit_details"]["arrival_stop"]["location"])
+		departure_stop = Location(
+			**step["transit_details"]["departure_stop"]["location"],
+			name=step["transit_details"]["departure_stop"]["name"],
+		)
+		arrival_stop = Location(
+			**step["transit_details"]["arrival_stop"]["location"],
+			name=step["transit_details"]["arrival_stop"]["name"],
+		)
 		distance = step["distance"]["value"] / 1000
 
 		travel_mode = None
@@ -202,6 +255,15 @@ class DummyFindRoutesController():
 		)
 
 	def getDirectionSteps(self, steps):
+		"""
+		This method obtains a list of direction steps from a dictionary representing the steps.
+
+		## Parameters
+		- `steps`: An list of direction steps of a route in the Google Maps Direction API Format
+
+		## Returns
+		A list of `DirectionStep` objects representing the steps of a route
+		"""
 		direction_steps = []
 
 		for step in steps:
@@ -215,31 +277,49 @@ class DummyFindRoutesController():
 		return direction_steps
 
 	def addRouteDetails(self, route):
-		leg = route['legs'][0]
+		"""
+		This method adds fare and checkpoint information to a route.
 
-		steps = leg['steps']
-		direction_steps = self.getDirectionSteps(steps)
+		## Parameters
+		- `route`: A route in the Google Maps Direction API Format
 
-		# Add Fare
-		leg['fare'] = 2
+		## Returns
+		A route in the Google Maps Direction API Format with fare and checkpoint information embedded
+		"""
+		legs = route['legs']
 
-		# Add checkpoint info
-		checkpoints = []
+		# Each route will always have one leg
+		for leg in legs:
+			steps = leg['steps']
+			direction_steps = self.getDirectionSteps(steps)
 
-		for direction_step in direction_steps:
-			departure_stop = direction_step.departure_stop
+			# Add fare
+			leg['fare'] = 2
 
-			checkpoint = {
-				"lat": departure_stop.lat,
-				"lng": departure_stop.lng,
-				"travel_mode": direction_step.travel_mode,
-			}
+			# Add checkpoint information
+			checkpoints = []
 
-			checkpoints.append(checkpoint)
+			for direction_step in direction_steps:
+				departure_stop = direction_step.departure_stop
 
-		leg['checkpoints'] = checkpoints
+				checkpoint = {
+					"lat": departure_stop.lat,
+					"lng": departure_stop.lng,
+					"name": departure_stop.name,
+					"travel_mode": direction_step.travel_mode,
+				}
+
+				checkpoints.append(checkpoint)
+
+			leg['checkpoints'] = checkpoints
 
 	def findRoutes(self):
+		"""
+		This method processes a route query to find the best routes. It uses the Google Maps Direction API to find the routes. Then, it adds fare and checkpoint information to the routes.
+
+		## Returns
+		A list of routes in the Google Maps Direction API Format with fare and checkpoint information embedded
+		"""
 		data = GoogleMapsService.getDirections(
 			origin=self.__route_query.origin,
 			destination=self.__route_query.destination
