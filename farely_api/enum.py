@@ -1,4 +1,8 @@
-from enum import Enum, IntEnum
+"""
+This module contains the enumeration classes for the Farely API.
+"""
+
+from enum import IntEnum
 
 class FareCategory(IntEnum):
 	MRT_LRT_EARLY = 1
@@ -12,7 +16,7 @@ class FareCategory(IntEnum):
 
 	@classmethod
 	def choices(cls):
-		return [(key.value, key.name) for key in cls]
+		return [(key.value, key) for key in cls]
 
 class FareType(IntEnum):
 	WORKFARE = 1
@@ -24,7 +28,7 @@ class FareType(IntEnum):
 
 	@classmethod
 	def choices(cls):
-		return [(key.value, key.name) for key in cls]
+		return [(key.value, key) for key in cls]
 
 class TravelMode(IntEnum):
 	BUS = 1
@@ -33,4 +37,4 @@ class TravelMode(IntEnum):
 
 	@classmethod
 	def choices(cls):
-		return [(key.value, key.name) for key in cls]
+		return [(key.value, key) for key in cls]

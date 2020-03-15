@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.7.5" />
 <title>farely_api.serializers API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="This module contains the serializers for the Farely API. They are used to format the inputs and outputs of the API." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,38 +20,39 @@
 <h1 class="title">Module <code>farely_api.serializers</code></h1>
 </header>
 <section id="section-intro">
+<p>This module contains the serializers for the Farely API. They are used to format the inputs and outputs of the API.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from rest_framework import serializers
-from .enum import FareType, TravelMode
-from .entity import DirectionStep
+<pre><code class="python">&#34;&#34;&#34;
+This module contains the serializers for the Farely API. They are used to format the inputs and outputs of the API.
+&#34;&#34;&#34;
+
+from rest_framework import serializers
+from .entity import RouteQuery
+from .enum import FareType
 
 class RouteQuerySerializer(serializers.Serializer):
+        &#34;&#34;&#34;
+        This class serializes route queries into `RouteQuery` objects.
+        &#34;&#34;&#34;
         fare_type = serializers.ChoiceField(choices=FareType.choices())
         origin = serializers.CharField()
         destination = serializers.CharField()
 
-class CheckPointSerializer(serializers.Serializer):
-        lat = serializers.FloatField()
-        lng = serializers.FloatField()
-        travel_mode = serializers.ChoiceField(choices=TravelMode.choices())
-
-class DirectionStepSerializer(serializers.Serializer):
-        distance = serializers.FloatField()
-        travel_mode = serializers.ChoiceField(choices=TravelMode.choices())
-        line = serializers.CharField(required=False)
-
         def to_internal_value(self, data):
-                return DirectionStep(**data)
+                &#34;&#34;&#34;
+                This method converts a route query into a `RouteQuery` object
 
-class FareQuerySerializer(serializers.Serializer):
-        fare_type = serializers.ChoiceField(choices=FareType.choices())
-        direction_steps = DirectionStepSerializer(many=True)
+                ## Parameters
+                - `data`: A dictionary representing the route query
 
-class FareResponseSerializer(serializers.Serializer):
-        fare = serializers.FloatField()</code></pre>
+                ## Returns
+                A `RouteQuery` object representing the route query
+                &#34;&#34;&#34;
+                data = super().to_internal_value(data)
+                return RouteQuery(**data)</code></pre>
 </details>
 </section>
 <section>
@@ -63,75 +64,36 @@ class FareResponseSerializer(serializers.Serializer):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="farely_api.serializers.CheckPointSerializer"><code class="flex name class">
-<span>class <span class="ident">CheckPointSerializer</span></span>
+<dt id="farely_api.serializers.RouteQuerySerializer"><code class="flex name class">
+<span>class <span class="ident">RouteQuerySerializer</span></span>
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>The BaseSerializer class provides a minimal class which may be used
-for writing custom serializer implementations.</p>
-<p>Note that we strongly restrict the ordering of operations/properties
-that may be used on the serializer in order to enforce correct usage.</p>
-<p>In particular, if a <code>data=</code> argument is passed then:</p>
-<p>.is_valid() - Available.
-.initial_data - Available.
-.validated_data - Only available after calling <code>is_valid()</code>
-.errors - Only available after calling <code>is_valid()</code>
-.data - Only available after calling <code>is_valid()</code></p>
-<p>If a <code>data=</code> argument is not passed then:</p>
-<p>.is_valid() - Not available.
-.initial_data - Not available.
-.validated_data - Not available.
-.errors - Not available.
-.data - Available.</p></section>
+<section class="desc"><p>This class serializes route queries into <code>RouteQuery</code> objects.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class CheckPointSerializer(serializers.Serializer):
-        lat = serializers.FloatField()
-        lng = serializers.FloatField()
-        travel_mode = serializers.ChoiceField(choices=TravelMode.choices())</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>rest_framework.serializers.Serializer</li>
-<li>rest_framework.serializers.BaseSerializer</li>
-<li>rest_framework.fields.Field</li>
-</ul>
-</dd>
-<dt id="farely_api.serializers.DirectionStepSerializer"><code class="flex name class">
-<span>class <span class="ident">DirectionStepSerializer</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>The BaseSerializer class provides a minimal class which may be used
-for writing custom serializer implementations.</p>
-<p>Note that we strongly restrict the ordering of operations/properties
-that may be used on the serializer in order to enforce correct usage.</p>
-<p>In particular, if a <code>data=</code> argument is passed then:</p>
-<p>.is_valid() - Available.
-.initial_data - Available.
-.validated_data - Only available after calling <code>is_valid()</code>
-.errors - Only available after calling <code>is_valid()</code>
-.data - Only available after calling <code>is_valid()</code></p>
-<p>If a <code>data=</code> argument is not passed then:</p>
-<p>.is_valid() - Not available.
-.initial_data - Not available.
-.validated_data - Not available.
-.errors - Not available.
-.data - Available.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DirectionStepSerializer(serializers.Serializer):
-        distance = serializers.FloatField()
-        travel_mode = serializers.ChoiceField(choices=TravelMode.choices())
-        line = serializers.CharField(required=False)
+<pre><code class="python">class RouteQuerySerializer(serializers.Serializer):
+        &#34;&#34;&#34;
+        This class serializes route queries into `RouteQuery` objects.
+        &#34;&#34;&#34;
+        fare_type = serializers.ChoiceField(choices=FareType.choices())
+        origin = serializers.CharField()
+        destination = serializers.CharField()
 
         def to_internal_value(self, data):
-                return DirectionStep(**data)</code></pre>
+                &#34;&#34;&#34;
+                This method converts a route query into a `RouteQuery` object
+
+                ## Parameters
+                - `data`: A dictionary representing the route query
+
+                ## Returns
+                A `RouteQuery` object representing the route query
+                &#34;&#34;&#34;
+                data = super().to_internal_value(data)
+                return RouteQuery(**data)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -141,128 +103,36 @@ that may be used on the serializer in order to enforce correct usage.</p>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="farely_api.serializers.DirectionStepSerializer.to_internal_value"><code class="name flex">
+<dt id="farely_api.serializers.RouteQuerySerializer.to_internal_value"><code class="name flex">
 <span>def <span class="ident">to_internal_value</span></span>(<span>self, data)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Dict of native values &lt;- Dict of primitive datatypes.</p></section>
+<section class="desc"><p>This method converts a route query into a <code>RouteQuery</code> object</p>
+<h2 id="parameters">Parameters</h2>
+<ul>
+<li><code>data</code>: A dictionary representing the route query</li>
+</ul>
+<h2 id="returns">Returns</h2>
+<p>A <code>RouteQuery</code> object representing the route query</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_internal_value(self, data):
-        return DirectionStep(**data)</code></pre>
+        &#34;&#34;&#34;
+        This method converts a route query into a `RouteQuery` object
+
+        ## Parameters
+        - `data`: A dictionary representing the route query
+
+        ## Returns
+        A `RouteQuery` object representing the route query
+        &#34;&#34;&#34;
+        data = super().to_internal_value(data)
+        return RouteQuery(**data)</code></pre>
 </details>
 </dd>
 </dl>
-</dd>
-<dt id="farely_api.serializers.FareQuerySerializer"><code class="flex name class">
-<span>class <span class="ident">FareQuerySerializer</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>The BaseSerializer class provides a minimal class which may be used
-for writing custom serializer implementations.</p>
-<p>Note that we strongly restrict the ordering of operations/properties
-that may be used on the serializer in order to enforce correct usage.</p>
-<p>In particular, if a <code>data=</code> argument is passed then:</p>
-<p>.is_valid() - Available.
-.initial_data - Available.
-.validated_data - Only available after calling <code>is_valid()</code>
-.errors - Only available after calling <code>is_valid()</code>
-.data - Only available after calling <code>is_valid()</code></p>
-<p>If a <code>data=</code> argument is not passed then:</p>
-<p>.is_valid() - Not available.
-.initial_data - Not available.
-.validated_data - Not available.
-.errors - Not available.
-.data - Available.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class FareQuerySerializer(serializers.Serializer):
-        fare_type = serializers.ChoiceField(choices=FareType.choices())
-        direction_steps = DirectionStepSerializer(many=True)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>rest_framework.serializers.Serializer</li>
-<li>rest_framework.serializers.BaseSerializer</li>
-<li>rest_framework.fields.Field</li>
-</ul>
-</dd>
-<dt id="farely_api.serializers.FareResponseSerializer"><code class="flex name class">
-<span>class <span class="ident">FareResponseSerializer</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>The BaseSerializer class provides a minimal class which may be used
-for writing custom serializer implementations.</p>
-<p>Note that we strongly restrict the ordering of operations/properties
-that may be used on the serializer in order to enforce correct usage.</p>
-<p>In particular, if a <code>data=</code> argument is passed then:</p>
-<p>.is_valid() - Available.
-.initial_data - Available.
-.validated_data - Only available after calling <code>is_valid()</code>
-.errors - Only available after calling <code>is_valid()</code>
-.data - Only available after calling <code>is_valid()</code></p>
-<p>If a <code>data=</code> argument is not passed then:</p>
-<p>.is_valid() - Not available.
-.initial_data - Not available.
-.validated_data - Not available.
-.errors - Not available.
-.data - Available.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class FareResponseSerializer(serializers.Serializer):
-        fare = serializers.FloatField()</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>rest_framework.serializers.Serializer</li>
-<li>rest_framework.serializers.BaseSerializer</li>
-<li>rest_framework.fields.Field</li>
-</ul>
-</dd>
-<dt id="farely_api.serializers.RouteQuerySerializer"><code class="flex name class">
-<span>class <span class="ident">RouteQuerySerializer</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>The BaseSerializer class provides a minimal class which may be used
-for writing custom serializer implementations.</p>
-<p>Note that we strongly restrict the ordering of operations/properties
-that may be used on the serializer in order to enforce correct usage.</p>
-<p>In particular, if a <code>data=</code> argument is passed then:</p>
-<p>.is_valid() - Available.
-.initial_data - Available.
-.validated_data - Only available after calling <code>is_valid()</code>
-.errors - Only available after calling <code>is_valid()</code>
-.data - Only available after calling <code>is_valid()</code></p>
-<p>If a <code>data=</code> argument is not passed then:</p>
-<p>.is_valid() - Not available.
-.initial_data - Not available.
-.validated_data - Not available.
-.errors - Not available.
-.data - Available.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class RouteQuerySerializer(serializers.Serializer):
-        fare_type = serializers.ChoiceField(choices=FareType.choices())
-        origin = serializers.CharField()
-        destination = serializers.CharField()</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>rest_framework.serializers.Serializer</li>
-<li>rest_framework.serializers.BaseSerializer</li>
-<li>rest_framework.fields.Field</li>
-</ul>
 </dd>
 </dl>
 </section>
@@ -281,22 +151,10 @@ that may be used on the serializer in order to enforce correct usage.</p>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="farely_api.serializers.CheckPointSerializer" href="#farely_api.serializers.CheckPointSerializer">CheckPointSerializer</a></code></h4>
-</li>
-<li>
-<h4><code><a title="farely_api.serializers.DirectionStepSerializer" href="#farely_api.serializers.DirectionStepSerializer">DirectionStepSerializer</a></code></h4>
-<ul class="">
-<li><code><a title="farely_api.serializers.DirectionStepSerializer.to_internal_value" href="#farely_api.serializers.DirectionStepSerializer.to_internal_value">to_internal_value</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="farely_api.serializers.FareQuerySerializer" href="#farely_api.serializers.FareQuerySerializer">FareQuerySerializer</a></code></h4>
-</li>
-<li>
-<h4><code><a title="farely_api.serializers.FareResponseSerializer" href="#farely_api.serializers.FareResponseSerializer">FareResponseSerializer</a></code></h4>
-</li>
-<li>
 <h4><code><a title="farely_api.serializers.RouteQuerySerializer" href="#farely_api.serializers.RouteQuerySerializer">RouteQuerySerializer</a></code></h4>
+<ul class="">
+<li><code><a title="farely_api.serializers.RouteQuerySerializer.to_internal_value" href="#farely_api.serializers.RouteQuerySerializer.to_internal_value">to_internal_value</a></code></li>
+</ul>
 </li>
 </ul>
 </li>

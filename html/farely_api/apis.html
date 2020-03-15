@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.7.5" />
 <title>farely_api.apis API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="This module contains the API views of the Farely API. They are the entry points of the APIs." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,18 +20,23 @@
 <h1 class="title">Module <code>farely_api.apis</code></h1>
 </header>
 <section id="section-intro">
+<p>This module contains the API views of the Farely API. They are the entry points of the APIs.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from rest_framework.response import Response
+<pre><code class="python">&#34;&#34;&#34;
+This module contains the API views of the Farely API. They are the entry points of the APIs.
+&#34;&#34;&#34;
+
+from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import RouteQuerySerializer, FareQuerySerializer, FareResponseSerializer
-from .control import FindRoutesController, FareController, DummyFindRoutesController
+from .serializers import RouteQuerySerializer
+from .control import FindRoutesController, DummyFindRoutesController
 
 class FindRoutesApi(APIView):
         &#34;&#34;&#34;
-        Accepts a route query and returns a list of the best routes
+        This API View accepts a route query and returns a list of the best routes
 
         ## Sample Query
         `/api/find-routes/?fare_type=1&amp;origin=boon+lay&amp;destination=changi-airport`
@@ -59,12 +64,23 @@ class FindRoutesApi(APIView):
                                 - 2: MRT/LRT
                                 - 3: Walk
 
+        ### Example
+                {&#39;geocoded_waypoints&#39;: [{&#39;geocoder_status&#39;: &#39;OK&#39;, &#39;place_id&#39;: &#39;ChIJY0QBmQoP2jERGYItxQAIu7g&#39;, &#39;types&#39;: [&#39;establishment&#39;, &#39;point_of_interest&#39;, &#39;university&#39;]}, {&#39;geocoder_status&#39;: &#39;OK&#39;, &#39;place_id&#39;: &#39;ChIJ483Qk9YX2jERA0VOQV7d1tY&#39;, &#39;types&#39;: [&#39;airport&#39;, &#39;establishment&#39;, &#39;point_of_interest&#39;]}], &#39;routes&#39;: [...], &#39;status&#39;: &#39;OK&#39;}
         &#34;&#34;&#34;
 
         def get_view_name(self):
+                &#34;&#34;&#34;
+                This method returns the name of the view.
+                :return: The name of the view (i.e. Find Routes API)
+                &#34;&#34;&#34;
                 return &#34;Find Routes API&#34;
 
         def get(self, request):
+                &#34;&#34;&#34;
+                This method handles the get request of this API view.
+                :param request: The GET request made
+                :return: The API response
+                &#34;&#34;&#34;
                 # Serialize input
                 route_query_serializer = RouteQuerySerializer(data=request.query_params)
 
@@ -72,8 +88,8 @@ class FindRoutesApi(APIView):
                 route_query_serializer.is_valid(raise_exception=True)
 
                 # Find candidate locations
-                data = route_query_serializer.validated_data
-                route_response = FindRoutesController(**data).findRoutes()
+                route_query = route_query_serializer.validated_data
+                route_response = FindRoutesController(route_query).findRoutes()
 
                 return Response(route_response)
 
@@ -120,8 +136,8 @@ class DummyFindRoutesApi(APIView):
                 route_query_serializer.is_valid(raise_exception=True)
 
                 # Find candidate locations
-                data = route_query_serializer.validated_data
-                route_response = DummyFindRoutesController(**data).findRoutes()
+                route_query = route_query_serializer.validated_data
+                route_response = DummyFindRoutesController(route_query).findRoutes()
 
                 return Response(route_response)</code></pre>
 </details>
@@ -217,8 +233,8 @@ keyword arguments, and other things.</p></section>
                 route_query_serializer.is_valid(raise_exception=True)
 
                 # Find candidate locations
-                data = route_query_serializer.validated_data
-                route_response = DummyFindRoutesController(**data).findRoutes()
+                route_query = route_query_serializer.validated_data
+                route_response = DummyFindRoutesController(route_query).findRoutes()
 
                 return Response(route_response)</code></pre>
 </details>
@@ -246,8 +262,8 @@ keyword arguments, and other things.</p></section>
         route_query_serializer.is_valid(raise_exception=True)
 
         # Find candidate locations
-        data = route_query_serializer.validated_data
-        route_response = DummyFindRoutesController(**data).findRoutes()
+        route_query = route_query_serializer.validated_data
+        route_response = DummyFindRoutesController(route_query).findRoutes()
 
         return Response(route_response)</code></pre>
 </details>
@@ -273,7 +289,7 @@ browsable API.</p></section>
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Accepts a route query and returns a list of the best routes</p>
+<section class="desc"><p>This API View accepts a route query and returns a list of the best routes</p>
 <h2 id="sample-query">Sample Query</h2>
 <p><code>/api/find-routes/?fare_type=1&amp;origin=boon+lay&amp;destination=changi-airport</code></p>
 <h2 id="parameters">Parameters</h2>
@@ -301,6 +317,9 @@ browsable API.</p></section>
 - 2: MRT/LRT
 - 3: Walk</li>
 </ul>
+<h3 id="example">Example</h3>
+<pre><code>    {'geocoded_waypoints': [{'geocoder_status': 'OK', 'place_id': 'ChIJY0QBmQoP2jERGYItxQAIu7g', 'types': ['establishment', 'point_of_interest', 'university']}, {'geocoder_status': 'OK', 'place_id': 'ChIJ483Qk9YX2jERA0VOQV7d1tY', 'types': ['airport', 'establishment', 'point_of_interest']}], 'routes': [...], 'status': 'OK'}
+</code></pre>
 <p>Constructor. Called in the URLconf; can contain helpful extra
 keyword arguments, and other things.</p></section>
 <details class="source">
@@ -309,7 +328,7 @@ keyword arguments, and other things.</p></section>
 </summary>
 <pre><code class="python">class FindRoutesApi(APIView):
         &#34;&#34;&#34;
-        Accepts a route query and returns a list of the best routes
+        This API View accepts a route query and returns a list of the best routes
 
         ## Sample Query
         `/api/find-routes/?fare_type=1&amp;origin=boon+lay&amp;destination=changi-airport`
@@ -337,12 +356,23 @@ keyword arguments, and other things.</p></section>
                                 - 2: MRT/LRT
                                 - 3: Walk
 
+        ### Example
+                {&#39;geocoded_waypoints&#39;: [{&#39;geocoder_status&#39;: &#39;OK&#39;, &#39;place_id&#39;: &#39;ChIJY0QBmQoP2jERGYItxQAIu7g&#39;, &#39;types&#39;: [&#39;establishment&#39;, &#39;point_of_interest&#39;, &#39;university&#39;]}, {&#39;geocoder_status&#39;: &#39;OK&#39;, &#39;place_id&#39;: &#39;ChIJ483Qk9YX2jERA0VOQV7d1tY&#39;, &#39;types&#39;: [&#39;airport&#39;, &#39;establishment&#39;, &#39;point_of_interest&#39;]}], &#39;routes&#39;: [...], &#39;status&#39;: &#39;OK&#39;}
         &#34;&#34;&#34;
 
         def get_view_name(self):
+                &#34;&#34;&#34;
+                This method returns the name of the view.
+                :return: The name of the view (i.e. Find Routes API)
+                &#34;&#34;&#34;
                 return &#34;Find Routes API&#34;
 
         def get(self, request):
+                &#34;&#34;&#34;
+                This method handles the get request of this API view.
+                :param request: The GET request made
+                :return: The API response
+                &#34;&#34;&#34;
                 # Serialize input
                 route_query_serializer = RouteQuerySerializer(data=request.query_params)
 
@@ -350,8 +380,8 @@ keyword arguments, and other things.</p></section>
                 route_query_serializer.is_valid(raise_exception=True)
 
                 # Find candidate locations
-                data = route_query_serializer.validated_data
-                route_response = FindRoutesController(**data).findRoutes()
+                route_query = route_query_serializer.validated_data
+                route_response = FindRoutesController(route_query).findRoutes()
 
                 return Response(route_response)</code></pre>
 </details>
@@ -366,12 +396,19 @@ keyword arguments, and other things.</p></section>
 <span>def <span class="ident">get</span></span>(<span>self, request)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>This method handles the get request of this API view.
+:param request: The GET request made
+:return: The API response</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get(self, request):
+        &#34;&#34;&#34;
+        This method handles the get request of this API view.
+        :param request: The GET request made
+        :return: The API response
+        &#34;&#34;&#34;
         # Serialize input
         route_query_serializer = RouteQuerySerializer(data=request.query_params)
 
@@ -379,8 +416,8 @@ keyword arguments, and other things.</p></section>
         route_query_serializer.is_valid(raise_exception=True)
 
         # Find candidate locations
-        data = route_query_serializer.validated_data
-        route_response = FindRoutesController(**data).findRoutes()
+        route_query = route_query_serializer.validated_data
+        route_response = FindRoutesController(route_query).findRoutes()
 
         return Response(route_response)</code></pre>
 </details>
@@ -389,13 +426,17 @@ keyword arguments, and other things.</p></section>
 <span>def <span class="ident">get_view_name</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Return the view name, as used in OPTIONS responses and in the
-browsable API.</p></section>
+<section class="desc"><p>This method returns the name of the view.
+:return: The name of the view (i.e. Find Routes API)</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_view_name(self):
+        &#34;&#34;&#34;
+        This method returns the name of the view.
+        :return: The name of the view (i.e. Find Routes API)
+        &#34;&#34;&#34;
         return &#34;Find Routes API&#34;</code></pre>
 </details>
 </dd>

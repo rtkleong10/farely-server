@@ -1,3 +1,7 @@
+"""
+This module contains the integration testing for the API Views.
+"""
+
 from rest_framework.test import APIRequestFactory, APITestCase
 from farely_api.apis import FindRoutesApi
 

@@ -1,57 +1,73 @@
+"""
+This module contains the control classes for the Farely API.
+"""
+
 from .boundary import GoogleMapsService, DataGovService, LTADataMallService
 from .enum import FareType, TravelMode, FareCategory
-from .entity import RouteQuery, DirectionStep, Location
-from datetime import timedelta
+from .entity import DirectionStep, Location
 
 class FindRoutesController():
-
 	"""
+	This class processes a route query and returns the best routes from an origin to a destination location.
+
+	## Example
+	```
+	from farely_api.entity import RouteQuery
+	from farely_api.enum import FareType
+	from farely_api.control import FindRoutesController
+
+	route_query = RouteQuery(
+	fare_type=FareType.ADULT,
+	origin="NTU",
+	destination="Changi Airport"
+	)
+	routes = FindRoutesController(route_query).findRoutes()
+	print(routes)
+	```
+
+	### Output
+	> {'geocoded_waypoints': [{'geocoder_status': 'OK', 'place_id': 'ChIJY0QBmQoP2jERGYItxQAIu7g', 'types': ['establishment', 'point_of_interest', 'university']}, {'geocoder_status': 'OK', 'place_id': 'ChIJ483Qk9YX2jERA0VOQV7d1tY', 'types': ['airport', 'establishment', 'point_of_interest']}], 'routes': [...], 'status': 'OK'}
 	"""
 
-	def __init__(self, fare_type, origin, destination):
-		"""
-		Initialize parameters
-		:param fare_type:  Fare type for fare calculation
-		:param origin: Starting location of route in textual format
-		:param destination: End location of route in textual format
-		"""
-		fare_type = FareType(fare_type)
-		self.__route_query = RouteQuery(fare_type, origin, destination)
+	def __init__(self, route_query):
+		self.__route_query = route_query
 		self.__fare_controller = FareController()
 
 	def getWalkingStep(self, step):
 		"""
-		Instantiate a DirectionStep object from a walking step of a route
+		This method instantiates `DirectionStep` from a walking step of a route.
 
-		:param step: walking direction step in Google Maps Direction API Format
-		:return: DirectionStep object with attributes of the walking step
+		## Parameters
+		- `step`: A dictionary representing a walking step in the Google Maps Direction API Format
+
+		## Returns
+		A `DirectionStep` object with attributes of the walking step
 		"""
-		departure_stop = Location(step["start_location"])
-		arrival_stop = Location(step["end_location"])
+		departure_stop = Location(**step["start_location"])
+		arrival_stop = Location(**step["end_location"])
 		distance = step["distance"]["value"] / 1000
-		duration = timedelta(seconds=step["duration"]["value"])
 
 		return DirectionStep(
 			travel_mode=TravelMode.WALK,
 			arrival_stop=arrival_stop,
 			departure_stop=departure_stop,
 			distance=distance,
-			duration=duration
 		)
 
 	def getTransitStep(self, step):
 		"""
-		Instantiate a DirectionStep object from a transit step of a route
+		This method instantiate a `DirectionStep` object from a transit step of a route.
 
-		:param step: transit direction step in Google Maps Direction API Format
-		:return: DirectionStep object with attributes of the transit step
+		## Parameters
+		- `step`: A dictionary representing a transit direction step in the Google Maps Direction API Format
+
+		## Returns
+		A `DirectionStep` object with attributes of the transit step
 		"""
 		line = step["transit_details"]["line"]["name"]
-		departure_stop = Location(step["transit_details"]["departure_stop"]["location"])
-		arrival_stop = Location(step["transit_details"]["arrival_stop"]["location"])
-		num_stops = step["transit_details"]["num_stops"]
+		departure_stop = Location(**step["transit_details"]["departure_stop"]["location"])
+		arrival_stop = Location(**step["transit_details"]["arrival_stop"]["location"])
 		distance = step["distance"]["value"] / 1000
-		duration = timedelta(seconds=step["duration"]["value"])
 
 		travel_mode = None
 		mode = step["transit_details"]["line"]["vehicle"]["type"]
@@ -66,17 +82,18 @@ class FindRoutesController():
 			travel_mode=travel_mode,
 			arrival_stop=arrival_stop,
 			departure_stop=departure_stop,
-			num_stops=num_stops,
 			distance=distance,
-			duration=duration
 		)
 
 	def getDirectionSteps(self, steps):
 		"""
-		Obtain individual direction steps from a route
+		This method obtains a list of direction steps from a dictionary representing the steps.
 
-		:param steps: direction steps of a route in Google Maps Direction API Format
-		:return: list of every direction steps in a route
+		## Parameters
+		- `steps`: An list of direction steps of a route in the Google Maps Direction API Format
+
+		## Returns
+		A list of `DirectionStep` objects representing the steps of a route
 		"""
 		direction_steps = []
 
@@ -92,22 +109,25 @@ class FindRoutesController():
 
 	def addRouteDetails(self, route):
 		"""
-		Add checkpoints and fare details into route
+		This method adds fare and checkpoint information to a route.
 
-		:param route: an individual route in Google Maps Direction API Format
-		:return: an individual route in Google Maps Direction API Format with checkpoints locations and fare details embedded
+		## Parameters
+		- `route`: A route in the Google Maps Direction API Format
+
+		## Returns
+		A route in the Google Maps Direction API Format with fare and checkpoint information embedded
 		"""
 		legs = route['legs']
 
-		#each route will always have one leg
+		# Each route will always have one leg
 		for leg in legs:
 			steps = leg['steps']
 			direction_steps = self.getDirectionSteps(steps)
 
-			# Add Fare
+			# Add fare
 			leg['fare'] = self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
 
-			# Add checkpoint info
+			# Add checkpoint information
 			checkpoints = []
 
 			for direction_step in direction_steps:
@@ -124,11 +144,11 @@ class FindRoutesController():
 			leg['checkpoints'] = checkpoints
 
 	def findRoutes(self):
-
 		"""
-		Process query to find routes and add checkpoints and fare details
+		This method processes a route query to find the best routes. It uses the Google Maps Direction API to find the routes. Then, it adds fare and checkpoint information to the routes.
 
-		:return: Google Maps Direction API resposne with checkpoints locations and fare details embedded
+		## Returns
+		A list of routes in the Google Maps Direction API Format with fare and checkpoint information embedded
 		"""
 		data = GoogleMapsService.getDirections(
 			origin=self.__route_query.origin,
@@ -144,31 +164,26 @@ class FindRoutesController():
 
 # Fare set to $2
 class DummyFindRoutesController():
-	def __init__(self, fare_type, origin, destination):
-		fare_type = FareType(fare_type)
-		self.__route_query = RouteQuery(fare_type, origin, destination)
+	def __init__(self, route_query):
+		self.__route_query = route_query
 
 	def getWalkingStep(self, step):
-		departure_stop = Location(step["start_location"])
-		arrival_stop = Location(step["end_location"])
+		departure_stop = Location(**step["start_location"])
+		arrival_stop = Location(**step["end_location"])
 		distance = step["distance"]["value"] / 1000
-		duration = timedelta(seconds=step["duration"]["value"])
 
 		return DirectionStep(
 			travel_mode=TravelMode.WALK,
 			arrival_stop=arrival_stop,
 			departure_stop=departure_stop,
 			distance=distance,
-			duration=duration
 		)
 
 	def getTransitStep(self, step):
 		line = step["transit_details"]["line"]["name"]
-		departure_stop = Location(step["transit_details"]["departure_stop"]["location"])
-		arrival_stop = Location(step["transit_details"]["arrival_stop"]["location"])
-		num_stops = step["transit_details"]["num_stops"]
+		departure_stop = Location(**step["transit_details"]["departure_stop"]["location"])
+		arrival_stop = Location(**step["transit_details"]["arrival_stop"]["location"])
 		distance = step["distance"]["value"] / 1000
-		duration = timedelta(seconds=step["duration"]["value"])
 
 		travel_mode = None
 		mode = step["transit_details"]["line"]["vehicle"]["type"]
@@ -183,9 +198,7 @@ class DummyFindRoutesController():
 			travel_mode=travel_mode,
 			arrival_stop=arrival_stop,
 			departure_stop=departure_stop,
-			num_stops=num_stops,
 			distance=distance,
-			duration=duration
 		)
 
 	def getDirectionSteps(self, steps):
@@ -240,17 +253,43 @@ class DummyFindRoutesController():
 		return data
 
 class FareController():
-	# Refer to https://www.smrt.com.sg/Portals/0/Journey%20with%20Us/PTC0339_19%20PTC%20Conclusion%20Fare%20Table%20Brochure%20FA.pdf
+	"""
+	This class is used to calculate the fare of a route. It calculates the fare based on the information from Data.gov.sg and LTA DataMall. It also refers to this pdf for more information: https://www.smrt.com.sg/Portals/0/Journey%20with%20Us/PTC0339_19%20PTC%20Conclusion%20Fare%20Table%20Brochure%20FA.pdf.
+	"""
+
 	def __init__(self):
 		self.__fare_table = DataGovService.getFareTable()
 		self.__bus_services = LTADataMallService.getBusServices()
 
+	def getBusType(self, line):
+		"""
+		This method gets the `FareCategory` object corresponding to the line of the bus
+
+		## Parameters
+		- `line`: The line of the bus
+
+		## Returns
+		A `FareCategory` object corresponding to the line of the bus
+		"""
+		return self.__bus_services.get(line)
+
 	def parseSteps(self, direction_steps):
+		"""
+		This method converts a list of `DirectionStep` objects into a list of tuples containing the fare category and distance of the directions steps.
+
+		## Parameters
+		- `direction_steps`: A list of `DirectionStep` objects
+
+		## Returns
+		A list of direction steps, where direction steps are represented as a tuple `(fare_category, distance)`
+		"""
 		steps = []
 
 		for step in direction_steps:
+			# Get distance
 			distance = step.distance
 
+			# Get fare category
 			fare_category = None
 
 			if step.travel_mode == TravelMode.MRT_LRT:
@@ -267,10 +306,18 @@ class FareController():
 
 		return steps
 
-	def getBusType(self, serviceNo):
-		return self.__bus_services.get(serviceNo)
-
 	def getStepFare(self, fare_type, fare_category, distance):
+		"""
+		This method gets the fare for a step of the route. This step may correspond to multiple direction steps that share the same or a similar fare category.
+
+		## Parameters
+		- `fare_type`: A `FareType` object representing the fare type to calculate the fare for
+		- `fare_category: A `FareCategory` object representing the fare category of the step
+		- `distance`: The distance of the step in kilometres
+
+		## Returns
+		The fare for the step in Singapore dollars
+		"""
 		if fare_category == FareCategory.WALK or distance == 0:
 			return 0
 
@@ -284,11 +331,20 @@ class FareController():
 
 		for distance_range in distance_fare_table.keys():
 			if distance >= distance_range[0] and (distance_range[1] == None or distance < distance_range[1]):
-				return distance_fare_table[distance_range].get(fare_type)
+				return distance_fare_table[distance_range].get(fare_type) / 100
 
 		return None
 
 	def calculateCashFare(self, steps):
+		"""
+		This method calculates the fare for a list of direction steps. This method is only for the Single Trip fare type.
+
+		## Parameters
+		- `steps`: A list of tuples representing the direction steps
+
+		## Returns
+		The calculated fare in Singapore dollars
+		"""
 		total_fare = 0
 
 		for step in steps:
@@ -304,6 +360,16 @@ class FareController():
 		return total_fare
 
 	def calculateCardFare(self, fare_type, steps):
+		"""
+		This method calculates the fare for a list of direction steps. This method is for fare types other than Single Trip.
+
+		## Parameters
+		- `fare_type`: A `FareType` object representing the fare type to calculate the fare for
+		- `steps`: A list of tuples representing the direction steps
+
+		## Returns
+		The calculated fare in Singapore dollars
+		"""
 		total_fare = 0
 
 		current_fare_category = None
@@ -338,6 +404,16 @@ class FareController():
 		return total_fare
 
 	def calculateFare(self, fare_type, direction_steps):
+		"""
+		This method calculates the fare for a list of direction steps.
+
+		## Parameters
+		- `fare_type`: A `FareType` object representing the fare type to calculate the fare for
+		- `steps`: A list of tuples representing the direction steps
+
+		## Returns
+		The calculated fare in Singapore dollars
+		"""
 		steps = self.parseSteps(direction_steps)
 
 		if fare_type == FareType.SINGLE_TRIP:
@@ -346,7 +422,4 @@ class FareController():
 		else:
 			total_fare = self.calculateCardFare(fare_type, steps)
 
-		if total_fare == None:
-			return None
-		else:
-			return total_fare / 100
+		return total_fare

@@ -1,3 +1,7 @@
+"""
+This module contains the urls for the Farely API.
+"""
+
 from django.urls import path
 from . import apis
 
