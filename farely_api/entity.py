@@ -2,6 +2,17 @@ from datetime import timedelta
 from .enum import FareType, TravelMode
 
 class RouteQuery():
+	"""
+	Route Query object
+
+	Example:
+		query = (FareType.ADULT, origin="NTU", destination="Changi Airport")
+
+		print(query)
+
+		Output:
+		NTU to Changi Airport
+	"""
 	def __init__(self, fare_type=FareType.ADULT, origin="", destination=""):
 		self.__fare_type = fare_type
 		self.__origin = origin

@@ -4,12 +4,28 @@ from .entity import RouteQuery, DirectionStep, Location
 from datetime import timedelta
 
 class FindRoutesController():
+
+	"""
+	"""
+
 	def __init__(self, fare_type, origin, destination):
+		"""
+		Initialize parameters
+		:param fare_type:  Fare type for fare calculation
+		:param origin: Starting location of route in textual format
+		:param destination: End location of route in textual format
+		"""
 		fare_type = FareType(fare_type)
 		self.__route_query = RouteQuery(fare_type, origin, destination)
 		self.__fare_controller = FareController()
 
 	def getWalkingStep(self, step):
+		"""
+		Instantiate a DirectionStep object from a walking step of a route
+
+		:param step: walking direction step in Google Maps Direction API Format
+		:return: DirectionStep object with attributes of the walking step
+		"""
 		departure_stop = Location(step["start_location"])
 		arrival_stop = Location(step["end_location"])
 		distance = step["distance"]["value"] / 1000
@@ -24,6 +40,12 @@ class FindRoutesController():
 		)
 
 	def getTransitStep(self, step):
+		"""
+		Instantiate a DirectionStep object from a transit step of a route
+
+		:param step: transit direction step in Google Maps Direction API Format
+		:return: DirectionStep object with attributes of the transit step
+		"""
 		line = step["transit_details"]["line"]["name"]
 		departure_stop = Location(step["transit_details"]["departure_stop"]["location"])
 		arrival_stop = Location(step["transit_details"]["arrival_stop"]["location"])
@@ -50,6 +72,12 @@ class FindRoutesController():
 		)
 
 	def getDirectionSteps(self, steps):
+		"""
+		Obtain individual direction steps from a route
+
+		:param steps: direction steps of a route in Google Maps Direction API Format
+		:return: list of every direction steps in a route
+		"""
 		direction_steps = []
 
 		for step in steps:
@@ -63,8 +91,15 @@ class FindRoutesController():
 		return direction_steps
 
 	def addRouteDetails(self, route):
+		"""
+		Add checkpoints and fare details into route
+
+		:param route: an individual route in Google Maps Direction API Format
+		:return: an individual route in Google Maps Direction API Format with checkpoints locations and fare details embedded
+		"""
 		legs = route['legs']
 
+		#each route will always have one leg
 		for leg in legs:
 			steps = leg['steps']
 			direction_steps = self.getDirectionSteps(steps)
@@ -89,6 +124,12 @@ class FindRoutesController():
 			leg['checkpoints'] = checkpoints
 
 	def findRoutes(self):
+
+		"""
+		Process query to find routes and add checkpoints and fare details
+
+		:return: Google Maps Direction API resposne with checkpoints locations and fare details embedded
+		"""
 		data = GoogleMapsService.getDirections(
 			origin=self.__route_query.origin,
 			destination=self.__route_query.destination
