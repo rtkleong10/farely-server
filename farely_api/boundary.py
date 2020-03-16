@@ -30,7 +30,6 @@ class GoogleMapsService():
 				'mode': 'transit',
 				'units': 'metric',
 				'alternatives': 'true',
-				# 'departure_time': int(datetime.timestamp(departure_time)),
 				'region': 'sg',
 				'origin': origin,
 				'destination': destination,
@@ -56,6 +55,15 @@ class GoogleMapsService():
 		)
 
 		return location
+
+	@staticmethod
+	def getCountry(query):
+		r = geocoder.google(
+			location=query,
+			key=GOOGLE_MAPS_API_KEY
+		)
+
+		return r.country
 
 class DataGovService():
 	"""
