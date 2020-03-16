@@ -32,10 +32,10 @@ class RouteQuerySerializer(serializers.Serializer):
 		validation_errors = {}
 
 		if GoogleMapsService.getCountry(route_query.origin) != 'SG':
-			validation_errors['origin'] = "Origin must be within Singapore"
+			validation_errors['origin'] = ["Origin must be within Singapore"]
 
 		if GoogleMapsService.getCountry(route_query.destination) != 'SG':
-			validation_errors['destination'] = "Destination must be within Singapore"
+			validation_errors['destination'] = ["Destination must be within Singapore"]
 
 		if validation_errors:
 			raise serializers.ValidationError(validation_errors)
