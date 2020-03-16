@@ -60,7 +60,8 @@ class GoogleMapsService():
 	def getCountry(query):
 		r = geocoder.google(
 			location=query,
-			key=GOOGLE_MAPS_API_KEY
+			key=GOOGLE_MAPS_API_KEY,
+			region='sg'
 		)
 
 		return r.country
