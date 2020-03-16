@@ -36,6 +36,7 @@ class FindRoutesApi(APIView):
 				- 1: Bus
 				- 2: MRT/LRT
 				- 3: Walk
+			- name: Name of departure step
 
 	### Example
 		{'geocoded_waypoints': [{'geocoder_status': 'OK', 'place_id': 'ChIJY0QBmQoP2jERGYItxQAIu7g', 'types': ['establishment', 'point_of_interest', 'university']}, {'geocoder_status': 'OK', 'place_id': 'ChIJ483Qk9YX2jERA0VOQV7d1tY', 'types': ['airport', 'establishment', 'point_of_interest']}], 'routes': [...], 'status': 'OK'}
@@ -95,6 +96,7 @@ class DummyFindRoutesApi(APIView):
 				- 1: Bus
 				- 2: MRT/LRT
 				- 3: Walk
+			- name: Name of departure step
 
 	"""
 
