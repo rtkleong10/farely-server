@@ -148,6 +148,19 @@ class FindRoutesController():
 
 				checkpoints.append(checkpoint)
 
+			if len(direction_steps) != 0:
+				last_direction_step = direction_steps[-1]
+				endpoint = last_direction_step.arrival_stop
+
+				checkpoint = {
+					"lat": endpoint.lat,
+					"lng": endpoint.lng,
+					"name": endpoint.name,
+					"travel_mode": None,
+				}
+
+				checkpoints.append(checkpoint)
+
 			leg['checkpoints'] = checkpoints
 
 	def findRoutes(self):
@@ -307,6 +320,19 @@ class DummyFindRoutesController():
 					"lng": departure_stop.lng,
 					"name": departure_stop.name,
 					"travel_mode": direction_step.travel_mode,
+				}
+
+				checkpoints.append(checkpoint)
+
+			if len(direction_steps) != 0:
+				last_direction_step = direction_steps[-1]
+				endpoint = last_direction_step.arrival_stop
+
+				checkpoint = {
+					"lat": endpoint.lat,
+					"lng": endpoint.lng,
+					"name": endpoint.name,
+					"travel_mode": None,
 				}
 
 				checkpoints.append(checkpoint)
