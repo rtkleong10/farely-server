@@ -12,7 +12,7 @@ class FindRoutesApi(APIView):
 	This API View accepts a route query and returns a list of the best routes
 
 	## Sample Query
-	[/api/find-routes/?fare_type=1&origin=boon+lay&destination=changi-airport](/api/find-routes/?fare_type=1&origin=boon+lay&destination=changi-airport)
+	[/api/find-routes/?fare_type=1&origin=boon+lay&destination=changi+airport](/api/find-routes/?fare_type=1&origin=boon+lay&destination=changi+airport)
 
 	## Parameters
 	- origin: Starting point of route
@@ -72,7 +72,7 @@ class DummyFindRoutesApi(APIView):
 	This API View accepts a route query and returns a list of the best routes
 
 	## Sample Query
-	[/api/dummy-find-routes/?fare_type=1&origin=boon+lay&destination=changi-airport](/api/dummy-find-routes/?fare_type=1&origin=boon+lay&destination=changi-airport)
+	[/api/dummy-find-routes/?fare_type=1&origin=boon+lay&destination=changi+airport](/api/dummy-find-routes/?fare_type=1&origin=boon+lay&destination=changi+airport)
 
 	## Parameters
 	- origin: Starting point of route
