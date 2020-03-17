@@ -58,10 +58,20 @@ class RouteQuerySerializer(serializers.Serializer):
         def validate(self, route_query):
                 validation_errors = {}
 
-                if GoogleMapsService.getCountry(route_query.origin) != &#39;SG&#39;:
+                # Check origin
+                origin_country = GoogleMapsService.getCountry(route_query.origin)
+                if origin_country == None:
+                        validation_errors[&#39;origin&#39;] = [&#34;Origin could not be found&#34;]
+
+                elif origin_country != &#39;SG&#39;:
                         validation_errors[&#39;origin&#39;] = [&#34;Origin must be within Singapore&#34;]
 
-                if GoogleMapsService.getCountry(route_query.destination) != &#39;SG&#39;:
+                # Check destination
+                destination_country = GoogleMapsService.getCountry(route_query.destination)
+                if destination_country == None:
+                        validation_errors[&#39;destination&#39;] = [&#34;Destination could not be found&#34;]
+
+                elif destination_country != &#39;SG&#39;:
                         validation_errors[&#39;destination&#39;] = [&#34;Destination must be within Singapore&#34;]
 
                 if validation_errors:
@@ -113,10 +123,20 @@ class RouteQuerySerializer(serializers.Serializer):
         def validate(self, route_query):
                 validation_errors = {}
 
-                if GoogleMapsService.getCountry(route_query.origin) != &#39;SG&#39;:
+                # Check origin
+                origin_country = GoogleMapsService.getCountry(route_query.origin)
+                if origin_country == None:
+                        validation_errors[&#39;origin&#39;] = [&#34;Origin could not be found&#34;]
+
+                elif origin_country != &#39;SG&#39;:
                         validation_errors[&#39;origin&#39;] = [&#34;Origin must be within Singapore&#34;]
 
-                if GoogleMapsService.getCountry(route_query.destination) != &#39;SG&#39;:
+                # Check destination
+                destination_country = GoogleMapsService.getCountry(route_query.destination)
+                if destination_country == None:
+                        validation_errors[&#39;destination&#39;] = [&#34;Destination could not be found&#34;]
+
+                elif destination_country != &#39;SG&#39;:
                         validation_errors[&#39;destination&#39;] = [&#34;Destination must be within Singapore&#34;]
 
                 if validation_errors:
@@ -173,10 +193,20 @@ class RouteQuerySerializer(serializers.Serializer):
 <pre><code class="python">def validate(self, route_query):
         validation_errors = {}
 
-        if GoogleMapsService.getCountry(route_query.origin) != &#39;SG&#39;:
+        # Check origin
+        origin_country = GoogleMapsService.getCountry(route_query.origin)
+        if origin_country == None:
+                validation_errors[&#39;origin&#39;] = [&#34;Origin could not be found&#34;]
+
+        elif origin_country != &#39;SG&#39;:
                 validation_errors[&#39;origin&#39;] = [&#34;Origin must be within Singapore&#34;]
 
-        if GoogleMapsService.getCountry(route_query.destination) != &#39;SG&#39;:
+        # Check destination
+        destination_country = GoogleMapsService.getCountry(route_query.destination)
+        if destination_country == None:
+                validation_errors[&#39;destination&#39;] = [&#34;Destination could not be found&#34;]
+
+        elif destination_country != &#39;SG&#39;:
                 validation_errors[&#39;destination&#39;] = [&#34;Destination must be within Singapore&#34;]
 
         if validation_errors:
