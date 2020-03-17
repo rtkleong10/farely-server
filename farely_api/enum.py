@@ -4,6 +4,12 @@ This module contains the enumeration classes for the Farely API.
 
 from enum import IntEnum
 
+__all__ = [
+	'FareCategory',
+	'FareType',
+	'TravelMode'
+]
+
 class FareCategory(IntEnum):
 	MRT_LRT_EARLY = 1
 	MRT_LRT = 2

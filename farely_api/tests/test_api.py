@@ -7,6 +7,10 @@ from farely_api.apis import FindRoutesApi
 from rest_framework import status
 from farely_api.enum import FareType
 
+__all__ = {
+	'FindRoutesApiTest',
+}
+
 class FindRoutesApiTest(APITestCase):
 	def setUp(self):
 		self.factory = APIRequestFactory()

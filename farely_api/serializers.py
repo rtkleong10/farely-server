@@ -7,6 +7,10 @@ from .entity import RouteQuery
 from .enum import FareType
 from .boundary import GoogleMapsService
 
+__all__ = [
+	'RouteQuerySerializer',
+]
+
 class RouteQuerySerializer(serializers.Serializer):
 	"""
 	This class serializes route queries into `farely_api.entity.RouteQuery` objects.

@@ -7,6 +7,10 @@ from rest_framework.views import APIView
 from .serializers import RouteQuerySerializer
 from .control import FindRoutesController, DummyFindRoutesController
 
+__all__ = [
+	'FindRoutesApi',
+]
+
 class FindRoutesApi(APIView):
 	"""
 	This API View accepts a route query and returns a list of the best routes

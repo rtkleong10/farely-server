@@ -6,6 +6,11 @@ from .boundary import GoogleMapsService, DataGovService, LTADataMallService
 from .enum import FareType, TravelMode, FareCategory
 from .entity import DirectionStep, Location
 
+__all__ = [
+	'FindRoutesController',
+	'FareController',
+]
+
 class FindRoutesController():
 	"""
 	This class processes a route query and returns the best routes from an origin to a destination location.

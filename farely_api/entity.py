@@ -4,6 +4,12 @@ This module contains the entity classes for the Farely API.
 
 from .enum import FareType, TravelMode
 
+__all__ = [
+	'RouteQuery',
+	'DirectionStep',
+	'Location'
+]
+
 class RouteQuery():
 	"""
 	This class creates route query objects. A route query is the query sent to the system when a user requests for best routes from an origin to a destination location.

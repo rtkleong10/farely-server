@@ -7,6 +7,14 @@ from farely_api.enum import FareType, TravelMode
 from farely_api.entity import DirectionStep
 from farely_api.control import FareController, FindRoutesController
 
+__all__ = {
+	'FareControllerTest',
+	'RouteControllerTest',
+}
+
+class RouteControllerTest(TestCase):
+	pass
+
 class FareControllerTest(TestCase):
 	def setUp(self):
 		self.fare_controller = FareController()
@@ -84,6 +92,3 @@ class FareControllerTest(TestCase):
 		)
 
 		self.assertEqual(fare, None)
-
-class RouteController(TestCase):
-	pass
