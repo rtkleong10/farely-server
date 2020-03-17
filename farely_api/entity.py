@@ -36,7 +36,7 @@ class RouteQuery():
 	@property
 	def fare_type(self):
 		"""
-		The fare type of the route query. It contains a value of the `FareType` enum.
+		The fare type of the route query. It contains a value of the `farely_api.enum.FareType` enum.
 		"""
 		return self.__fare_type
 
@@ -102,7 +102,7 @@ class DirectionStep():
 	@property
 	def travel_mode(self):
 		"""
-		The travel mode of the route query. It contains a value of the `TravelMode` enum.
+		The travel mode of the route query. It contains a value of the `farely_api.enum.TravelMode` enum.
 		"""
 		return self.__travel_mode
 
@@ -116,14 +116,14 @@ class DirectionStep():
 	@property
 	def departure_stop(self):
 		"""
-		The location of the departure stop of the direction step. It contains a `Location` object.
+		The location of the departure stop of the direction step. It contains a `farely_api.entity.Location` object.
 		"""
 		return self.__departure_stop
 
 	@property
 	def arrival_stop(self):
 		"""
-		The location of the arrival stop of the direction step. It contains a `Location` object.
+		The location of the arrival stop of the direction step. It contains a `farely_api.entity.Location` object.
 		"""
 		return self.__arrival_stop
 

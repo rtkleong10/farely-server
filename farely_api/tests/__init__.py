@@ -1,3 +1,3 @@
 """
-This module contains the tests for the Farely API. It contains unit testing (`test_boundary` and `test_control`) and integration testing (`test_api`).
+This module contains the tests for the Farely API. It contains unit testing (`farely_api.tests.test_boundary` and `farely_api.tests.test_control`) and integration testing (`farely_api.tests.test_api`).
 """
