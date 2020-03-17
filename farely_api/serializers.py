@@ -31,10 +31,20 @@ class RouteQuerySerializer(serializers.Serializer):
 	def validate(self, route_query):
 		validation_errors = {}
 
-		if GoogleMapsService.getCountry(route_query.origin) != 'SG':
+		# Check origin
+		origin_country = GoogleMapsService.getCountry(route_query.origin)
+		if origin_country == None:
+			validation_errors['origin'] = ["Origin could not be found"]
+
+		elif origin_country != 'SG':
 			validation_errors['origin'] = ["Origin must be within Singapore"]
 
-		if GoogleMapsService.getCountry(route_query.destination) != 'SG':
+		# Check destination
+		destination_country = GoogleMapsService.getCountry(route_query.destination)
+		if destination_country == None:
+			validation_errors['destination'] = ["Destination could not be found"]
+
+		elif destination_country != 'SG':
 			validation_errors['destination'] = ["Destination must be within Singapore"]
 
 		if validation_errors:

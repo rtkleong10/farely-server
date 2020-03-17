@@ -144,6 +144,7 @@ class FindRoutesController():
 					"lng": departure_stop.lng,
 					"name": departure_stop.name,
 					"travel_mode": direction_step.travel_mode,
+					"line": direction_step.line,
 				}
 
 				checkpoints.append(checkpoint)
@@ -157,6 +158,7 @@ class FindRoutesController():
 					"lng": endpoint.lng,
 					"name": endpoint.name,
 					"travel_mode": None,
+					"line": "",
 				}
 
 				checkpoints.append(checkpoint)
@@ -321,6 +323,7 @@ class DummyFindRoutesController():
 					"lng": departure_stop.lng,
 					"name": departure_stop.name,
 					"travel_mode": direction_step.travel_mode,
+					"line": direction_step.line,
 				}
 
 				checkpoints.append(checkpoint)
@@ -334,6 +337,7 @@ class DummyFindRoutesController():
 					"lng": endpoint.lng,
 					"name": endpoint.name,
 					"travel_mode": None,
+					"line": "",
 				}
 
 				checkpoints.append(checkpoint)

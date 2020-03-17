@@ -70,7 +70,6 @@ class DataGovService():
 	"""
 	Handle requests to and process response from  Data.gov.sg API
 	"""
-	#TODO Differentiate between different cash fare types
 	DATA_GOV_API_URL = 'https://data.gov.sg/api/action/datastore_search'
 	FEEDER_BUS_RESOURCE_ID = '310d0e0a-892f-48c4-abda-bfbdded8cb21'
 	EXPRESS_BUS_RESOURCE_ID = '32cf2f0a-7790-40f0-a6cd-929697edd3b8'
