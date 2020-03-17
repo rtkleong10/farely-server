@@ -12,7 +12,7 @@ class FindRoutesApi(APIView):
 	This API View accepts a route query and returns a list of the best routes
 
 	## Sample Query
-	`/api/find-routes/?fare_type=1&origin=boon+lay&destination=changi-airport`
+	[/api/find-routes/?fare_type=1&origin=boon+lay&destination=changi-airport](/api/find-routes/?fare_type=1&origin=boon+lay&destination=changi-airport)
 
 	## Parameters
 	- origin: Starting point of route
@@ -29,10 +29,10 @@ class FindRoutesApi(APIView):
 	- Google Maps API Format
 	- Routes include
 		- fare: In SGD
-		- checkpoints: List of departure stops of each leg except the first leg
+		- checkpoints: List of departure stops of each direction step and the destination of the route
 			- lat: Latitude of departure stop
 			- lng: Longitude of departure stop
-			- travel_mode: Travel mode of leg
+			- travel_mode: Travel mode of direction step
 				- 1: Bus
 				- 2: MRT/LRT
 				- 3: Walk
@@ -69,10 +69,10 @@ class FindRoutesApi(APIView):
 
 class DummyFindRoutesApi(APIView):
 	"""
-	Accepts a route query and returns a list of the best routes
+	This API View accepts a route query and returns a list of the best routes
 
 	## Sample Query
-	`/api/dummy-find-routes/?fare_type=1&origin=boon+lay&destination=changi-airport`
+	[/api/dummy-find-routes/?fare_type=1&origin=boon+lay&destination=changi-airport](/api/dummy-find-routes/?fare_type=1&origin=boon+lay&destination=changi-airport)
 
 	## Parameters
 	- origin: Starting point of route
@@ -88,16 +88,18 @@ class DummyFindRoutesApi(APIView):
 	## Return Format
 	- Google Maps API Format
 	- Routes include
-		- fare: In SGD (will return a dummy value of $2.00)
-		- checkpoints: List of departure stops of each leg except the first leg
+		- fare: In SGD
+		- checkpoints: List of departure stops of each direction step and the destination of the route
 			- lat: Latitude of departure stop
 			- lng: Longitude of departure stop
-			- travel_mode: Travel mode of leg
+			- travel_mode: Travel mode of direction step
 				- 1: Bus
 				- 2: MRT/LRT
 				- 3: Walk
 			- name: Name of departure step
 
+	### Example
+		{'geocoded_waypoints': [{'geocoder_status': 'OK', 'place_id': 'ChIJY0QBmQoP2jERGYItxQAIu7g', 'types': ['establishment', 'point_of_interest', 'university']}, {'geocoder_status': 'OK', 'place_id': 'ChIJ483Qk9YX2jERA0VOQV7d1tY', 'types': ['airport', 'establishment', 'point_of_interest']}], 'routes': [...], 'status': 'OK'}
 	"""
 
 	def get_view_name(self):

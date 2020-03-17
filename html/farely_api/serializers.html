@@ -36,7 +36,7 @@ from .boundary import GoogleMapsService
 
 class RouteQuerySerializer(serializers.Serializer):
         &#34;&#34;&#34;
-        This class serializes route queries into `RouteQuery` objects.
+        This class serializes route queries into `farely_api.entity.RouteQuery` objects.
         &#34;&#34;&#34;
         fare_type = serializers.ChoiceField(choices=FareType.choices())
         origin = serializers.CharField()
@@ -44,13 +44,13 @@ class RouteQuerySerializer(serializers.Serializer):
 
         def to_internal_value(self, data):
                 &#34;&#34;&#34;
-                This method converts a route query into a `RouteQuery` object
+                This method converts a route query into a `farely_api.entity.RouteQuery` object
 
                 ## Parameters
                 - `data`: A dictionary representing the route query
 
                 ## Returns
-                A `RouteQuery` object representing the route query
+                A `farely_api.entity.RouteQuery` object representing the route query
                 &#34;&#34;&#34;
                 data = super().to_internal_value(data)
                 return RouteQuery(**data)
@@ -84,14 +84,14 @@ class RouteQuerySerializer(serializers.Serializer):
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>This class serializes route queries into <code>RouteQuery</code> objects.</p></section>
+<section class="desc"><p>This class serializes route queries into <a title="farely_api.entity.RouteQuery" href="entity.html#farely_api.entity.RouteQuery"><code>RouteQuery</code></a> objects.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class RouteQuerySerializer(serializers.Serializer):
         &#34;&#34;&#34;
-        This class serializes route queries into `RouteQuery` objects.
+        This class serializes route queries into `farely_api.entity.RouteQuery` objects.
         &#34;&#34;&#34;
         fare_type = serializers.ChoiceField(choices=FareType.choices())
         origin = serializers.CharField()
@@ -99,13 +99,13 @@ class RouteQuerySerializer(serializers.Serializer):
 
         def to_internal_value(self, data):
                 &#34;&#34;&#34;
-                This method converts a route query into a `RouteQuery` object
+                This method converts a route query into a `farely_api.entity.RouteQuery` object
 
                 ## Parameters
                 - `data`: A dictionary representing the route query
 
                 ## Returns
-                A `RouteQuery` object representing the route query
+                A `farely_api.entity.RouteQuery` object representing the route query
                 &#34;&#34;&#34;
                 data = super().to_internal_value(data)
                 return RouteQuery(**data)
@@ -136,26 +136,26 @@ class RouteQuerySerializer(serializers.Serializer):
 <span>def <span class="ident">to_internal_value</span></span>(<span>self, data)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>This method converts a route query into a <code>RouteQuery</code> object</p>
+<section class="desc"><p>This method converts a route query into a <a title="farely_api.entity.RouteQuery" href="entity.html#farely_api.entity.RouteQuery"><code>RouteQuery</code></a> object</p>
 <h2 id="parameters">Parameters</h2>
 <ul>
 <li><code>data</code>: A dictionary representing the route query</li>
 </ul>
 <h2 id="returns">Returns</h2>
-<p>A <code>RouteQuery</code> object representing the route query</p></section>
+<p>A <a title="farely_api.entity.RouteQuery" href="entity.html#farely_api.entity.RouteQuery"><code>RouteQuery</code></a> object representing the route query</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_internal_value(self, data):
         &#34;&#34;&#34;
-        This method converts a route query into a `RouteQuery` object
+        This method converts a route query into a `farely_api.entity.RouteQuery` object
 
         ## Parameters
         - `data`: A dictionary representing the route query
 
         ## Returns
-        A `RouteQuery` object representing the route query
+        A `farely_api.entity.RouteQuery` object representing the route query
         &#34;&#34;&#34;
         data = super().to_internal_value(data)
         return RouteQuery(**data)</code></pre>

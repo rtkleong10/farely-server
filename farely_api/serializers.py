@@ -9,7 +9,7 @@ from .boundary import GoogleMapsService
 
 class RouteQuerySerializer(serializers.Serializer):
 	"""
-	This class serializes route queries into `RouteQuery` objects.
+	This class serializes route queries into `farely_api.entity.RouteQuery` objects.
 	"""
 	fare_type = serializers.ChoiceField(choices=FareType.choices())
 	origin = serializers.CharField()
@@ -17,13 +17,13 @@ class RouteQuerySerializer(serializers.Serializer):
 
 	def to_internal_value(self, data):
 		"""
-		This method converts a route query into a `RouteQuery` object
+		This method converts a route query into a `farely_api.entity.RouteQuery` object
 
 		## Parameters
 		- `data`: A dictionary representing the route query
 
 		## Returns
-		A `RouteQuery` object representing the route query
+		A `farely_api.entity.RouteQuery` object representing the route query
 		"""
 		data = super().to_internal_value(data)
 		return RouteQuery(**data)
