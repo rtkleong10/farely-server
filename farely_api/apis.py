@@ -76,7 +76,7 @@ class FindRoutesApi(APIView):
 
 		# Find candidate locations
 		route_query = route_query_serializer.validated_data
-		route_response = FindRoutesController(route_query).findRoutes()
+		route_response = FindRoutesController(route_query).find_routes()
 
 		return Response(route_response)
 
@@ -128,6 +128,6 @@ class FindRoutesApi(APIView):
 #
 # 		# Find candidate locations
 # 		route_query = route_query_serializer.validated_data
-# 		route_response = DummyFindRoutesController(route_query).findRoutes()
+# 		route_response = DummyFindRoutesController(route_query).find_routes()
 #
 # 		return Response(route_response)
