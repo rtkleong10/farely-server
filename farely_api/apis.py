@@ -60,10 +60,10 @@ class FindRoutesApi(APIView):
 		"""Handles the get request for this API view.
 
 		Args:
-			request (rest_framework.request.Request): GET request made including the query parameters
+			request (rest_framework.request.Request): GET request made including the query parameters.
 
 		Returns:
-			response (rest_framework.response.Response): API response containing the
+			response (rest_framework.response.Response): API response containing the routes.
 
 		Raises:
 			 rest_framework.serializers.ValidationError: If the request query parameters are invalid.
