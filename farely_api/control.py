@@ -118,9 +118,6 @@ class FindRoutesController():
 
 		Args:
 			route (dict): Route in the Google Maps Direction API Format.
-
-		Returns:
-			route (dict): Route in the Google Maps Direction API Format with fare and checkpoint information embedded.
 		"""
 		legs = route['legs']
 
