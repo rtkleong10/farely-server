@@ -66,7 +66,7 @@ class FindRoutesApi(APIView):
 			response (rest_framework.response.Response): API response containing the
 
 		Raises:
-			 ValidationError: If the request query parameters are invalid.
+			 rest_framework.serializers.ValidationError: If the request query parameters are invalid.
 		"""
 		# Serialize input
 		route_query_serializer = RouteQuerySerializer(data=request.query_params)
