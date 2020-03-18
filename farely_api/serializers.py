@@ -41,7 +41,7 @@ class RouteQuerySerializer(serializers.Serializer):
 			route_query (farely_api.entity.RouteQuery): `farely_api.entity.RouteQuery` object representing the route query
 
 		Raises:
-			rest_framework.serializers.ValidationError: If the route query's origin and destination can't be found or are not in Singapore.
+			`rest_framework.serializers.ValidationError`: If the route query's origin and destination can't be found or are not in Singapore.
 		"""
 		validation_errors = {}
 
