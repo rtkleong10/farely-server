@@ -145,7 +145,6 @@ class DataGovService():
 	}
 	"""A dictionary that maps the name of the fare types used by Data.gov.sg for MRTs and LRTs to `farely_api.enum.FareType` objects."""
 	MRT_LRT_FARE_CATEGORY_MAPPING = {
-		'Before 7.45am  (Weekdays excluding public holidays)': FareCategory.MRT_LRT_EARLY,
 		'All other timings': FareCategory.MRT_LRT,
 		'All timings': FareCategory.MRT_LRT
 	}
