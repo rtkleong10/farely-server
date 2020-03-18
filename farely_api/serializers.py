@@ -46,7 +46,7 @@ class RouteQuerySerializer(serializers.Serializer):
 		validation_errors = {}
 
 		# Check origin
-		origin_country = GoogleMapsService.getCountry(route_query.origin)
+		origin_country = GoogleMapsService.get_country(route_query.origin)
 		if origin_country == None:
 			validation_errors['origin'] = ["Origin could not be found"]
 
@@ -54,7 +54,7 @@ class RouteQuerySerializer(serializers.Serializer):
 			validation_errors['origin'] = ["Origin must be within Singapore"]
 
 		# Check destination
-		destination_country = GoogleMapsService.getCountry(route_query.destination)
+		destination_country = GoogleMapsService.get_country(route_query.destination)
 		if destination_country == None:
 			validation_errors['destination'] = ["Destination could not be found"]
 

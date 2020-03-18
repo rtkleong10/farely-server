@@ -15,7 +15,7 @@ class FareControllerTest(TestCase):
 		self.fare_controller = FareController()
 
 	def test_empty_route(self):
-		fare = self.fare_controller.calculateFare(
+		fare = self.fare_controller.calculate_fare(
 			fare_type=FareType.ADULT,
 			direction_steps=[],
 		)
@@ -23,7 +23,7 @@ class FareControllerTest(TestCase):
 		self.assertEqual(fare, 0)
 
 	def test_walking_route(self):
-		fare = self.fare_controller.calculateFare(
+		fare = self.fare_controller.calculate_fare(
 			fare_type=FareType.ADULT,
 			direction_steps=[
 				DirectionStep(
@@ -36,7 +36,7 @@ class FareControllerTest(TestCase):
 		self.assertEqual(fare, 0)
 
 	def test_mrt_bus_route(self):
-		fare = self.fare_controller.calculateFare(
+		fare = self.fare_controller.calculate_fare(
 			fare_type=FareType.STUDENT,
 			direction_steps=[
 				DirectionStep(
@@ -54,7 +54,7 @@ class FareControllerTest(TestCase):
 		self.assertEqual(fare, 0.52)
 
 	def test_invalid_travel_mode(self):
-		fare = self.fare_controller.calculateFare(
+		fare = self.fare_controller.calculate_fare(
 			fare_type=FareType.ADULT,
 			direction_steps=[
 				DirectionStep(
@@ -72,7 +72,7 @@ class FareControllerTest(TestCase):
 		self.assertEqual(fare, None)
 
 	def test_missing_line(self):
-		fare = self.fare_controller.calculateFare(
+		fare = self.fare_controller.calculate_fare(
 			fare_type=FareType.ADULT,
 			direction_steps=[
 				DirectionStep(

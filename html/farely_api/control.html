@@ -53,7 +53,7 @@ class FindRoutesController():
                 ...     origin=&#34;NTU&#34;,
                 ...     destination=&#34;Changi Airport&#34;
                 ... )
-                &gt;&gt;&gt; routes = FindRoutesController(route_query).findRoutes()
+                &gt;&gt;&gt; routes = FindRoutesController(route_query).find_routes()
                 &gt;&gt;&gt; print(routes)
                 {&#39;geocoded_waypoints&#39;: [{&#39;geocoder_status&#39;: &#39;OK&#39;, &#39;place_id&#39;: &#39;ChIJY0QBmQoP2jERGYItxQAIu7g&#39;, &#39;types&#39;: [&#39;establishment&#39;, &#39;point_of_interest&#39;, &#39;university&#39;]}, {&#39;geocoder_status&#39;: &#39;OK&#39;, &#39;place_id&#39;: &#39;ChIJ483Qk9YX2jERA0VOQV7d1tY&#39;, &#39;types&#39;: [&#39;airport&#39;, &#39;establishment&#39;, &#39;point_of_interest&#39;]}], &#39;routes&#39;: [...], &#39;status&#39;: &#39;OK&#39;}
         &#34;&#34;&#34;
@@ -62,7 +62,7 @@ class FindRoutesController():
                 self.__route_query = route_query
                 self.__fare_controller = FareController()
 
-        def getWalkingStep(self, step):
+        def get_walking_step(self, step):
                 &#34;&#34;&#34;Instantiates `farely_api.entity.DirectionStep` from a walking step of a route.
 
                 Args:
@@ -71,8 +71,8 @@ class FindRoutesController():
                 Returns:
                         direction_step (farely_api.entity.DirectionStep): A `farely_api.entity.DirectionStep` object with attributes of the walking step.
                 &#34;&#34;&#34;
-                departure_stop = GoogleMapsService.getLocation(**step[&#34;start_location&#34;])
-                arrival_stop = GoogleMapsService.getLocation(**step[&#34;end_location&#34;])
+                departure_stop = GoogleMapsService.get_location(**step[&#34;start_location&#34;])
+                arrival_stop = GoogleMapsService.get_location(**step[&#34;end_location&#34;])
                 distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
 
                 return DirectionStep(
@@ -82,7 +82,7 @@ class FindRoutesController():
                         distance=distance,
                 )
 
-        def getTransitStep(self, step):
+        def get_transit_step(self, step):
                 &#34;&#34;&#34;Instantiates `farely_api.entity.DirectionStep` from a walking step of a route.
 
                 Args:
@@ -118,7 +118,7 @@ class FindRoutesController():
                         distance=distance,
                 )
 
-        def getDirectionSteps(self, steps):
+        def get_direction_steps(self, steps):
                 &#34;&#34;&#34;Obtains a list of direction steps from a dictionary representing the steps.
 
                 Args:
@@ -132,14 +132,14 @@ class FindRoutesController():
                 for step in steps:
                         travel_mode = step[&#34;travel_mode&#34;]
                         if travel_mode == &#34;TRANSIT&#34;:
-                                direction_steps.append(self.getTransitStep(step))
+                                direction_steps.append(self.get_transit_step(step))
 
                         elif travel_mode == &#34;WALKING&#34;:
-                                direction_steps.append(self.getWalkingStep(step))
+                                direction_steps.append(self.get_walking_step(step))
 
                 return direction_steps
 
-        def addRouteDetails(self, route):
+        def add_route_details(self, route):
                 &#34;&#34;&#34;Adds fare and checkpoint information to a route.
 
                 Checkpoints are created for the departure stop of every step, as well as the endpoint of the last direction step (destination of the route). Checkpoints include the latitude, longitude and name of the checkpoint. For every checkpoint except the last one, the travel_mode is also included using a `farely_api.enum.TravelMode` object.
@@ -155,10 +155,10 @@ class FindRoutesController():
                 # Each route will always have one leg
                 for leg in legs:
                         steps = leg[&#39;steps&#39;]
-                        direction_steps = self.getDirectionSteps(steps)
+                        direction_steps = self.get_direction_steps(steps)
 
                         # Add fare
-                        leg[&#39;fare&#39;] = self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
+                        leg[&#39;fare&#39;] = self.__fare_controller.calculate_fare(self.__route_query.fare_type, direction_steps)
 
                         # Add checkpoint information
                         checkpoints = []
@@ -194,7 +194,7 @@ class FindRoutesController():
 
                         leg[&#39;checkpoints&#39;] = checkpoints
 
-        def findRoutes(self):
+        def find_routes(self):
                 &#34;&#34;&#34;Processes a route query to find the best routes.
 
                 Uses the Google Maps Direction API to find the routes. Then, it adds fare and checkpoint information to the routes.
@@ -202,7 +202,7 @@ class FindRoutesController():
                 Returns:
                         routes (dict): Dictionary of routes in the Google Maps Direction API Format with fare and checkpoint information embedded.
                 &#34;&#34;&#34;
-                data = GoogleMapsService.getDirections(
+                data = GoogleMapsService.get_directions(
                         origin=self.__route_query.origin,
                         destination=self.__route_query.destination
                 )
@@ -210,7 +210,7 @@ class FindRoutesController():
                 routes = data[&#39;routes&#39;]
 
                 for route in routes:
-                        self.addRouteDetails(route)
+                        self.add_route_details(route)
 
                 return data
 
@@ -221,10 +221,10 @@ class FareController():
         &#34;&#34;&#34;
 
         def __init__(self):
-                self.__fare_table = DataGovService.getFareTable()
-                self.__bus_services = LTADataMallService.getBusServices()
+                self.__fare_table = DataGovService.get_fare_table()
+                self.__bus_services = LTADataMallService.get_bus_services()
 
-        def getBusType(self, line):
+        def get_bus_type(self, line):
                 &#34;&#34;&#34;Obtains the `farely_api.enum.FareCategory` object corresponding to the line of the bus.
 
                 Args:
@@ -235,7 +235,7 @@ class FareController():
                 &#34;&#34;&#34;
                 return self.__bus_services.get(line)
 
-        def parseSteps(self, direction_steps):
+        def parse_steps(self, direction_steps):
                 &#34;&#34;&#34;Converts a list of `farely_api.entity.DirectionStep` objects into a list of tuples containing the fare category and distance of the directions steps.
 
                 Args:
@@ -257,7 +257,7 @@ class FareController():
                                 fare_category = FareCategory.MRT_LRT
 
                         elif step.travel_mode == TravelMode.BUS:
-                                fare_category = self.getBusType(step.line)
+                                fare_category = self.get_bus_type(step.line)
 
                         elif step.travel_mode == TravelMode.WALK:
                                 fare_category = FareCategory.WALK
@@ -267,7 +267,7 @@ class FareController():
 
                 return steps
 
-        def getStepFare(self, fare_type, fare_category, distance):
+        def get_step_fare(self, fare_type, fare_category, distance):
                 &#34;&#34;&#34;Gets the fare for a step of the route.
 
                 This step may correspond to multiple direction steps that share the same or a similar fare category.
@@ -303,7 +303,7 @@ class FareController():
 
                 return None
 
-        def calculateCashFare(self, steps):
+        def calculate_cash_fare(self, steps):
                 &#34;&#34;&#34;Calculates the fare for a list of direction steps.
 
                 This method is only for the Single Trip fare type.
@@ -319,7 +319,7 @@ class FareController():
                 for step in steps:
                         fare_category = step[0]
                         distance = step[1]
-                        current_fare = self.getStepFare(FareType.SINGLE_TRIP,fare_category, distance)
+                        current_fare = self.get_step_fare(FareType.SINGLE_TRIP,fare_category, distance)
 
                         # Return None if one step&#39;s fare can&#39;t be calculated
                         if current_fare == None:
@@ -329,7 +329,7 @@ class FareController():
 
                 return total_fare
 
-        def calculateCardFare(self, fare_type, steps):
+        def calculate_card_fare(self, fare_type, steps):
                 &#34;&#34;&#34;Calculates the fare for a list of direction steps.
 
                 This method is for fare types other than Single Trip.
@@ -358,7 +358,7 @@ class FareController():
                                 current_distance += distance
 
                         else:
-                                current_fare = self.getStepFare(fare_type, current_fare_category, current_distance)
+                                current_fare = self.get_step_fare(fare_type, current_fare_category, current_distance)
 
                                 # Return None if one step&#39;s fare can&#39;t be calculated
                                 if current_fare == None:
@@ -369,7 +369,7 @@ class FareController():
                                 current_fare_category = fare_category
                                 current_distance = distance
 
-                current_fare = self.getStepFare(fare_type, current_fare_category, current_distance)
+                current_fare = self.get_step_fare(fare_type, current_fare_category, current_distance)
 
                 if current_fare == None:
                         return None
@@ -378,7 +378,7 @@ class FareController():
 
                 return total_fare
 
-        def calculateFare(self, fare_type, direction_steps):
+        def calculate_fare(self, fare_type, direction_steps):
                 &#34;&#34;&#34;Calculates the fare for a list of direction steps.
 
                 Args:
@@ -388,13 +388,13 @@ class FareController():
                 Returns:
                         fare (float): Calculated fare in Singapore dollars.
                 &#34;&#34;&#34;
-                steps = self.parseSteps(direction_steps)
+                steps = self.parse_steps(direction_steps)
 
                 if fare_type == FareType.SINGLE_TRIP:
-                        total_fare = self.calculateCashFare(steps)
+                        total_fare = self.calculate_cash_fare(steps)
 
                 else:
-                        total_fare = self.calculateCardFare(fare_type, steps)
+                        total_fare = self.calculate_card_fare(fare_type, steps)
 
                 return total_fare
 
@@ -414,7 +414,7 @@ class FareController():
 #       origin=&#34;NTU&#34;,
 #       destination=&#34;Changi Airport&#34;
 #       )
-#       routes = FindRoutesController(route_query).findRoutes()
+#       routes = FindRoutesController(route_query).find_routes()
 #       print(routes)
 #       ```
 #
@@ -426,7 +426,7 @@ class FareController():
 #               self.__route_query = route_query
 #               self.__fare_controller = FareController()
 #
-#       def getWalkingStep(self, step):
+#       def get_walking_step(self, step):
 #               &#34;&#34;&#34;
 #               This method instantiates `farely_api.entity.DirectionStep` from a walking step of a route.
 #
@@ -436,8 +436,8 @@ class FareController():
 #               ## Returns
 #               A `farely_api.entity.DirectionStep` object with attributes of the walking step
 #               &#34;&#34;&#34;
-#               departure_stop = GoogleMapsService.getLocation(**step[&#34;start_location&#34;])
-#               arrival_stop = GoogleMapsService.getLocation(**step[&#34;end_location&#34;])
+#               departure_stop = GoogleMapsService.get_location(**step[&#34;start_location&#34;])
+#               arrival_stop = GoogleMapsService.get_location(**step[&#34;end_location&#34;])
 #               distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
 #
 #               return DirectionStep(
@@ -447,7 +447,7 @@ class FareController():
 #                       distance=distance,
 #               )
 #
-#       def getTransitStep(self, step):
+#       def get_transit_step(self, step):
 #               &#34;&#34;&#34;
 #               This method instantiate a `farely_api.entity.DirectionStep` object from a transit step of a route.
 #
@@ -484,7 +484,7 @@ class FareController():
 #                       distance=distance,
 #               )
 #
-#       def getDirectionSteps(self, steps):
+#       def get_direction_steps(self, steps):
 #               &#34;&#34;&#34;
 #               This method obtains a list of direction steps from a dictionary representing the steps.
 #
@@ -499,14 +499,14 @@ class FareController():
 #               for step in steps:
 #                       travel_mode = step[&#34;travel_mode&#34;]
 #                       if travel_mode == &#34;TRANSIT&#34;:
-#                               direction_steps.append(self.getTransitStep(step))
+#                               direction_steps.append(self.get_transit_step(step))
 #
 #                       elif travel_mode == &#34;WALKING&#34;:
-#                               direction_steps.append(self.getWalkingStep(step))
+#                               direction_steps.append(self.get_walking_step(step))
 #
 #               return direction_steps
 #
-#       def addRouteDetails(self, route):
+#       def add_route_details(self, route):
 #               &#34;&#34;&#34;
 #               This method adds fare and checkpoint information to a route. Checkpoints are created for the departure stop of every step, as well as the endpoint of the last direction step (destination of the route). Checkpoints include the latitude, longitude and name of the checkpoint. For every checkpoint except the last one, the travel_mode is also included using a `farely_api.enum.TravelMode` object
 #
@@ -521,10 +521,10 @@ class FareController():
 #               # Each route will always have one leg
 #               for leg in legs:
 #                       steps = leg[&#39;steps&#39;]
-#                       direction_steps = self.getDirectionSteps(steps)
+#                       direction_steps = self.get_direction_steps(steps)
 #
 #                       # Add fare
-#                       leg[&#39;fare&#39;] = self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
+#                       leg[&#39;fare&#39;] = self.__fare_controller.calculate_fare(self.__route_query.fare_type, direction_steps)
 #
 #                       # Add checkpoint information
 #                       checkpoints = []
@@ -558,14 +558,14 @@ class FareController():
 #
 #                       leg[&#39;checkpoints&#39;] = checkpoints
 #
-#       def findRoutes(self):
+#       def find_routes(self):
 #               &#34;&#34;&#34;
 #               This method processes a route query to find the best routes. It uses the Google Maps Direction API to find the routes. Then, it adds fare and checkpoint information to the routes.
 #
 #               ## Returns
 #               A list of routes in the Google Maps Direction API Format with fare and checkpoint information embedded
 #               &#34;&#34;&#34;
-#               data = GoogleMapsService.getDirections(
+#               data = GoogleMapsService.get_directions(
 #                       origin=self.__route_query.origin,
 #                       destination=self.__route_query.destination
 #               )
@@ -573,7 +573,7 @@ class FareController():
 #               routes = data[&#39;routes&#39;]
 #
 #               for route in routes:
-#                       self.addRouteDetails(route)
+#                       self.add_route_details(route)
 #
 #               return data</code></pre>
 </details>
@@ -604,10 +604,10 @@ class FareController():
         &#34;&#34;&#34;
 
         def __init__(self):
-                self.__fare_table = DataGovService.getFareTable()
-                self.__bus_services = LTADataMallService.getBusServices()
+                self.__fare_table = DataGovService.get_fare_table()
+                self.__bus_services = LTADataMallService.get_bus_services()
 
-        def getBusType(self, line):
+        def get_bus_type(self, line):
                 &#34;&#34;&#34;Obtains the `farely_api.enum.FareCategory` object corresponding to the line of the bus.
 
                 Args:
@@ -618,7 +618,7 @@ class FareController():
                 &#34;&#34;&#34;
                 return self.__bus_services.get(line)
 
-        def parseSteps(self, direction_steps):
+        def parse_steps(self, direction_steps):
                 &#34;&#34;&#34;Converts a list of `farely_api.entity.DirectionStep` objects into a list of tuples containing the fare category and distance of the directions steps.
 
                 Args:
@@ -640,7 +640,7 @@ class FareController():
                                 fare_category = FareCategory.MRT_LRT
 
                         elif step.travel_mode == TravelMode.BUS:
-                                fare_category = self.getBusType(step.line)
+                                fare_category = self.get_bus_type(step.line)
 
                         elif step.travel_mode == TravelMode.WALK:
                                 fare_category = FareCategory.WALK
@@ -650,7 +650,7 @@ class FareController():
 
                 return steps
 
-        def getStepFare(self, fare_type, fare_category, distance):
+        def get_step_fare(self, fare_type, fare_category, distance):
                 &#34;&#34;&#34;Gets the fare for a step of the route.
 
                 This step may correspond to multiple direction steps that share the same or a similar fare category.
@@ -686,7 +686,7 @@ class FareController():
 
                 return None
 
-        def calculateCashFare(self, steps):
+        def calculate_cash_fare(self, steps):
                 &#34;&#34;&#34;Calculates the fare for a list of direction steps.
 
                 This method is only for the Single Trip fare type.
@@ -702,7 +702,7 @@ class FareController():
                 for step in steps:
                         fare_category = step[0]
                         distance = step[1]
-                        current_fare = self.getStepFare(FareType.SINGLE_TRIP,fare_category, distance)
+                        current_fare = self.get_step_fare(FareType.SINGLE_TRIP,fare_category, distance)
 
                         # Return None if one step&#39;s fare can&#39;t be calculated
                         if current_fare == None:
@@ -712,7 +712,7 @@ class FareController():
 
                 return total_fare
 
-        def calculateCardFare(self, fare_type, steps):
+        def calculate_card_fare(self, fare_type, steps):
                 &#34;&#34;&#34;Calculates the fare for a list of direction steps.
 
                 This method is for fare types other than Single Trip.
@@ -741,7 +741,7 @@ class FareController():
                                 current_distance += distance
 
                         else:
-                                current_fare = self.getStepFare(fare_type, current_fare_category, current_distance)
+                                current_fare = self.get_step_fare(fare_type, current_fare_category, current_distance)
 
                                 # Return None if one step&#39;s fare can&#39;t be calculated
                                 if current_fare == None:
@@ -752,7 +752,7 @@ class FareController():
                                 current_fare_category = fare_category
                                 current_distance = distance
 
-                current_fare = self.getStepFare(fare_type, current_fare_category, current_distance)
+                current_fare = self.get_step_fare(fare_type, current_fare_category, current_distance)
 
                 if current_fare == None:
                         return None
@@ -761,7 +761,7 @@ class FareController():
 
                 return total_fare
 
-        def calculateFare(self, fare_type, direction_steps):
+        def calculate_fare(self, fare_type, direction_steps):
                 &#34;&#34;&#34;Calculates the fare for a list of direction steps.
 
                 Args:
@@ -771,20 +771,20 @@ class FareController():
                 Returns:
                         fare (float): Calculated fare in Singapore dollars.
                 &#34;&#34;&#34;
-                steps = self.parseSteps(direction_steps)
+                steps = self.parse_steps(direction_steps)
 
                 if fare_type == FareType.SINGLE_TRIP:
-                        total_fare = self.calculateCashFare(steps)
+                        total_fare = self.calculate_cash_fare(steps)
 
                 else:
-                        total_fare = self.calculateCardFare(fare_type, steps)
+                        total_fare = self.calculate_card_fare(fare_type, steps)
 
                 return total_fare</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="farely_api.control.FareController.calculateCardFare"><code class="name flex">
-<span>def <span class="ident">calculateCardFare</span></span>(<span>self, fare_type, steps)</span>
+<dt id="farely_api.control.FareController.calculate_card_fare"><code class="name flex">
+<span>def <span class="ident">calculate_card_fare</span></span>(<span>self, fare_type, steps)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Calculates the fare for a list of direction steps.</p>
@@ -805,7 +805,7 @@ class FareController():
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def calculateCardFare(self, fare_type, steps):
+<pre><code class="python">def calculate_card_fare(self, fare_type, steps):
         &#34;&#34;&#34;Calculates the fare for a list of direction steps.
 
         This method is for fare types other than Single Trip.
@@ -834,7 +834,7 @@ class FareController():
                         current_distance += distance
 
                 else:
-                        current_fare = self.getStepFare(fare_type, current_fare_category, current_distance)
+                        current_fare = self.get_step_fare(fare_type, current_fare_category, current_distance)
 
                         # Return None if one step&#39;s fare can&#39;t be calculated
                         if current_fare == None:
@@ -845,7 +845,7 @@ class FareController():
                         current_fare_category = fare_category
                         current_distance = distance
 
-        current_fare = self.getStepFare(fare_type, current_fare_category, current_distance)
+        current_fare = self.get_step_fare(fare_type, current_fare_category, current_distance)
 
         if current_fare == None:
                 return None
@@ -855,8 +855,8 @@ class FareController():
         return total_fare</code></pre>
 </details>
 </dd>
-<dt id="farely_api.control.FareController.calculateCashFare"><code class="name flex">
-<span>def <span class="ident">calculateCashFare</span></span>(<span>self, steps)</span>
+<dt id="farely_api.control.FareController.calculate_cash_fare"><code class="name flex">
+<span>def <span class="ident">calculate_cash_fare</span></span>(<span>self, steps)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Calculates the fare for a list of direction steps.</p>
@@ -875,7 +875,7 @@ class FareController():
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def calculateCashFare(self, steps):
+<pre><code class="python">def calculate_cash_fare(self, steps):
         &#34;&#34;&#34;Calculates the fare for a list of direction steps.
 
         This method is only for the Single Trip fare type.
@@ -891,7 +891,7 @@ class FareController():
         for step in steps:
                 fare_category = step[0]
                 distance = step[1]
-                current_fare = self.getStepFare(FareType.SINGLE_TRIP,fare_category, distance)
+                current_fare = self.get_step_fare(FareType.SINGLE_TRIP,fare_category, distance)
 
                 # Return None if one step&#39;s fare can&#39;t be calculated
                 if current_fare == None:
@@ -902,8 +902,8 @@ class FareController():
         return total_fare</code></pre>
 </details>
 </dd>
-<dt id="farely_api.control.FareController.calculateFare"><code class="name flex">
-<span>def <span class="ident">calculateFare</span></span>(<span>self, fare_type, direction_steps)</span>
+<dt id="farely_api.control.FareController.calculate_fare"><code class="name flex">
+<span>def <span class="ident">calculate_fare</span></span>(<span>self, fare_type, direction_steps)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Calculates the fare for a list of direction steps.</p>
@@ -923,7 +923,7 @@ class FareController():
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def calculateFare(self, fare_type, direction_steps):
+<pre><code class="python">def calculate_fare(self, fare_type, direction_steps):
         &#34;&#34;&#34;Calculates the fare for a list of direction steps.
 
         Args:
@@ -933,19 +933,19 @@ class FareController():
         Returns:
                 fare (float): Calculated fare in Singapore dollars.
         &#34;&#34;&#34;
-        steps = self.parseSteps(direction_steps)
+        steps = self.parse_steps(direction_steps)
 
         if fare_type == FareType.SINGLE_TRIP:
-                total_fare = self.calculateCashFare(steps)
+                total_fare = self.calculate_cash_fare(steps)
 
         else:
-                total_fare = self.calculateCardFare(fare_type, steps)
+                total_fare = self.calculate_card_fare(fare_type, steps)
 
         return total_fare</code></pre>
 </details>
 </dd>
-<dt id="farely_api.control.FareController.getBusType"><code class="name flex">
-<span>def <span class="ident">getBusType</span></span>(<span>self, line)</span>
+<dt id="farely_api.control.FareController.get_bus_type"><code class="name flex">
+<span>def <span class="ident">get_bus_type</span></span>(<span>self, line)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Obtains the <a title="farely_api.enum.FareCategory" href="enum.html#farely_api.enum.FareCategory"><code>FareCategory</code></a> object corresponding to the line of the bus.</p>
@@ -963,7 +963,7 @@ class FareController():
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getBusType(self, line):
+<pre><code class="python">def get_bus_type(self, line):
         &#34;&#34;&#34;Obtains the `farely_api.enum.FareCategory` object corresponding to the line of the bus.
 
         Args:
@@ -975,8 +975,8 @@ class FareController():
         return self.__bus_services.get(line)</code></pre>
 </details>
 </dd>
-<dt id="farely_api.control.FareController.getStepFare"><code class="name flex">
-<span>def <span class="ident">getStepFare</span></span>(<span>self, fare_type, fare_category, distance)</span>
+<dt id="farely_api.control.FareController.get_step_fare"><code class="name flex">
+<span>def <span class="ident">get_step_fare</span></span>(<span>self, fare_type, fare_category, distance)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Gets the fare for a step of the route.</p>
@@ -999,7 +999,7 @@ class FareController():
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getStepFare(self, fare_type, fare_category, distance):
+<pre><code class="python">def get_step_fare(self, fare_type, fare_category, distance):
         &#34;&#34;&#34;Gets the fare for a step of the route.
 
         This step may correspond to multiple direction steps that share the same or a similar fare category.
@@ -1036,8 +1036,8 @@ class FareController():
         return None</code></pre>
 </details>
 </dd>
-<dt id="farely_api.control.FareController.parseSteps"><code class="name flex">
-<span>def <span class="ident">parseSteps</span></span>(<span>self, direction_steps)</span>
+<dt id="farely_api.control.FareController.parse_steps"><code class="name flex">
+<span>def <span class="ident">parse_steps</span></span>(<span>self, direction_steps)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Converts a list of <a title="farely_api.entity.DirectionStep" href="entity.html#farely_api.entity.DirectionStep"><code>DirectionStep</code></a> objects into a list of tuples containing the fare category and distance of the directions steps.</p>
@@ -1055,7 +1055,7 @@ class FareController():
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def parseSteps(self, direction_steps):
+<pre><code class="python">def parse_steps(self, direction_steps):
         &#34;&#34;&#34;Converts a list of `farely_api.entity.DirectionStep` objects into a list of tuples containing the fare category and distance of the directions steps.
 
         Args:
@@ -1077,7 +1077,7 @@ class FareController():
                         fare_category = FareCategory.MRT_LRT
 
                 elif step.travel_mode == TravelMode.BUS:
-                        fare_category = self.getBusType(step.line)
+                        fare_category = self.get_bus_type(step.line)
 
                 elif step.travel_mode == TravelMode.WALK:
                         fare_category = FareCategory.WALK
@@ -1106,7 +1106,7 @@ class FareController():
 ...     origin="NTU",
 ...     destination="Changi Airport"
 ... )
-&gt;&gt;&gt; routes = FindRoutesController(route_query).findRoutes()
+&gt;&gt;&gt; routes = FindRoutesController(route_query).find_routes()
 &gt;&gt;&gt; print(routes)
 {'geocoded_waypoints': [{'geocoder_status': 'OK', 'place_id': 'ChIJY0QBmQoP2jERGYItxQAIu7g', 'types': ['establishment', 'point_of_interest', 'university']}, {'geocoder_status': 'OK', 'place_id': 'ChIJ483Qk9YX2jERA0VOQV7d1tY', 'types': ['airport', 'establishment', 'point_of_interest']}], 'routes': [...], 'status': 'OK'}
 </code></pre></section>
@@ -1127,7 +1127,7 @@ class FareController():
                 ...     origin=&#34;NTU&#34;,
                 ...     destination=&#34;Changi Airport&#34;
                 ... )
-                &gt;&gt;&gt; routes = FindRoutesController(route_query).findRoutes()
+                &gt;&gt;&gt; routes = FindRoutesController(route_query).find_routes()
                 &gt;&gt;&gt; print(routes)
                 {&#39;geocoded_waypoints&#39;: [{&#39;geocoder_status&#39;: &#39;OK&#39;, &#39;place_id&#39;: &#39;ChIJY0QBmQoP2jERGYItxQAIu7g&#39;, &#39;types&#39;: [&#39;establishment&#39;, &#39;point_of_interest&#39;, &#39;university&#39;]}, {&#39;geocoder_status&#39;: &#39;OK&#39;, &#39;place_id&#39;: &#39;ChIJ483Qk9YX2jERA0VOQV7d1tY&#39;, &#39;types&#39;: [&#39;airport&#39;, &#39;establishment&#39;, &#39;point_of_interest&#39;]}], &#39;routes&#39;: [...], &#39;status&#39;: &#39;OK&#39;}
         &#34;&#34;&#34;
@@ -1136,7 +1136,7 @@ class FareController():
                 self.__route_query = route_query
                 self.__fare_controller = FareController()
 
-        def getWalkingStep(self, step):
+        def get_walking_step(self, step):
                 &#34;&#34;&#34;Instantiates `farely_api.entity.DirectionStep` from a walking step of a route.
 
                 Args:
@@ -1145,8 +1145,8 @@ class FareController():
                 Returns:
                         direction_step (farely_api.entity.DirectionStep): A `farely_api.entity.DirectionStep` object with attributes of the walking step.
                 &#34;&#34;&#34;
-                departure_stop = GoogleMapsService.getLocation(**step[&#34;start_location&#34;])
-                arrival_stop = GoogleMapsService.getLocation(**step[&#34;end_location&#34;])
+                departure_stop = GoogleMapsService.get_location(**step[&#34;start_location&#34;])
+                arrival_stop = GoogleMapsService.get_location(**step[&#34;end_location&#34;])
                 distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
 
                 return DirectionStep(
@@ -1156,7 +1156,7 @@ class FareController():
                         distance=distance,
                 )
 
-        def getTransitStep(self, step):
+        def get_transit_step(self, step):
                 &#34;&#34;&#34;Instantiates `farely_api.entity.DirectionStep` from a walking step of a route.
 
                 Args:
@@ -1192,7 +1192,7 @@ class FareController():
                         distance=distance,
                 )
 
-        def getDirectionSteps(self, steps):
+        def get_direction_steps(self, steps):
                 &#34;&#34;&#34;Obtains a list of direction steps from a dictionary representing the steps.
 
                 Args:
@@ -1206,14 +1206,14 @@ class FareController():
                 for step in steps:
                         travel_mode = step[&#34;travel_mode&#34;]
                         if travel_mode == &#34;TRANSIT&#34;:
-                                direction_steps.append(self.getTransitStep(step))
+                                direction_steps.append(self.get_transit_step(step))
 
                         elif travel_mode == &#34;WALKING&#34;:
-                                direction_steps.append(self.getWalkingStep(step))
+                                direction_steps.append(self.get_walking_step(step))
 
                 return direction_steps
 
-        def addRouteDetails(self, route):
+        def add_route_details(self, route):
                 &#34;&#34;&#34;Adds fare and checkpoint information to a route.
 
                 Checkpoints are created for the departure stop of every step, as well as the endpoint of the last direction step (destination of the route). Checkpoints include the latitude, longitude and name of the checkpoint. For every checkpoint except the last one, the travel_mode is also included using a `farely_api.enum.TravelMode` object.
@@ -1229,10 +1229,10 @@ class FareController():
                 # Each route will always have one leg
                 for leg in legs:
                         steps = leg[&#39;steps&#39;]
-                        direction_steps = self.getDirectionSteps(steps)
+                        direction_steps = self.get_direction_steps(steps)
 
                         # Add fare
-                        leg[&#39;fare&#39;] = self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
+                        leg[&#39;fare&#39;] = self.__fare_controller.calculate_fare(self.__route_query.fare_type, direction_steps)
 
                         # Add checkpoint information
                         checkpoints = []
@@ -1268,7 +1268,7 @@ class FareController():
 
                         leg[&#39;checkpoints&#39;] = checkpoints
 
-        def findRoutes(self):
+        def find_routes(self):
                 &#34;&#34;&#34;Processes a route query to find the best routes.
 
                 Uses the Google Maps Direction API to find the routes. Then, it adds fare and checkpoint information to the routes.
@@ -1276,7 +1276,7 @@ class FareController():
                 Returns:
                         routes (dict): Dictionary of routes in the Google Maps Direction API Format with fare and checkpoint information embedded.
                 &#34;&#34;&#34;
-                data = GoogleMapsService.getDirections(
+                data = GoogleMapsService.get_directions(
                         origin=self.__route_query.origin,
                         destination=self.__route_query.destination
                 )
@@ -1284,14 +1284,14 @@ class FareController():
                 routes = data[&#39;routes&#39;]
 
                 for route in routes:
-                        self.addRouteDetails(route)
+                        self.add_route_details(route)
 
                 return data</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="farely_api.control.FindRoutesController.addRouteDetails"><code class="name flex">
-<span>def <span class="ident">addRouteDetails</span></span>(<span>self, route)</span>
+<dt id="farely_api.control.FindRoutesController.add_route_details"><code class="name flex">
+<span>def <span class="ident">add_route_details</span></span>(<span>self, route)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Adds fare and checkpoint information to a route.</p>
@@ -1310,7 +1310,7 @@ class FareController():
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def addRouteDetails(self, route):
+<pre><code class="python">def add_route_details(self, route):
         &#34;&#34;&#34;Adds fare and checkpoint information to a route.
 
         Checkpoints are created for the departure stop of every step, as well as the endpoint of the last direction step (destination of the route). Checkpoints include the latitude, longitude and name of the checkpoint. For every checkpoint except the last one, the travel_mode is also included using a `farely_api.enum.TravelMode` object.
@@ -1326,10 +1326,10 @@ class FareController():
         # Each route will always have one leg
         for leg in legs:
                 steps = leg[&#39;steps&#39;]
-                direction_steps = self.getDirectionSteps(steps)
+                direction_steps = self.get_direction_steps(steps)
 
                 # Add fare
-                leg[&#39;fare&#39;] = self.__fare_controller.calculateFare(self.__route_query.fare_type, direction_steps)
+                leg[&#39;fare&#39;] = self.__fare_controller.calculate_fare(self.__route_query.fare_type, direction_steps)
 
                 # Add checkpoint information
                 checkpoints = []
@@ -1366,8 +1366,8 @@ class FareController():
                 leg[&#39;checkpoints&#39;] = checkpoints</code></pre>
 </details>
 </dd>
-<dt id="farely_api.control.FindRoutesController.findRoutes"><code class="name flex">
-<span>def <span class="ident">findRoutes</span></span>(<span>self)</span>
+<dt id="farely_api.control.FindRoutesController.find_routes"><code class="name flex">
+<span>def <span class="ident">find_routes</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Processes a route query to find the best routes.</p>
@@ -1381,7 +1381,7 @@ class FareController():
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def findRoutes(self):
+<pre><code class="python">def find_routes(self):
         &#34;&#34;&#34;Processes a route query to find the best routes.
 
         Uses the Google Maps Direction API to find the routes. Then, it adds fare and checkpoint information to the routes.
@@ -1389,7 +1389,7 @@ class FareController():
         Returns:
                 routes (dict): Dictionary of routes in the Google Maps Direction API Format with fare and checkpoint information embedded.
         &#34;&#34;&#34;
-        data = GoogleMapsService.getDirections(
+        data = GoogleMapsService.get_directions(
                 origin=self.__route_query.origin,
                 destination=self.__route_query.destination
         )
@@ -1397,13 +1397,13 @@ class FareController():
         routes = data[&#39;routes&#39;]
 
         for route in routes:
-                self.addRouteDetails(route)
+                self.add_route_details(route)
 
         return data</code></pre>
 </details>
 </dd>
-<dt id="farely_api.control.FindRoutesController.getDirectionSteps"><code class="name flex">
-<span>def <span class="ident">getDirectionSteps</span></span>(<span>self, steps)</span>
+<dt id="farely_api.control.FindRoutesController.get_direction_steps"><code class="name flex">
+<span>def <span class="ident">get_direction_steps</span></span>(<span>self, steps)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Obtains a list of direction steps from a dictionary representing the steps.</p>
@@ -1419,7 +1419,7 @@ class FareController():
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getDirectionSteps(self, steps):
+<pre><code class="python">def get_direction_steps(self, steps):
         &#34;&#34;&#34;Obtains a list of direction steps from a dictionary representing the steps.
 
         Args:
@@ -1433,16 +1433,16 @@ class FareController():
         for step in steps:
                 travel_mode = step[&#34;travel_mode&#34;]
                 if travel_mode == &#34;TRANSIT&#34;:
-                        direction_steps.append(self.getTransitStep(step))
+                        direction_steps.append(self.get_transit_step(step))
 
                 elif travel_mode == &#34;WALKING&#34;:
-                        direction_steps.append(self.getWalkingStep(step))
+                        direction_steps.append(self.get_walking_step(step))
 
         return direction_steps</code></pre>
 </details>
 </dd>
-<dt id="farely_api.control.FindRoutesController.getTransitStep"><code class="name flex">
-<span>def <span class="ident">getTransitStep</span></span>(<span>self, step)</span>
+<dt id="farely_api.control.FindRoutesController.get_transit_step"><code class="name flex">
+<span>def <span class="ident">get_transit_step</span></span>(<span>self, step)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Instantiates <a title="farely_api.entity.DirectionStep" href="entity.html#farely_api.entity.DirectionStep"><code>DirectionStep</code></a> from a walking step of a route.</p>
@@ -1460,7 +1460,7 @@ class FareController():
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getTransitStep(self, step):
+<pre><code class="python">def get_transit_step(self, step):
         &#34;&#34;&#34;Instantiates `farely_api.entity.DirectionStep` from a walking step of a route.
 
         Args:
@@ -1497,8 +1497,8 @@ class FareController():
         )</code></pre>
 </details>
 </dd>
-<dt id="farely_api.control.FindRoutesController.getWalkingStep"><code class="name flex">
-<span>def <span class="ident">getWalkingStep</span></span>(<span>self, step)</span>
+<dt id="farely_api.control.FindRoutesController.get_walking_step"><code class="name flex">
+<span>def <span class="ident">get_walking_step</span></span>(<span>self, step)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Instantiates <a title="farely_api.entity.DirectionStep" href="entity.html#farely_api.entity.DirectionStep"><code>DirectionStep</code></a> from a walking step of a route.</p>
@@ -1516,7 +1516,7 @@ class FareController():
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def getWalkingStep(self, step):
+<pre><code class="python">def get_walking_step(self, step):
         &#34;&#34;&#34;Instantiates `farely_api.entity.DirectionStep` from a walking step of a route.
 
         Args:
@@ -1525,8 +1525,8 @@ class FareController():
         Returns:
                 direction_step (farely_api.entity.DirectionStep): A `farely_api.entity.DirectionStep` object with attributes of the walking step.
         &#34;&#34;&#34;
-        departure_stop = GoogleMapsService.getLocation(**step[&#34;start_location&#34;])
-        arrival_stop = GoogleMapsService.getLocation(**step[&#34;end_location&#34;])
+        departure_stop = GoogleMapsService.get_location(**step[&#34;start_location&#34;])
+        arrival_stop = GoogleMapsService.get_location(**step[&#34;end_location&#34;])
         distance = step[&#34;distance&#34;][&#34;value&#34;] / 1000
 
         return DirectionStep(
@@ -1558,22 +1558,22 @@ class FareController():
 <li>
 <h4><code><a title="farely_api.control.FareController" href="#farely_api.control.FareController">FareController</a></code></h4>
 <ul class="two-column">
-<li><code><a title="farely_api.control.FareController.calculateCardFare" href="#farely_api.control.FareController.calculateCardFare">calculateCardFare</a></code></li>
-<li><code><a title="farely_api.control.FareController.calculateCashFare" href="#farely_api.control.FareController.calculateCashFare">calculateCashFare</a></code></li>
-<li><code><a title="farely_api.control.FareController.calculateFare" href="#farely_api.control.FareController.calculateFare">calculateFare</a></code></li>
-<li><code><a title="farely_api.control.FareController.getBusType" href="#farely_api.control.FareController.getBusType">getBusType</a></code></li>
-<li><code><a title="farely_api.control.FareController.getStepFare" href="#farely_api.control.FareController.getStepFare">getStepFare</a></code></li>
-<li><code><a title="farely_api.control.FareController.parseSteps" href="#farely_api.control.FareController.parseSteps">parseSteps</a></code></li>
+<li><code><a title="farely_api.control.FareController.calculate_card_fare" href="#farely_api.control.FareController.calculate_card_fare">calculate_card_fare</a></code></li>
+<li><code><a title="farely_api.control.FareController.calculate_cash_fare" href="#farely_api.control.FareController.calculate_cash_fare">calculate_cash_fare</a></code></li>
+<li><code><a title="farely_api.control.FareController.calculate_fare" href="#farely_api.control.FareController.calculate_fare">calculate_fare</a></code></li>
+<li><code><a title="farely_api.control.FareController.get_bus_type" href="#farely_api.control.FareController.get_bus_type">get_bus_type</a></code></li>
+<li><code><a title="farely_api.control.FareController.get_step_fare" href="#farely_api.control.FareController.get_step_fare">get_step_fare</a></code></li>
+<li><code><a title="farely_api.control.FareController.parse_steps" href="#farely_api.control.FareController.parse_steps">parse_steps</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="farely_api.control.FindRoutesController" href="#farely_api.control.FindRoutesController">FindRoutesController</a></code></h4>
 <ul class="">
-<li><code><a title="farely_api.control.FindRoutesController.addRouteDetails" href="#farely_api.control.FindRoutesController.addRouteDetails">addRouteDetails</a></code></li>
-<li><code><a title="farely_api.control.FindRoutesController.findRoutes" href="#farely_api.control.FindRoutesController.findRoutes">findRoutes</a></code></li>
-<li><code><a title="farely_api.control.FindRoutesController.getDirectionSteps" href="#farely_api.control.FindRoutesController.getDirectionSteps">getDirectionSteps</a></code></li>
-<li><code><a title="farely_api.control.FindRoutesController.getTransitStep" href="#farely_api.control.FindRoutesController.getTransitStep">getTransitStep</a></code></li>
-<li><code><a title="farely_api.control.FindRoutesController.getWalkingStep" href="#farely_api.control.FindRoutesController.getWalkingStep">getWalkingStep</a></code></li>
+<li><code><a title="farely_api.control.FindRoutesController.add_route_details" href="#farely_api.control.FindRoutesController.add_route_details">add_route_details</a></code></li>
+<li><code><a title="farely_api.control.FindRoutesController.find_routes" href="#farely_api.control.FindRoutesController.find_routes">find_routes</a></code></li>
+<li><code><a title="farely_api.control.FindRoutesController.get_direction_steps" href="#farely_api.control.FindRoutesController.get_direction_steps">get_direction_steps</a></code></li>
+<li><code><a title="farely_api.control.FindRoutesController.get_transit_step" href="#farely_api.control.FindRoutesController.get_transit_step">get_transit_step</a></code></li>
+<li><code><a title="farely_api.control.FindRoutesController.get_walking_step" href="#farely_api.control.FindRoutesController.get_walking_step">get_walking_step</a></code></li>
 </ul>
 </li>
 </ul>
