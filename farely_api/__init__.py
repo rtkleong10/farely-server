@@ -3,5 +3,6 @@
 
 __pdoc__ = {
 	'migrations': False,
-	'apps': False
+	'apps': False,
+	'tests': False,
 }
