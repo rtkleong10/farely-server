@@ -94,7 +94,7 @@ class FindRoutesApi(APIView):
                         response (rest_framework.response.Response): API response containing the routes.
 
                 Raises:
-                         rest_framework.serializers.ValidationError: If the request query parameters are invalid.
+                         `rest_framework.serializers.ValidationError`: If the request query parameters are invalid.
                 &#34;&#34;&#34;
                 # Serialize input
                 route_query_serializer = RouteQuerySerializer(data=request.query_params)
@@ -268,7 +268,7 @@ keyword arguments, and other things.</p></section>
                         response (rest_framework.response.Response): API response containing the routes.
 
                 Raises:
-                         rest_framework.serializers.ValidationError: If the request query parameters are invalid.
+                         `rest_framework.serializers.ValidationError`: If the request query parameters are invalid.
                 &#34;&#34;&#34;
                 # Serialize input
                 route_query_serializer = RouteQuerySerializer(data=request.query_params)
@@ -305,7 +305,7 @@ keyword arguments, and other things.</p></section>
 <dd>API response containing the routes.</dd>
 </dl>
 <h2 id="raises">Raises</h2>
-<p>rest_framework.serializers.ValidationError: If the request query parameters are invalid.</p></section>
+<p><code>rest_framework.serializers.ValidationError</code>: If the request query parameters are invalid.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -320,7 +320,7 @@ keyword arguments, and other things.</p></section>
                 response (rest_framework.response.Response): API response containing the routes.
 
         Raises:
-                 rest_framework.serializers.ValidationError: If the request query parameters are invalid.
+                 `rest_framework.serializers.ValidationError`: If the request query parameters are invalid.
         &#34;&#34;&#34;
         # Serialize input
         route_query_serializer = RouteQuerySerializer(data=request.query_params)
