@@ -381,8 +381,11 @@ class DataGovService():
                 fare_table = {}
 
                 for result in results:
-                        fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING[result[&#39;fare_type&#39;]]
-                        fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING[result[&#39;applicable_time&#39;]]
+                        fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING.get(result[&#39;fare_type&#39;])
+                        fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING.get(result[&#39;applicable_time&#39;])
+
+                        if fare_type == None or fare_category == None:
+                                continue
 
                         distance_range = DataGovService.parseDistanceRange(result[&#39;distance&#39;])
                         fare = result[&#39;fare_per_ride&#39;]
@@ -761,8 +764,11 @@ class LTADataMallService():
                 fare_table = {}
 
                 for result in results:
-                        fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING[result[&#39;fare_type&#39;]]
-                        fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING[result[&#39;applicable_time&#39;]]
+                        fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING.get(result[&#39;fare_type&#39;])
+                        fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING.get(result[&#39;applicable_time&#39;])
+
+                        if fare_type == None or fare_category == None:
+                                continue
 
                         distance_range = DataGovService.parseDistanceRange(result[&#39;distance&#39;])
                         fare = result[&#39;fare_per_ride&#39;]
@@ -962,8 +968,11 @@ def getFaresForMRTLRT():
         fare_table = {}
 
         for result in results:
-                fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING[result[&#39;fare_type&#39;]]
-                fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING[result[&#39;applicable_time&#39;]]
+                fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING.get(result[&#39;fare_type&#39;])
+                fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING.get(result[&#39;applicable_time&#39;])
+
+                if fare_type == None or fare_category == None:
+                        continue
 
                 distance_range = DataGovService.parseDistanceRange(result[&#39;distance&#39;])
                 fare = result[&#39;fare_per_ride&#39;]
