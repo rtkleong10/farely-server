@@ -266,7 +266,12 @@ class FareController():
 		# Find the matching distance range for the distance of the step
 		for distance_range in distance_fare_table.keys():
 			if distance >= distance_range[0] and (distance_range[1] == None or distance < distance_range[1]):
-				return distance_fare_table[distance_range].get(fare_type) / 100 # Convert cents to dollars
+				step_fare = distance_fare_table[distance_range].get(fare_type)
+
+				if step_fare != None:
+					return step_fare / 100 # Convert cents to dollars
+				else:
+					return None
 
 		return None
 
