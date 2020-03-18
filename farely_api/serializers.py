@@ -23,7 +23,7 @@ class RouteQuerySerializer(serializers.Serializer):
 		"""Converts a route query into a `farely_api.entity.RouteQuery` object
 
 		Args:
-			- data (dict): Dictionary representing the route query
+			data (dict): Dictionary representing the route query
 
 		Returns:
 			route_query (farely_api.entity.RouteQuery): `farely_api.entity.RouteQuery` object representing the route query
@@ -35,7 +35,7 @@ class RouteQuerySerializer(serializers.Serializer):
 		"""Converts a route query into a `farely_api.entity.RouteQuery` object
 
 		Args:
-			- data (dict): Dictionary representing the route query
+			data (dict): Dictionary representing the route query
 
 		Returns:
 			route_query (farely_api.entity.RouteQuery): `farely_api.entity.RouteQuery` object representing the route query
