@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.7.5" />
 <title>farely_api.enum API documentation</title>
-<meta name="description" content="This module contains the enumeration classes for the Farely API." />
+<meta name="description" content="Contains the enumeration classes for the Farely API." />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,51 +20,74 @@
 <h1 class="title">Module <code>farely_api.enum</code></h1>
 </header>
 <section id="section-intro">
-<p>This module contains the enumeration classes for the Farely API.</p>
+<p>Contains the enumeration classes for the Farely API.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;
-This module contains the enumeration classes for the Farely API.
+<pre><code class="python">&#34;&#34;&#34;Contains the enumeration classes for the Farely API.
 &#34;&#34;&#34;
 
 from enum import IntEnum
 
-class FareCategory(IntEnum):
-        MRT_LRT_EARLY = 1
-        MRT_LRT = 2
-        WALK = 3
-        FEEDER_BUS = 4
-        EXPRESS_BUS = 5
-        TRUNK_BUS = 6
-        NIGHT_BUS = 7
-        FLAT_FARE_2_BUS = 8
+__all__ = [
+        &#39;FareCategory&#39;,
+        &#39;FareType&#39;,
+        &#39;TravelMode&#39;
+]
 
-        @classmethod
-        def choices(cls):
-                return [(key.value, key) for key in cls]
+class FareCategory(IntEnum):
+        &#34;&#34;&#34;Represents the fare categories for calculating the fare of different transit modes
+        &#34;&#34;&#34;
+        MRT_LRT = 1
+        &#34;&#34;&#34;MRTs and LRTs.&#34;&#34;&#34;
+        WALK = 2
+        &#34;&#34;&#34;Walking.&#34;&#34;&#34;
+        FEEDER_BUS = 3
+        &#34;&#34;&#34;Feeder buses.&#34;&#34;&#34;
+        EXPRESS_BUS = 4
+        &#34;&#34;&#34;Expresses buses.&#34;&#34;&#34;
+        TRUNK_BUS = 5
+        &#34;&#34;&#34;Trunk buses.&#34;&#34;&#34;
+        NIGHT_BUS = 6
+        &#34;&#34;&#34;Night bus and night riders.&#34;&#34;&#34;
+        FLAT_FARE_2_BUS = 7
+        &#34;&#34;&#34;Flat fare $2 buses.&#34;&#34;&#34;
 
 class FareType(IntEnum):
+        &#34;&#34;&#34;Represents the fare types of the user to calculate the fare for
+        &#34;&#34;&#34;
         WORKFARE = 1
+        &#34;&#34;&#34;Workfare transport concession card fare.&#34;&#34;&#34;
         STUDENT = 2
+        &#34;&#34;&#34;Student card fare.&#34;&#34;&#34;
         SINGLE_TRIP = 3
+        &#34;&#34;&#34;Single trip.&#34;&#34;&#34;
         SENIOR_CITIZEN = 4
+        &#34;&#34;&#34;Senior citizen card fare.&#34;&#34;&#34;
         PERSONS_WITH_DISABILITIES = 5
+        &#34;&#34;&#34;Persons with disabilities card fare.&#34;&#34;&#34;
         ADULT = 6
+        &#34;&#34;&#34;Adult card fare.&#34;&#34;&#34;
 
         @classmethod
         def choices(cls):
+                &#34;&#34;&#34;Returns the choices of fare types.
+
+                Returns:
+                        choices (tuple): Returns the choices of fare types as a tuple `(value, key)`. `value` is the `int` representation of the fare type and `key` if the `farely_api.enum.FareType` representation of the fare type.
+                &#34;&#34;&#34;
                 return [(key.value, key) for key in cls]
 
 class TravelMode(IntEnum):
+        &#34;&#34;&#34;Represents the travel modes.
+        &#34;&#34;&#34;
         BUS = 1
+        &#34;&#34;&#34;Buses.&#34;&#34;&#34;
         MRT_LRT = 2
+        &#34;&#34;&#34;MRTs and LRTs.&#34;&#34;&#34;
         WALK = 3
-
-        @classmethod
-        def choices(cls):
-                return [(key.value, key) for key in cls]</code></pre>
+        &#34;&#34;&#34;Walking.&#34;&#34;&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -81,24 +104,28 @@ class TravelMode(IntEnum):
 <span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>An enumeration.</p></section>
+<section class="desc"><p>Represents the fare categories for calculating the fare of different transit modes</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FareCategory(IntEnum):
-        MRT_LRT_EARLY = 1
-        MRT_LRT = 2
-        WALK = 3
-        FEEDER_BUS = 4
-        EXPRESS_BUS = 5
-        TRUNK_BUS = 6
-        NIGHT_BUS = 7
-        FLAT_FARE_2_BUS = 8
-
-        @classmethod
-        def choices(cls):
-                return [(key.value, key) for key in cls]</code></pre>
+        &#34;&#34;&#34;Represents the fare categories for calculating the fare of different transit modes
+        &#34;&#34;&#34;
+        MRT_LRT = 1
+        &#34;&#34;&#34;MRTs and LRTs.&#34;&#34;&#34;
+        WALK = 2
+        &#34;&#34;&#34;Walking.&#34;&#34;&#34;
+        FEEDER_BUS = 3
+        &#34;&#34;&#34;Feeder buses.&#34;&#34;&#34;
+        EXPRESS_BUS = 4
+        &#34;&#34;&#34;Expresses buses.&#34;&#34;&#34;
+        TRUNK_BUS = 5
+        &#34;&#34;&#34;Trunk buses.&#34;&#34;&#34;
+        NIGHT_BUS = 6
+        &#34;&#34;&#34;Night bus and night riders.&#34;&#34;&#34;
+        FLAT_FARE_2_BUS = 7
+        &#34;&#34;&#34;Flat fare $2 buses.&#34;&#34;&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -110,35 +137,31 @@ class TravelMode(IntEnum):
 <dl>
 <dt id="farely_api.enum.FareCategory.EXPRESS_BUS"><code class="name">var <span class="ident">EXPRESS_BUS</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Expresses buses.</p></section>
 </dd>
 <dt id="farely_api.enum.FareCategory.FEEDER_BUS"><code class="name">var <span class="ident">FEEDER_BUS</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Feeder buses.</p></section>
 </dd>
 <dt id="farely_api.enum.FareCategory.FLAT_FARE_2_BUS"><code class="name">var <span class="ident">FLAT_FARE_2_BUS</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Flat fare $2 buses.</p></section>
 </dd>
 <dt id="farely_api.enum.FareCategory.MRT_LRT"><code class="name">var <span class="ident">MRT_LRT</span></code></dt>
 <dd>
-<section class="desc"></section>
-</dd>
-<dt id="farely_api.enum.FareCategory.MRT_LRT_EARLY"><code class="name">var <span class="ident">MRT_LRT_EARLY</span></code></dt>
-<dd>
-<section class="desc"></section>
+<section class="desc"><p>MRTs and LRTs.</p></section>
 </dd>
 <dt id="farely_api.enum.FareCategory.NIGHT_BUS"><code class="name">var <span class="ident">NIGHT_BUS</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Night bus and night riders.</p></section>
 </dd>
 <dt id="farely_api.enum.FareCategory.TRUNK_BUS"><code class="name">var <span class="ident">TRUNK_BUS</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Trunk buses.</p></section>
 </dd>
 <dt id="farely_api.enum.FareCategory.WALK"><code class="name">var <span class="ident">WALK</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Walking.</p></section>
 </dd>
 </dl>
 </dd>
@@ -147,21 +170,34 @@ class TravelMode(IntEnum):
 <span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>An enumeration.</p></section>
+<section class="desc"><p>Represents the fare types of the user to calculate the fare for</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FareType(IntEnum):
+        &#34;&#34;&#34;Represents the fare types of the user to calculate the fare for
+        &#34;&#34;&#34;
         WORKFARE = 1
+        &#34;&#34;&#34;Workfare transport concession card fare.&#34;&#34;&#34;
         STUDENT = 2
+        &#34;&#34;&#34;Student card fare.&#34;&#34;&#34;
         SINGLE_TRIP = 3
+        &#34;&#34;&#34;Single trip.&#34;&#34;&#34;
         SENIOR_CITIZEN = 4
+        &#34;&#34;&#34;Senior citizen card fare.&#34;&#34;&#34;
         PERSONS_WITH_DISABILITIES = 5
+        &#34;&#34;&#34;Persons with disabilities card fare.&#34;&#34;&#34;
         ADULT = 6
+        &#34;&#34;&#34;Adult card fare.&#34;&#34;&#34;
 
         @classmethod
         def choices(cls):
+                &#34;&#34;&#34;Returns the choices of fare types.
+
+                Returns:
+                        choices (tuple): Returns the choices of fare types as a tuple `(value, key)`. `value` is the `int` representation of the fare type and `key` if the `farely_api.enum.FareType` representation of the fare type.
+                &#34;&#34;&#34;
                 return [(key.value, key) for key in cls]</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -174,27 +210,27 @@ class TravelMode(IntEnum):
 <dl>
 <dt id="farely_api.enum.FareType.ADULT"><code class="name">var <span class="ident">ADULT</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Adult card fare.</p></section>
 </dd>
 <dt id="farely_api.enum.FareType.PERSONS_WITH_DISABILITIES"><code class="name">var <span class="ident">PERSONS_WITH_DISABILITIES</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Persons with disabilities card fare.</p></section>
 </dd>
 <dt id="farely_api.enum.FareType.SENIOR_CITIZEN"><code class="name">var <span class="ident">SENIOR_CITIZEN</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Senior citizen card fare.</p></section>
 </dd>
 <dt id="farely_api.enum.FareType.SINGLE_TRIP"><code class="name">var <span class="ident">SINGLE_TRIP</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Single trip.</p></section>
 </dd>
 <dt id="farely_api.enum.FareType.STUDENT"><code class="name">var <span class="ident">STUDENT</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Student card fare.</p></section>
 </dd>
 <dt id="farely_api.enum.FareType.WORKFARE"><code class="name">var <span class="ident">WORKFARE</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Workfare transport concession card fare.</p></section>
 </dd>
 </dl>
 </dd>
@@ -203,19 +239,20 @@ class TravelMode(IntEnum):
 <span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>An enumeration.</p></section>
+<section class="desc"><p>Represents the travel modes.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class TravelMode(IntEnum):
+        &#34;&#34;&#34;Represents the travel modes.
+        &#34;&#34;&#34;
         BUS = 1
+        &#34;&#34;&#34;Buses.&#34;&#34;&#34;
         MRT_LRT = 2
+        &#34;&#34;&#34;MRTs and LRTs.&#34;&#34;&#34;
         WALK = 3
-
-        @classmethod
-        def choices(cls):
-                return [(key.value, key) for key in cls]</code></pre>
+        &#34;&#34;&#34;Walking.&#34;&#34;&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -227,15 +264,15 @@ class TravelMode(IntEnum):
 <dl>
 <dt id="farely_api.enum.TravelMode.BUS"><code class="name">var <span class="ident">BUS</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Buses.</p></section>
 </dd>
 <dt id="farely_api.enum.TravelMode.MRT_LRT"><code class="name">var <span class="ident">MRT_LRT</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>MRTs and LRTs.</p></section>
 </dd>
 <dt id="farely_api.enum.TravelMode.WALK"><code class="name">var <span class="ident">WALK</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Walking.</p></section>
 </dd>
 </dl>
 </dd>
@@ -262,7 +299,6 @@ class TravelMode(IntEnum):
 <li><code><a title="farely_api.enum.FareCategory.FEEDER_BUS" href="#farely_api.enum.FareCategory.FEEDER_BUS">FEEDER_BUS</a></code></li>
 <li><code><a title="farely_api.enum.FareCategory.FLAT_FARE_2_BUS" href="#farely_api.enum.FareCategory.FLAT_FARE_2_BUS">FLAT_FARE_2_BUS</a></code></li>
 <li><code><a title="farely_api.enum.FareCategory.MRT_LRT" href="#farely_api.enum.FareCategory.MRT_LRT">MRT_LRT</a></code></li>
-<li><code><a title="farely_api.enum.FareCategory.MRT_LRT_EARLY" href="#farely_api.enum.FareCategory.MRT_LRT_EARLY">MRT_LRT_EARLY</a></code></li>
 <li><code><a title="farely_api.enum.FareCategory.NIGHT_BUS" href="#farely_api.enum.FareCategory.NIGHT_BUS">NIGHT_BUS</a></code></li>
 <li><code><a title="farely_api.enum.FareCategory.TRUNK_BUS" href="#farely_api.enum.FareCategory.TRUNK_BUS">TRUNK_BUS</a></code></li>
 <li><code><a title="farely_api.enum.FareCategory.WALK" href="#farely_api.enum.FareCategory.WALK">WALK</a></code></li>

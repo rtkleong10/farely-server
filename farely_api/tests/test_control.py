@@ -1,11 +1,14 @@
-"""
-This module contains the unit testing for the control classes.
+"""Contains the unit testing for the control classes.
 """
 
 from django.test import TestCase
 from farely_api.enum import FareType, TravelMode
 from farely_api.entity import DirectionStep
-from farely_api.control import FareController, FindRoutesController
+from farely_api.control import FareController
+
+__all__ = {
+	'FareControllerTest',
+}
 
 class FareControllerTest(TestCase):
 	def setUp(self):
@@ -84,6 +87,3 @@ class FareControllerTest(TestCase):
 		)
 
 		self.assertEqual(fare, None)
-
-class RouteController(TestCase):
-	pass

@@ -1,3 +1,2 @@
-"""
-This module contains the migrations for the database.
+"""Contains the migrations for the database.
 """

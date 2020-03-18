@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.7.5" />
 <title>farely_api.apis API documentation</title>
-<meta name="description" content="This module contains the API views of the Farely API. They are the entry points of the APIs." />
+<meta name="description" content="Contains the API views of the Farely API …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,19 +20,25 @@
 <h1 class="title">Module <code>farely_api.apis</code></h1>
 </header>
 <section id="section-intro">
-<p>This module contains the API views of the Farely API. They are the entry points of the APIs.</p>
+<p>Contains the API views of the Farely API.</p>
+<p>Defines the entry points of the APIs.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;
-This module contains the API views of the Farely API. They are the entry points of the APIs.
+<pre><code class="python">&#34;&#34;&#34;Contains the API views of the Farely API.
+
+Defines the entry points of the APIs.
 &#34;&#34;&#34;
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import RouteQuerySerializer
-from .control import FindRoutesController, DummyFindRoutesController
+from .control import FindRoutesController
+
+__all__ = [
+        &#39;FindRoutesApi&#39;,
+]
 
 class FindRoutesApi(APIView):
         &#34;&#34;&#34;
@@ -71,17 +77,24 @@ class FindRoutesApi(APIView):
         &#34;&#34;&#34;
 
         def get_view_name(self):
-                &#34;&#34;&#34;
-                This method returns the name of the view.
-                :return: The name of the view (i.e. Find Routes API)
+                &#34;&#34;&#34;Returns the name of the view.
+
+                Returns:
+                        view_name (str): Name of the view (i.e. Find Routes API).
                 &#34;&#34;&#34;
                 return &#34;Find Routes API&#34;
 
         def get(self, request):
-                &#34;&#34;&#34;
-                This method handles the get request of this API view.
-                :param request: The GET request made
-                :return: The API response
+                &#34;&#34;&#34;Handles the get request for this API view.
+
+                Args:
+                        request (rest_framework.request.Request): GET request made including the query parameters.
+
+                Returns:
+                        response (rest_framework.response.Response): API response containing the routes.
+
+                Raises:
+                         `rest_framework.serializers.ValidationError`: If the request query parameters are invalid.
                 &#34;&#34;&#34;
                 # Serialize input
                 route_query_serializer = RouteQuerySerializer(data=request.query_params)
@@ -95,57 +108,57 @@ class FindRoutesApi(APIView):
 
                 return Response(route_response)
 
-class DummyFindRoutesApi(APIView):
-        &#34;&#34;&#34;
-        This API View accepts a route query and returns a list of the best routes
-
-        ## Sample Query
-        [/api/dummy-find-routes/?fare_type=1&amp;origin=boon+lay&amp;destination=changi+airport](/api/dummy-find-routes/?fare_type=1&amp;origin=boon+lay&amp;destination=changi+airport)
-
-        ## Parameters
-        - origin: Starting point of route
-        - destination: End point of route
-        - fare_type: Fare type for fare calculation
-                - 1: Workfare transport concession card fare
-                - 2: Student card fare
-                - 3: Single trip
-                - 4: Senior citizen card fare
-                - 5: Persons with disabilities card fare
-                - 6: Adult card fare
-
-        ## Return Format
-        - Google Maps API Format
-        - Routes include
-                - fare: In SGD
-                - checkpoints: List of departure stops of each direction step and the destination of the route
-                        - lat: Latitude of departure stop
-                        - lng: Longitude of departure stop
-                        - travel_mode: Travel mode of direction step
-                                - 1: Bus
-                                - 2: MRT/LRT
-                                - 3: Walk
-                        - name: Name of departure step
-                        - line: Name of the bus, mrt or lrt, if applicable (otherwise &#34;&#34;)
-
-        ### Example
-                {&#39;geocoded_waypoints&#39;: [{&#39;geocoder_status&#39;: &#39;OK&#39;, &#39;place_id&#39;: &#39;ChIJY0QBmQoP2jERGYItxQAIu7g&#39;, &#39;types&#39;: [&#39;establishment&#39;, &#39;point_of_interest&#39;, &#39;university&#39;]}, {&#39;geocoder_status&#39;: &#39;OK&#39;, &#39;place_id&#39;: &#39;ChIJ483Qk9YX2jERA0VOQV7d1tY&#39;, &#39;types&#39;: [&#39;airport&#39;, &#39;establishment&#39;, &#39;point_of_interest&#39;]}], &#39;routes&#39;: [...], &#39;status&#39;: &#39;OK&#39;}
-        &#34;&#34;&#34;
-
-        def get_view_name(self):
-                return &#34;Dummy Find Routes API&#34;
-
-        def get(self, request):
-                # Serialize input
-                route_query_serializer = RouteQuerySerializer(data=request.query_params)
-
-                # Raise exception if invalid
-                route_query_serializer.is_valid(raise_exception=True)
-
-                # Find candidate locations
-                route_query = route_query_serializer.validated_data
-                route_response = DummyFindRoutesController(route_query).findRoutes()
-
-                return Response(route_response)</code></pre>
+# class DummyFindRoutesApi(APIView):
+#       &#34;&#34;&#34;
+#       This API View accepts a route query and returns a list of the best routes
+#
+#       ## Sample Query
+#       [/api/dummy-find-routes/?fare_type=1&amp;origin=boon+lay&amp;destination=changi+airport](/api/dummy-find-routes/?fare_type=1&amp;origin=boon+lay&amp;destination=changi+airport)
+#
+#       ## Parameters
+#       - origin: Starting point of route
+#       - destination: End point of route
+#       - fare_type: Fare type for fare calculation
+#               - 1: Workfare transport concession card fare
+#               - 2: Student card fare
+#               - 3: Single trip
+#               - 4: Senior citizen card fare
+#               - 5: Persons with disabilities card fare
+#               - 6: Adult card fare
+#
+#       ## Return Format
+#       - Google Maps API Format
+#       - Routes include
+#               - fare: In SGD
+#               - checkpoints: List of departure stops of each direction step and the destination of the route
+#                       - lat: Latitude of departure stop
+#                       - lng: Longitude of departure stop
+#                       - travel_mode: Travel mode of direction step
+#                               - 1: Bus
+#                               - 2: MRT/LRT
+#                               - 3: Walk
+#                       - name: Name of departure step
+#                       - line: Name of the bus, mrt or lrt, if applicable (otherwise &#34;&#34;)
+#
+#       ### Example
+#               {&#39;geocoded_waypoints&#39;: [{&#39;geocoder_status&#39;: &#39;OK&#39;, &#39;place_id&#39;: &#39;ChIJY0QBmQoP2jERGYItxQAIu7g&#39;, &#39;types&#39;: [&#39;establishment&#39;, &#39;point_of_interest&#39;, &#39;university&#39;]}, {&#39;geocoder_status&#39;: &#39;OK&#39;, &#39;place_id&#39;: &#39;ChIJ483Qk9YX2jERA0VOQV7d1tY&#39;, &#39;types&#39;: [&#39;airport&#39;, &#39;establishment&#39;, &#39;point_of_interest&#39;]}], &#39;routes&#39;: [...], &#39;status&#39;: &#39;OK&#39;}
+#       &#34;&#34;&#34;
+#
+#       def get_view_name(self):
+#               return &#34;Dummy Find Routes API&#34;
+#
+#       def get(self, request):
+#               # Serialize input
+#               route_query_serializer = RouteQuerySerializer(data=request.query_params)
+#
+#               # Raise exception if invalid
+#               route_query_serializer.is_valid(raise_exception=True)
+#
+#               # Find candidate locations
+#               route_query = route_query_serializer.validated_data
+#               route_response = DummyFindRoutesController(route_query).findRoutes()
+#
+#               return Response(route_response)</code></pre>
 </details>
 </section>
 <section>
@@ -157,148 +170,6 @@ class DummyFindRoutesApi(APIView):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="farely_api.apis.DummyFindRoutesApi"><code class="flex name class">
-<span>class <span class="ident">DummyFindRoutesApi</span></span>
-<span>(</span><span>**kwargs)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>This API View accepts a route query and returns a list of the best routes</p>
-<h2 id="sample-query">Sample Query</h2>
-<p><a href="/api/dummy-find-routes/?fare_type=1&amp;origin=boon+lay&amp;destination=changi+airport">/api/dummy-find-routes/?fare_type=1&amp;origin=boon+lay&amp;destination=changi+airport</a></p>
-<h2 id="parameters">Parameters</h2>
-<ul>
-<li>origin: Starting point of route</li>
-<li>destination: End point of route</li>
-<li>fare_type: Fare type for fare calculation
-- 1: Workfare transport concession card fare
-- 2: Student card fare
-- 3: Single trip
-- 4: Senior citizen card fare
-- 5: Persons with disabilities card fare
-- 6: Adult card fare</li>
-</ul>
-<h2 id="return-format">Return Format</h2>
-<ul>
-<li>Google Maps API Format</li>
-<li>Routes include
-- fare: In SGD
-- checkpoints: List of departure stops of each direction step and the destination of the route
-- lat: Latitude of departure stop
-- lng: Longitude of departure stop
-- travel_mode: Travel mode of direction step
-- 1: Bus
-- 2: MRT/LRT
-- 3: Walk
-- name: Name of departure step
-- line: Name of the bus, mrt or lrt, if applicable (otherwise "")</li>
-</ul>
-<h3 id="example">Example</h3>
-<pre><code>    {'geocoded_waypoints': [{'geocoder_status': 'OK', 'place_id': 'ChIJY0QBmQoP2jERGYItxQAIu7g', 'types': ['establishment', 'point_of_interest', 'university']}, {'geocoder_status': 'OK', 'place_id': 'ChIJ483Qk9YX2jERA0VOQV7d1tY', 'types': ['airport', 'establishment', 'point_of_interest']}], 'routes': [...], 'status': 'OK'}
-</code></pre>
-<p>Constructor. Called in the URLconf; can contain helpful extra
-keyword arguments, and other things.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DummyFindRoutesApi(APIView):
-        &#34;&#34;&#34;
-        This API View accepts a route query and returns a list of the best routes
-
-        ## Sample Query
-        [/api/dummy-find-routes/?fare_type=1&amp;origin=boon+lay&amp;destination=changi+airport](/api/dummy-find-routes/?fare_type=1&amp;origin=boon+lay&amp;destination=changi+airport)
-
-        ## Parameters
-        - origin: Starting point of route
-        - destination: End point of route
-        - fare_type: Fare type for fare calculation
-                - 1: Workfare transport concession card fare
-                - 2: Student card fare
-                - 3: Single trip
-                - 4: Senior citizen card fare
-                - 5: Persons with disabilities card fare
-                - 6: Adult card fare
-
-        ## Return Format
-        - Google Maps API Format
-        - Routes include
-                - fare: In SGD
-                - checkpoints: List of departure stops of each direction step and the destination of the route
-                        - lat: Latitude of departure stop
-                        - lng: Longitude of departure stop
-                        - travel_mode: Travel mode of direction step
-                                - 1: Bus
-                                - 2: MRT/LRT
-                                - 3: Walk
-                        - name: Name of departure step
-                        - line: Name of the bus, mrt or lrt, if applicable (otherwise &#34;&#34;)
-
-        ### Example
-                {&#39;geocoded_waypoints&#39;: [{&#39;geocoder_status&#39;: &#39;OK&#39;, &#39;place_id&#39;: &#39;ChIJY0QBmQoP2jERGYItxQAIu7g&#39;, &#39;types&#39;: [&#39;establishment&#39;, &#39;point_of_interest&#39;, &#39;university&#39;]}, {&#39;geocoder_status&#39;: &#39;OK&#39;, &#39;place_id&#39;: &#39;ChIJ483Qk9YX2jERA0VOQV7d1tY&#39;, &#39;types&#39;: [&#39;airport&#39;, &#39;establishment&#39;, &#39;point_of_interest&#39;]}], &#39;routes&#39;: [...], &#39;status&#39;: &#39;OK&#39;}
-        &#34;&#34;&#34;
-
-        def get_view_name(self):
-                return &#34;Dummy Find Routes API&#34;
-
-        def get(self, request):
-                # Serialize input
-                route_query_serializer = RouteQuerySerializer(data=request.query_params)
-
-                # Raise exception if invalid
-                route_query_serializer.is_valid(raise_exception=True)
-
-                # Find candidate locations
-                route_query = route_query_serializer.validated_data
-                route_response = DummyFindRoutesController(route_query).findRoutes()
-
-                return Response(route_response)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>rest_framework.views.APIView</li>
-<li>django.views.generic.base.View</li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="farely_api.apis.DummyFindRoutesApi.get"><code class="name flex">
-<span>def <span class="ident">get</span></span>(<span>self, request)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get(self, request):
-        # Serialize input
-        route_query_serializer = RouteQuerySerializer(data=request.query_params)
-
-        # Raise exception if invalid
-        route_query_serializer.is_valid(raise_exception=True)
-
-        # Find candidate locations
-        route_query = route_query_serializer.validated_data
-        route_response = DummyFindRoutesController(route_query).findRoutes()
-
-        return Response(route_response)</code></pre>
-</details>
-</dd>
-<dt id="farely_api.apis.DummyFindRoutesApi.get_view_name"><code class="name flex">
-<span>def <span class="ident">get_view_name</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Return the view name, as used in OPTIONS responses and in the
-browsable API.</p></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_view_name(self):
-        return &#34;Dummy Find Routes API&#34;</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
 <dt id="farely_api.apis.FindRoutesApi"><code class="flex name class">
 <span>class <span class="ident">FindRoutesApi</span></span>
 <span>(</span><span>**kwargs)</span>
@@ -380,17 +251,24 @@ keyword arguments, and other things.</p></section>
         &#34;&#34;&#34;
 
         def get_view_name(self):
-                &#34;&#34;&#34;
-                This method returns the name of the view.
-                :return: The name of the view (i.e. Find Routes API)
+                &#34;&#34;&#34;Returns the name of the view.
+
+                Returns:
+                        view_name (str): Name of the view (i.e. Find Routes API).
                 &#34;&#34;&#34;
                 return &#34;Find Routes API&#34;
 
         def get(self, request):
-                &#34;&#34;&#34;
-                This method handles the get request of this API view.
-                :param request: The GET request made
-                :return: The API response
+                &#34;&#34;&#34;Handles the get request for this API view.
+
+                Args:
+                        request (rest_framework.request.Request): GET request made including the query parameters.
+
+                Returns:
+                        response (rest_framework.response.Response): API response containing the routes.
+
+                Raises:
+                         `rest_framework.serializers.ValidationError`: If the request query parameters are invalid.
                 &#34;&#34;&#34;
                 # Serialize input
                 route_query_serializer = RouteQuerySerializer(data=request.query_params)
@@ -415,18 +293,34 @@ keyword arguments, and other things.</p></section>
 <span>def <span class="ident">get</span></span>(<span>self, request)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>This method handles the get request of this API view.
-:param request: The GET request made
-:return: The API response</p></section>
+<section class="desc"><p>Handles the get request for this API view.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>request</code></strong> :&ensp;<code>rest_framework.request.Request</code></dt>
+<dd>GET request made including the query parameters.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>response</code></strong> :&ensp;<code>rest_framework.response.Response</code></dt>
+<dd>API response containing the routes.</dd>
+</dl>
+<h2 id="raises">Raises</h2>
+<p><code>rest_framework.serializers.ValidationError</code>: If the request query parameters are invalid.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get(self, request):
-        &#34;&#34;&#34;
-        This method handles the get request of this API view.
-        :param request: The GET request made
-        :return: The API response
+        &#34;&#34;&#34;Handles the get request for this API view.
+
+        Args:
+                request (rest_framework.request.Request): GET request made including the query parameters.
+
+        Returns:
+                response (rest_framework.response.Response): API response containing the routes.
+
+        Raises:
+                 `rest_framework.serializers.ValidationError`: If the request query parameters are invalid.
         &#34;&#34;&#34;
         # Serialize input
         route_query_serializer = RouteQuerySerializer(data=request.query_params)
@@ -445,16 +339,21 @@ keyword arguments, and other things.</p></section>
 <span>def <span class="ident">get_view_name</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>This method returns the name of the view.
-:return: The name of the view (i.e. Find Routes API)</p></section>
+<section class="desc"><p>Returns the name of the view.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>view_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the view (i.e. Find Routes API).</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_view_name(self):
-        &#34;&#34;&#34;
-        This method returns the name of the view.
-        :return: The name of the view (i.e. Find Routes API)
+        &#34;&#34;&#34;Returns the name of the view.
+
+        Returns:
+                view_name (str): Name of the view (i.e. Find Routes API).
         &#34;&#34;&#34;
         return &#34;Find Routes API&#34;</code></pre>
 </details>
@@ -477,13 +376,6 @@ keyword arguments, and other things.</p></section>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
-<li>
-<h4><code><a title="farely_api.apis.DummyFindRoutesApi" href="#farely_api.apis.DummyFindRoutesApi">DummyFindRoutesApi</a></code></h4>
-<ul class="">
-<li><code><a title="farely_api.apis.DummyFindRoutesApi.get" href="#farely_api.apis.DummyFindRoutesApi.get">get</a></code></li>
-<li><code><a title="farely_api.apis.DummyFindRoutesApi.get_view_name" href="#farely_api.apis.DummyFindRoutesApi.get_view_name">get_view_name</a></code></li>
-</ul>
-</li>
 <li>
 <h4><code><a title="farely_api.apis.FindRoutesApi" href="#farely_api.apis.FindRoutesApi">FindRoutesApi</a></code></h4>
 <ul class="">

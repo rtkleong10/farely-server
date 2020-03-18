@@ -1,5 +1,6 @@
-"""
-This module contains the urls for the Farely API.
+"""Contains the urls for the Farely API.
+
+Handles the routing for the api views.
 """
 
 from django.urls import path
@@ -9,5 +10,5 @@ app_name = 'api'
 
 urlpatterns = [
 	path('find-routes/', apis.FindRoutesApi.as_view(), name='find-routes'),
-	path('dummy-find-routes/', apis.DummyFindRoutesApi.as_view(), name='dummy-find-routes'),
+	# path('dummy-find-routes/', apis.DummyFindRoutesApi.as_view(), name='dummy-find-routes'),
 ]

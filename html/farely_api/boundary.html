@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.7.5" />
 <title>farely_api.boundary API documentation</title>
-<meta name="description" content="This module contains the boundary classes for the Farely API." />
+<meta name="description" content="Contains the boundary classes for the Farely API …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -20,35 +20,49 @@
 <h1 class="title">Module <code>farely_api.boundary</code></h1>
 </header>
 <section id="section-intro">
-<p>This module contains the boundary classes for the Farely API.</p>
+<p>Contains the boundary classes for the Farely API.</p>
+<p>Handles requests to and processes responses from APIs.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;
-This module contains the boundary classes for the Farely API.
-&#34;&#34;&#34;
+<pre><code class="python">&#34;&#34;&#34;Contains the boundary classes for the Farely API.
 
+Handles requests to and processes responses from APIs.
+&#34;&#34;&#34;
 import re
 import requests
-from .enum import FareType, FareCategory
-from .entity import Location
-from farely_server.settings import GOOGLE_MAPS_API_KEY, LTA_API_KEY
 import geocoder
 
+from farely_server.settings import GOOGLE_MAPS_API_KEY, LTA_API_KEY
+
+from .enum import FareType, FareCategory
+from .entity import Location
+
+__all__ = [
+        &#39;GoogleMapsService&#39;,
+        &#39;DataGovService&#39;,
+        &#39;LTADataMallService&#39;,
+]
+
 class GoogleMapsService():
-        &#34;&#34;&#34;
-        This class is used to obtain the routes for a route query using the Google Map Direction API
+        &#34;&#34;&#34;Handle requests to and processes responses from Google Maps APIs.
         &#34;&#34;&#34;
         DIRECTIONS_API_URL = &#39;https://maps.googleapis.com/maps/api/directions/json&#39;
-        PLACES_API_URL = &#39;https://maps.googleapis.com/maps/api/place/textsearch/json&#39;
+        &#34;&#34;&#34;The url for the Google Maps Directions API&#34;&#34;&#34;
 
         @staticmethod
         def getDirections(origin, destination):
-                &#34;&#34;&#34;
-                :param origin: Starting location of route in textual format
-                :param destination: End location of route in textual format
-                :return: response from Google Maps Direction API in json format
+                &#34;&#34;&#34;Fetches the best routes from the origin to the destination.
+
+                Uses the [Google Maps Directions API](https://developers.google.com/maps/documentation/directions/start) to find the best routes from the origin to the destination.
+
+                Args:
+                        origin (str): Starting location of route.
+                        destination (str): End location of route.
+
+                Returns:
+                        directions (dict): Response from Google Maps Directions API.
                 &#34;&#34;&#34;
                 r = requests.get(
                         url=GoogleMapsService.DIRECTIONS_API_URL,
@@ -56,8 +70,8 @@ class GoogleMapsService():
                                 &#39;key&#39;: GOOGLE_MAPS_API_KEY,
                                 &#39;mode&#39;: &#39;transit&#39;,
                                 &#39;units&#39;: &#39;metric&#39;,
-                                &#39;alternatives&#39;: &#39;true&#39;,
-                                &#39;region&#39;: &#39;sg&#39;,
+                                &#39;alternatives&#39;: &#39;true&#39;, # To get more than 1 route
+                                &#39;region&#39;: &#39;sg&#39;, # Region biasing for Singapore
                                 &#39;origin&#39;: origin,
                                 &#39;destination&#39;: destination,
                         }
@@ -67,10 +81,21 @@ class GoogleMapsService():
 
         @staticmethod
         def getLocation(lat, lng):
+                &#34;&#34;&#34;Returns a `farely_api.entity.Location` object corresponding to the latitude and longitude values
+
+                Uses the [Google Maps Places API](https://developers.google.com/places/web-service/intro) to geocode the latitude and longitude, to get the name of the location. Combines the latitude, longitude and name into a `farely_api.entity.Location` object.
+
+                Args:
+                        lat (float): Latitude of the location.
+                        lng (float): Longitude of the location.
+
+                Returns:
+                         location (farely_api.entity.Location): Location corresponding to the latitutde and longitude values.
+                &#34;&#34;&#34;
                 r = geocoder.google(
-                        location=&#39;{},{}&#39;.format(lat, lng),
+                        key=GOOGLE_MAPS_API_KEY,
                         method=&#39;places&#39;,
-                        key=GOOGLE_MAPS_API_KEY
+                        location=&#39;{},{}&#39;.format(lat, lng),
                 )
 
                 name = r.name
@@ -85,23 +110,48 @@ class GoogleMapsService():
 
         @staticmethod
         def getCountry(query):
+                &#34;&#34;&#34;
+                Returns a `farely_api.entity.Location` object corresponding to the latitude and longitude values
+
+                Uses the [Google Maps Geocoding API](https://developers.google.com/maps/documentation/geocoding/start) to geocode the latitude and longitude, to get the country of the location.
+
+                Args:
+                        query (str): Location represented in textual form (e.g. &#39;NTU&#39;).
+
+                Returns:
+                         country (str): Country corresponding to the location.
+                &#34;&#34;&#34;
                 r = geocoder.google(
                         location=query,
                         key=GOOGLE_MAPS_API_KEY,
-                        region=&#39;sg&#39;
+                        region=&#39;sg&#39; # Region biasing for Singapore
                 )
 
-                return r.country
+                country = r.country
+
+                return country
 
 class DataGovService():
-        &#34;&#34;&#34;
-        Handle requests to and process response from  Data.gov.sg API
+        &#34;&#34;&#34;Handle requests to and processes responses from Data.gov.sg APIs.
+
+        Fetches the fare tables from the Data.gov.sg for feeder buses, express buses, trunk buses, MRTs and LRTs. Parses the data into a dictionary. Combines the fare tables in the `farely_api.boundary.DataGovService.getFareTable()` method.
+
+        It uses the following resources:
+        - [Fares for Feeder Bus Services](https://data.gov.sg/dataset/fares-for-feeder-bus-services)
+        - [Fares for Express Bus Services](https://data.gov.sg/dataset/fare-for-express-bus-services)
+        - [Fares for Trunk Bus Services](https://data.gov.sg/dataset/fare-structure-for-trunk-bus-services)
+        - [Fares for MRT and LRT](https://data.gov.sg/dataset/fare-structure-mrts-and-lrts)
         &#34;&#34;&#34;
         DATA_GOV_API_URL = &#39;https://data.gov.sg/api/action/datastore_search&#39;
+        &#34;&#34;&#34;The base url for the Data.gov.sg resources.&#34;&#34;&#34;
         FEEDER_BUS_RESOURCE_ID = &#39;310d0e0a-892f-48c4-abda-bfbdded8cb21&#39;
+        &#34;&#34;&#34;The resource id for [Fares for Feeder Bus Services](https://data.gov.sg/dataset/fares-for-feeder-bus-services).&#34;&#34;&#34;
         EXPRESS_BUS_RESOURCE_ID = &#39;32cf2f0a-7790-40f0-a6cd-929697edd3b8&#39;
+        &#34;&#34;&#34;The resource id for [Fares for Express Bus Services](https://data.gov.sg/dataset/fare-for-express-bus-services).&#34;&#34;&#34;
         TRUNK_BUS_RESOURCE_ID = &#39;7a5c22f0-71da-4c24-b419-84322b54ce17&#39;
+        &#34;&#34;&#34;The resource id for [Fares for Trunk Bus Services](https://data.gov.sg/dataset/fare-structure-for-trunk-bus-services).&#34;&#34;&#34;
         MRT_LRT_RESOURCE_ID = &#39;e496ae38-989e-4eac-977d-e64c9e91a20f&#39;
+        &#34;&#34;&#34;The resource id for [Fares for MRT and LRT](https://data.gov.sg/dataset/fare-structure-mrts-and-lrts).&#34;&#34;&#34;
 
         BUS_FARE_TYPE_MAPPING = {
                 &#39;adult_card_fare_per_ride&#39;: FareType.ADULT,
@@ -112,7 +162,7 @@ class DataGovService():
                 &#39;persons_with_disabilities_card_fare_per_ride&#39;: FareType.PERSONS_WITH_DISABILITIES,
                 &#39;cash_fare_per_ride&#39;: FareType.SINGLE_TRIP,
         }
-
+        &#34;&#34;&#34;A dictionary that maps the name of the fare types used by Data.gov.sg for buses to `farely_api.enum.FareType` objects.&#34;&#34;&#34;
         MRT_LRT_FARE_TYPE_MAPPING = {
                 &#39;Adult card fare&#39;: FareType.ADULT,
                 &#39;Single trip&#39;: FareType.SINGLE_TRIP,
@@ -121,20 +171,34 @@ class DataGovService():
                 &#39;Workfare transport concession card fare&#39;: FareType.WORKFARE,
                 &#39;Persons with diabilities card fare&#39;: FareType.PERSONS_WITH_DISABILITIES,
         }
-
+        &#34;&#34;&#34;A dictionary that maps the name of the fare types used by Data.gov.sg for MRTs and LRTs to `farely_api.enum.FareType` objects.&#34;&#34;&#34;
         MRT_LRT_FARE_CATEGORY_MAPPING = {
-                &#39;Before 7.45am  (Weekdays excluding public holidays)&#39;: FareCategory.MRT_LRT_EARLY,
                 &#39;All other timings&#39;: FareCategory.MRT_LRT,
                 &#39;All timings&#39;: FareCategory.MRT_LRT
         }
+        &#34;&#34;&#34;A dictionary that maps the timing of the MRT and LRT fare used by Data.gov.sg for MRTs and LRTs to `farely_api.enum.FareCategory` objects.&#34;&#34;&#34;
+
+        STATIC_FARES = {
+                FareCategory.NIGHT_BUS: {
+                        (0, None): 4.50
+                },
+                FareCategory.FLAT_FARE_2_BUS: {
+                        (0, None): 2
+                },
+        }
+        &#34;&#34;&#34;A dictionary representing the fare table for the night and flat fare buses whose fares do not change.&#34;&#34;&#34;
 
         @staticmethod
         def getResource(resource_id):
-                &#34;&#34;&#34;
-                Fetch fare records from Data.gov.sg API
+                &#34;&#34;&#34;Fetches the resource from Data.gov.sg corresponding to the resource_id.
 
-                :param resource_id: id of the resource to be fetched from Data.gov.sg API
-                :return: list of fare records in json format for a given resource
+                Loops through the result pages of the Data.gov.sg resource and combines them into one list.
+
+                Args:
+                        resource_id (str): id of the resource to be fetched from Data.gov.sg API.
+
+                Returns:
+                        results (list): A list of results in json format for a given resource.
                 &#34;&#34;&#34;
                 all_results = []
 
@@ -166,17 +230,27 @@ class DataGovService():
                 return all_results
 
         @staticmethod
-        def parseDistanceRange(str):
-                &#34;&#34;&#34;
-                Parse distance range into a tuple
+        def parseDistanceRange(distance_range):
+                &#34;&#34;&#34;Parses the distance range into a tuple
 
-                        &#39;38.3 km - 39.2 km&#39;: (38.3, 39.3) (38.2 ≤ x &lt; 39.3)
-                        &#39;Up to 3.2 km&#39;: (0, 3.3) (&lt; 3.3)
-                        &#39;Over 30.2 km&#39;: (30.3) (x ≥ 30.2)
-                        Otherwise: (0, None)
+                Accepts input in the form of either &#39;__ km - __ km&#39;, &#39;Up to __ km&#39; and &#39;Over __ km&#39;. For all other kinds of input, it will treat the distance range as spanning from 0 to infinity.
 
-                :param str: distance range in string format from Data.gov.sg API eg. &#34;3.3 km - 4.2 km&#34;
-                :return: (min distance, max distance) - tuple representing distance range
+                Example:
+                        &gt;&gt;&gt; from farely_api.boundary import DataGovService
+                        &gt;&gt;&gt; DataGovService.parseDistanceRange(&#39;38.3 km - 39.2 km&#39;) # (38.2 ≤ x &lt; 39.3)
+                        (38.3, 39.3)
+                        &gt;&gt;&gt; DataGovService.parseDistanceRange(&#39;Up to 3.2 km&#39;) # (&lt; 3.3)
+                        (0, 3.3)
+                        &gt;&gt;&gt; DataGovService.parseDistanceRange(&#39;Over 30.2 km&#39;) # (x ≥ 30.2)
+                        (30.2, None)
+                        &gt;&gt;&gt; DataGovService.parseDistanceRange(&#39;&#39;) # For input that doesn&#39;t match the other formats, it will treat the distance range as spanning from 0 to infinity
+                        (0, None)
+
+                Args:
+                        distance_range (str): Distance range in the string format from Data.gov.sg API eg. &#34;3.3 km - 4.2 km&#34;.
+
+                Returns:
+                        distance_range_tuple (tuple): Tuple representing the time range in the format: `(min_distance, max_distance)`. This means the distance range is from the `min_distance` to `max_distance`, inclusive of `min_distance` but not `max_distance`. If there is no max distance, `max_distance` will be `None`.
                 &#34;&#34;&#34;
 
                 decimal_num_regex = r&#39;\d*\.?\d*&#39;
@@ -184,30 +258,45 @@ class DataGovService():
                 up_to_regex = r&#39;Up to ({}) km&#39;.format(decimal_num_regex)
                 over_regex = r&#39;Over ({}) km&#39;.format(decimal_num_regex)
 
-                if re.match(from_to_regex, str):
-                        match = re.match(from_to_regex, str)
-                        return (float(match[1]), float(match[2]) + 0.1)
+                # Format: &#39;__ km - __ km&#39;
+                if re.match(from_to_regex, distance_range):
+                        match = re.match(from_to_regex, distance_range)
+                        return (float(match[1]), float(match[2]) + 0.1) # 0.1 added to account for rounding error
 
-                elif re.match(up_to_regex, str):
-                        return (0, float(re.match(up_to_regex, str)[1]) + 0.1)
+                # Format: &#39;Up to __ km&#39;
+                elif re.match(up_to_regex, distance_range):
+                        return (0, float(re.match(up_to_regex, distance_range)[1]) + 0.1) # 0.1 added to account for rounding error
 
-                elif re.match(over_regex, str):
-                        return (float(re.match(over_regex, str)[1]), None)
+                # Format: &#39;Over __ km&#39;
+                elif re.match(over_regex, distance_range):
+                        return (float(re.match(over_regex, distance_range)[1]), None)
 
+                # Others: Assume distance range from 0 to infinity
                 else:
                         return (0, None)
 
         @staticmethod
         def parseBusResults(results):
-                &#34;&#34;&#34;
-                Parse bus fare records into a fare table
+                &#34;&#34;&#34;Parses bus fare records into a fare table
 
-                :param results: list of bus fare records in json format
-                :return: dictionary of fare table of bus fare category
-                e.g.
-                {(0, 3.3): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 },
-                 (3.4, 6.5): {&lt;FareType.ADULT: 6&gt;: 90.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }
-                }
+                Used as a helper function parse the bus fare table for express and trunk buses, since they have a similar API format.
+
+                Example:
+                        &gt;&gt;&gt; from farely_api.boundary import DataGovService
+                        &gt;&gt;&gt; DataGovService.parseBusResults([
+                        ...     {
+                        ...             &#39;distance&#39;: &#39;Up to 3.3 km&#39;,
+                        ...             &#39;adult_card_fare_per_ride&#39;: &#39;92.0&#39;,
+                        ...             &#39;student_card_fare_per_ride&#39;: &#39;42.0&#39;,
+                        ...     }
+                        ... ])
+                        {(0, 3.4): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0}}
+
+                Args:
+                        results (list): List of bus fare records in json format
+
+                Returns:
+                        fare_table (dict): Dictionary of fare table of bus fare category.
                 &#34;&#34;&#34;
                 fare_table = {}
 
@@ -228,13 +317,10 @@ class DataGovService():
 
         @staticmethod
         def getFaresForFeederBus():
-                &#34;&#34;&#34;
-                Generate a fare table for Feeder Bus using fare records from Data.gov.sg API
+                &#34;&#34;&#34;Generates a fare table for feeder buses using fare records from Data.gov.sg API
 
-                :return: dictionary of fare table for feeder bus
-                e.g.
-                {&lt;FareCategory.FEEDER_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}
-
+                Returns:
+                        fare_table (dict): Dictionary of fare table for feeder buses. For example, `{&lt;FareCategory.FEEDER_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}`.
                 &#34;&#34;&#34;
                 results = DataGovService.getResource(DataGovService.FEEDER_BUS_RESOURCE_ID)
 
@@ -242,8 +328,6 @@ class DataGovService():
                         return {}
 
                 result = results[0]
-
-                fare_table = {}
 
                 distance_fare_table = {}
 
@@ -253,21 +337,18 @@ class DataGovService():
                                 fare = result[key]
                                 distance_fare_table[fare_type] = float(fare)
 
-                fare_table[(0, None)] = distance_fare_table
-
                 return {
-                        FareCategory.FEEDER_BUS: fare_table
+                        FareCategory.FEEDER_BUS: {
+                                (0, None): distance_fare_table
+                        }
                 }
 
         @staticmethod
         def getFaresForExpressBus():
-                &#34;&#34;&#34;
-                Generate a fare table for Express Bus using fare records from Data.gov.sg API
+                &#34;&#34;&#34;Generates a fare table for express buses using fare records from Data.gov.sg API
 
-                :return: dictionary of fare table for express bus
-                e.g.
-                {&lt;FareCategory.EXPRESS_BUS: 5&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}
-
+                Returns:
+                        fare_table (dict): Dictionary of fare table for express buses. For example, `{&lt;FareCategory.EXPRESS_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}`.
                 &#34;&#34;&#34;
                 results = DataGovService.getResource(DataGovService.EXPRESS_BUS_RESOURCE_ID)
 
@@ -277,13 +358,10 @@ class DataGovService():
 
         @staticmethod
         def getFaresForTrunkBus():
-                &#34;&#34;&#34;
-                Generate a fare table for Trunk Bus using fare records from Data.gov.sg API
+                &#34;&#34;&#34;Generates a fare table for trunk buses using fare records from Data.gov.sg API
 
-                :return: dictionary of fare table for trunk bus
-                e.g.
-                {&lt;FareCategory.TRUNK_BUS: 6&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}
-
+                Returns:
+                        fare_table (dict): Dictionary of fare table for trunk buses. For example, `{&lt;FareCategory.TRUNK_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}`.
                 &#34;&#34;&#34;
                 results = DataGovService.getResource(DataGovService.TRUNK_BUS_RESOURCE_ID)
 
@@ -293,21 +371,21 @@ class DataGovService():
 
         @staticmethod
         def getFaresForMRTLRT():
-                &#34;&#34;&#34;
-                        Generate a fare table for MRT and LRT using fare records from Data.gov.sg API
+                &#34;&#34;&#34;Generate a fare table for MRTs and LRTs using fare records from Data.gov.sg API
 
-                        :return: dictionary of fare table for MRT and LRT
-                        e.g.
-                        {&lt;FareCategory.MRT_LRT: 2&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 170.0, &lt;FareType.ADULT: 6&gt;: 92.0}}}
-
+                Returns:
+                        fare_table (dict): Dictionary of fare table for MRTs and LRTs. For example, `{&lt;FareCategory.MRT_LRT: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}`.
                 &#34;&#34;&#34;
                 results = DataGovService.getResource(DataGovService.MRT_LRT_RESOURCE_ID)
 
                 fare_table = {}
 
                 for result in results:
-                        fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING[result[&#39;fare_type&#39;]]
-                        fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING[result[&#39;applicable_time&#39;]]
+                        fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING.get(result[&#39;fare_type&#39;])
+                        fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING.get(result[&#39;applicable_time&#39;])
+
+                        if fare_type == None or fare_category == None:
+                                continue
 
                         distance_range = DataGovService.parseDistanceRange(result[&#39;distance&#39;])
                         fare = result[&#39;fare_per_ride&#39;]
@@ -325,41 +403,25 @@ class DataGovService():
                 return fare_table
 
         @staticmethod
-        def getStaticFares():
-
-                return {
-                        FareCategory.NIGHT_BUS: {
-                                (0, None): 4.50
-                        },
-                        FareCategory.FLAT_FARE_2_BUS: {
-                                (0, None): 2
-                        },
-                }
-
-        @staticmethod
         def getFareTable():
-                &#34;&#34;&#34;
-                Generate a fare table for transits (bus, MRT and LRT)
+                &#34;&#34;&#34;Generates a fare table for transit modes by combining the individual fare tables.
 
-                :return: dictionary of fare for bus and MRT and LRT
-                {&lt;FareCategory.FEEDER_BUS: 4&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 170.0}},
-                 &lt;FareCategory.EXPRESS_BUS: 5&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 150.0}},
-                 &lt;FareCategory.TRUNK_BUS: 6&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 120.0}},
-                 &lt;FareCategory.MRT_LRT: 2&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 110.0 }},
-                }
+                Returns:
+                        fare_table (dict): Dictionary of fare table for all transit modes. For example, `{&lt;FareCategory.FEEDER_BUS: 4&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 170.0}}, &lt;FareCategory.EXPRESS_BUS: 5&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 150.0}}, &lt;FareCategory.TRUNK_BUS: 6&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 120.0}}, &lt;FareCategory.MRT_LRT: 2&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 110.0 }}}`.
                 &#34;&#34;&#34;
                 fare_table = DataGovService.getFaresForFeederBus()
                 fare_table.update(DataGovService.getFaresForExpressBus())
                 fare_table.update(DataGovService.getFaresForTrunkBus())
                 fare_table.update(DataGovService.getFaresForMRTLRT())
-                fare_table.update(DataGovService.getStaticFares())
+                fare_table.update(DataGovService.STATIC_FARES)
+
                 return fare_table
 
 class LTADataMallService():
-        &#34;&#34;&#34;
-        Map bus service number to its corresponding fare category using LTA Data Mall service
+        &#34;&#34;&#34;Handle requests to and processes responses from LTA DataMall APIs.
         &#34;&#34;&#34;
         BUS_SERVICES_API_URL = &#39;http://datamall2.mytransport.sg/ltaodataservice/BusServices&#39;
+        &#34;&#34;&#34;The url for the LTA DataMall&#39;s bus service API.&#34;&#34;&#34;
 
         FARE_CATEGORY_MAPPING = {
                 &#39;FEEDER&#39;: FareCategory.FEEDER_BUS,
@@ -369,20 +431,20 @@ class LTADataMallService():
                 &#39;NIGHT RIDER&#39;: FareCategory.NIGHT_BUS,
                 &#39;FLAT FARE $2.00&#39;: FareCategory.FLAT_FARE_2_BUS,
 
-                # TRUNK BUS used as estimation because the actual bus fare for these bus types aren&#39;t provided by the Government API
+                # TRUNK BUS used as estimation because the actual bus fare for these bus types aren&#39;t provided by the Government APIs
                 &#39;INDUSTRIAL&#39;: FareCategory.TRUNK_BUS,
                 &#39;TOWNLINK&#39;: FareCategory.TRUNK_BUS,
                 &#39;2-TIER FLAT FARE&#39;: FareCategory.TRUNK_BUS,
         }
+        &#34;&#34;&#34;A dictionary that maps the name of the fare categories used by LTA DataMall for buses to `farely_api.enum.FareCategory` objects.&#34;&#34;&#34;
 
         @staticmethod
         def getBusServices():
-                &#34;&#34;&#34;
-                Map bus service number to its corresponding fare category
+                &#34;&#34;&#34;Map bus service number to its corresponding `farely_api.enum.FareCategory` object.
 
-                :return: dictionary with bus service number and  fare category as key and value respectively
+                Returns:
+                        bus_services (dict): Dictionary mapping bus service name bus service number to `farely_api.enum.FareCategory` object.
                 &#34;&#34;&#34;
-
                 bus_service_list = []
 
                 while True:
@@ -441,21 +503,38 @@ class LTADataMallService():
 <span>class <span class="ident">DataGovService</span></span>
 </code></dt>
 <dd>
-<section class="desc"><p>Handle requests to and process response from
-Data.gov.sg API</p></section>
+<section class="desc"><p>Handle requests to and processes responses from Data.gov.sg APIs.</p>
+<p>Fetches the fare tables from the Data.gov.sg for feeder buses, express buses, trunk buses, MRTs and LRTs. Parses the data into a dictionary. Combines the fare tables in the <a title="farely_api.boundary.DataGovService.getFareTable" href="#farely_api.boundary.DataGovService.getFareTable"><code>DataGovService.getFareTable()</code></a> method.</p>
+<p>It uses the following resources:
+- <a href="https://data.gov.sg/dataset/fares-for-feeder-bus-services">Fares for Feeder Bus Services</a>
+- <a href="https://data.gov.sg/dataset/fare-for-express-bus-services">Fares for Express Bus Services</a>
+- <a href="https://data.gov.sg/dataset/fare-structure-for-trunk-bus-services">Fares for Trunk Bus Services</a>
+- <a href="https://data.gov.sg/dataset/fare-structure-mrts-and-lrts">Fares for MRT and LRT</a></p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class DataGovService():
-        &#34;&#34;&#34;
-        Handle requests to and process response from  Data.gov.sg API
+        &#34;&#34;&#34;Handle requests to and processes responses from Data.gov.sg APIs.
+
+        Fetches the fare tables from the Data.gov.sg for feeder buses, express buses, trunk buses, MRTs and LRTs. Parses the data into a dictionary. Combines the fare tables in the `farely_api.boundary.DataGovService.getFareTable()` method.
+
+        It uses the following resources:
+        - [Fares for Feeder Bus Services](https://data.gov.sg/dataset/fares-for-feeder-bus-services)
+        - [Fares for Express Bus Services](https://data.gov.sg/dataset/fare-for-express-bus-services)
+        - [Fares for Trunk Bus Services](https://data.gov.sg/dataset/fare-structure-for-trunk-bus-services)
+        - [Fares for MRT and LRT](https://data.gov.sg/dataset/fare-structure-mrts-and-lrts)
         &#34;&#34;&#34;
         DATA_GOV_API_URL = &#39;https://data.gov.sg/api/action/datastore_search&#39;
+        &#34;&#34;&#34;The base url for the Data.gov.sg resources.&#34;&#34;&#34;
         FEEDER_BUS_RESOURCE_ID = &#39;310d0e0a-892f-48c4-abda-bfbdded8cb21&#39;
+        &#34;&#34;&#34;The resource id for [Fares for Feeder Bus Services](https://data.gov.sg/dataset/fares-for-feeder-bus-services).&#34;&#34;&#34;
         EXPRESS_BUS_RESOURCE_ID = &#39;32cf2f0a-7790-40f0-a6cd-929697edd3b8&#39;
+        &#34;&#34;&#34;The resource id for [Fares for Express Bus Services](https://data.gov.sg/dataset/fare-for-express-bus-services).&#34;&#34;&#34;
         TRUNK_BUS_RESOURCE_ID = &#39;7a5c22f0-71da-4c24-b419-84322b54ce17&#39;
+        &#34;&#34;&#34;The resource id for [Fares for Trunk Bus Services](https://data.gov.sg/dataset/fare-structure-for-trunk-bus-services).&#34;&#34;&#34;
         MRT_LRT_RESOURCE_ID = &#39;e496ae38-989e-4eac-977d-e64c9e91a20f&#39;
+        &#34;&#34;&#34;The resource id for [Fares for MRT and LRT](https://data.gov.sg/dataset/fare-structure-mrts-and-lrts).&#34;&#34;&#34;
 
         BUS_FARE_TYPE_MAPPING = {
                 &#39;adult_card_fare_per_ride&#39;: FareType.ADULT,
@@ -466,7 +545,7 @@ Data.gov.sg API</p></section>
                 &#39;persons_with_disabilities_card_fare_per_ride&#39;: FareType.PERSONS_WITH_DISABILITIES,
                 &#39;cash_fare_per_ride&#39;: FareType.SINGLE_TRIP,
         }
-
+        &#34;&#34;&#34;A dictionary that maps the name of the fare types used by Data.gov.sg for buses to `farely_api.enum.FareType` objects.&#34;&#34;&#34;
         MRT_LRT_FARE_TYPE_MAPPING = {
                 &#39;Adult card fare&#39;: FareType.ADULT,
                 &#39;Single trip&#39;: FareType.SINGLE_TRIP,
@@ -475,20 +554,34 @@ Data.gov.sg API</p></section>
                 &#39;Workfare transport concession card fare&#39;: FareType.WORKFARE,
                 &#39;Persons with diabilities card fare&#39;: FareType.PERSONS_WITH_DISABILITIES,
         }
-
+        &#34;&#34;&#34;A dictionary that maps the name of the fare types used by Data.gov.sg for MRTs and LRTs to `farely_api.enum.FareType` objects.&#34;&#34;&#34;
         MRT_LRT_FARE_CATEGORY_MAPPING = {
-                &#39;Before 7.45am  (Weekdays excluding public holidays)&#39;: FareCategory.MRT_LRT_EARLY,
                 &#39;All other timings&#39;: FareCategory.MRT_LRT,
                 &#39;All timings&#39;: FareCategory.MRT_LRT
         }
+        &#34;&#34;&#34;A dictionary that maps the timing of the MRT and LRT fare used by Data.gov.sg for MRTs and LRTs to `farely_api.enum.FareCategory` objects.&#34;&#34;&#34;
+
+        STATIC_FARES = {
+                FareCategory.NIGHT_BUS: {
+                        (0, None): 4.50
+                },
+                FareCategory.FLAT_FARE_2_BUS: {
+                        (0, None): 2
+                },
+        }
+        &#34;&#34;&#34;A dictionary representing the fare table for the night and flat fare buses whose fares do not change.&#34;&#34;&#34;
 
         @staticmethod
         def getResource(resource_id):
-                &#34;&#34;&#34;
-                Fetch fare records from Data.gov.sg API
+                &#34;&#34;&#34;Fetches the resource from Data.gov.sg corresponding to the resource_id.
 
-                :param resource_id: id of the resource to be fetched from Data.gov.sg API
-                :return: list of fare records in json format for a given resource
+                Loops through the result pages of the Data.gov.sg resource and combines them into one list.
+
+                Args:
+                        resource_id (str): id of the resource to be fetched from Data.gov.sg API.
+
+                Returns:
+                        results (list): A list of results in json format for a given resource.
                 &#34;&#34;&#34;
                 all_results = []
 
@@ -520,17 +613,27 @@ Data.gov.sg API</p></section>
                 return all_results
 
         @staticmethod
-        def parseDistanceRange(str):
-                &#34;&#34;&#34;
-                Parse distance range into a tuple
+        def parseDistanceRange(distance_range):
+                &#34;&#34;&#34;Parses the distance range into a tuple
 
-                        &#39;38.3 km - 39.2 km&#39;: (38.3, 39.3) (38.2 ≤ x &lt; 39.3)
-                        &#39;Up to 3.2 km&#39;: (0, 3.3) (&lt; 3.3)
-                        &#39;Over 30.2 km&#39;: (30.3) (x ≥ 30.2)
-                        Otherwise: (0, None)
+                Accepts input in the form of either &#39;__ km - __ km&#39;, &#39;Up to __ km&#39; and &#39;Over __ km&#39;. For all other kinds of input, it will treat the distance range as spanning from 0 to infinity.
 
-                :param str: distance range in string format from Data.gov.sg API eg. &#34;3.3 km - 4.2 km&#34;
-                :return: (min distance, max distance) - tuple representing distance range
+                Example:
+                        &gt;&gt;&gt; from farely_api.boundary import DataGovService
+                        &gt;&gt;&gt; DataGovService.parseDistanceRange(&#39;38.3 km - 39.2 km&#39;) # (38.2 ≤ x &lt; 39.3)
+                        (38.3, 39.3)
+                        &gt;&gt;&gt; DataGovService.parseDistanceRange(&#39;Up to 3.2 km&#39;) # (&lt; 3.3)
+                        (0, 3.3)
+                        &gt;&gt;&gt; DataGovService.parseDistanceRange(&#39;Over 30.2 km&#39;) # (x ≥ 30.2)
+                        (30.2, None)
+                        &gt;&gt;&gt; DataGovService.parseDistanceRange(&#39;&#39;) # For input that doesn&#39;t match the other formats, it will treat the distance range as spanning from 0 to infinity
+                        (0, None)
+
+                Args:
+                        distance_range (str): Distance range in the string format from Data.gov.sg API eg. &#34;3.3 km - 4.2 km&#34;.
+
+                Returns:
+                        distance_range_tuple (tuple): Tuple representing the time range in the format: `(min_distance, max_distance)`. This means the distance range is from the `min_distance` to `max_distance`, inclusive of `min_distance` but not `max_distance`. If there is no max distance, `max_distance` will be `None`.
                 &#34;&#34;&#34;
 
                 decimal_num_regex = r&#39;\d*\.?\d*&#39;
@@ -538,30 +641,45 @@ Data.gov.sg API</p></section>
                 up_to_regex = r&#39;Up to ({}) km&#39;.format(decimal_num_regex)
                 over_regex = r&#39;Over ({}) km&#39;.format(decimal_num_regex)
 
-                if re.match(from_to_regex, str):
-                        match = re.match(from_to_regex, str)
-                        return (float(match[1]), float(match[2]) + 0.1)
+                # Format: &#39;__ km - __ km&#39;
+                if re.match(from_to_regex, distance_range):
+                        match = re.match(from_to_regex, distance_range)
+                        return (float(match[1]), float(match[2]) + 0.1) # 0.1 added to account for rounding error
 
-                elif re.match(up_to_regex, str):
-                        return (0, float(re.match(up_to_regex, str)[1]) + 0.1)
+                # Format: &#39;Up to __ km&#39;
+                elif re.match(up_to_regex, distance_range):
+                        return (0, float(re.match(up_to_regex, distance_range)[1]) + 0.1) # 0.1 added to account for rounding error
 
-                elif re.match(over_regex, str):
-                        return (float(re.match(over_regex, str)[1]), None)
+                # Format: &#39;Over __ km&#39;
+                elif re.match(over_regex, distance_range):
+                        return (float(re.match(over_regex, distance_range)[1]), None)
 
+                # Others: Assume distance range from 0 to infinity
                 else:
                         return (0, None)
 
         @staticmethod
         def parseBusResults(results):
-                &#34;&#34;&#34;
-                Parse bus fare records into a fare table
+                &#34;&#34;&#34;Parses bus fare records into a fare table
 
-                :param results: list of bus fare records in json format
-                :return: dictionary of fare table of bus fare category
-                e.g.
-                {(0, 3.3): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 },
-                 (3.4, 6.5): {&lt;FareType.ADULT: 6&gt;: 90.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }
-                }
+                Used as a helper function parse the bus fare table for express and trunk buses, since they have a similar API format.
+
+                Example:
+                        &gt;&gt;&gt; from farely_api.boundary import DataGovService
+                        &gt;&gt;&gt; DataGovService.parseBusResults([
+                        ...     {
+                        ...             &#39;distance&#39;: &#39;Up to 3.3 km&#39;,
+                        ...             &#39;adult_card_fare_per_ride&#39;: &#39;92.0&#39;,
+                        ...             &#39;student_card_fare_per_ride&#39;: &#39;42.0&#39;,
+                        ...     }
+                        ... ])
+                        {(0, 3.4): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0}}
+
+                Args:
+                        results (list): List of bus fare records in json format
+
+                Returns:
+                        fare_table (dict): Dictionary of fare table of bus fare category.
                 &#34;&#34;&#34;
                 fare_table = {}
 
@@ -582,13 +700,10 @@ Data.gov.sg API</p></section>
 
         @staticmethod
         def getFaresForFeederBus():
-                &#34;&#34;&#34;
-                Generate a fare table for Feeder Bus using fare records from Data.gov.sg API
+                &#34;&#34;&#34;Generates a fare table for feeder buses using fare records from Data.gov.sg API
 
-                :return: dictionary of fare table for feeder bus
-                e.g.
-                {&lt;FareCategory.FEEDER_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}
-
+                Returns:
+                        fare_table (dict): Dictionary of fare table for feeder buses. For example, `{&lt;FareCategory.FEEDER_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}`.
                 &#34;&#34;&#34;
                 results = DataGovService.getResource(DataGovService.FEEDER_BUS_RESOURCE_ID)
 
@@ -596,8 +711,6 @@ Data.gov.sg API</p></section>
                         return {}
 
                 result = results[0]
-
-                fare_table = {}
 
                 distance_fare_table = {}
 
@@ -607,21 +720,18 @@ Data.gov.sg API</p></section>
                                 fare = result[key]
                                 distance_fare_table[fare_type] = float(fare)
 
-                fare_table[(0, None)] = distance_fare_table
-
                 return {
-                        FareCategory.FEEDER_BUS: fare_table
+                        FareCategory.FEEDER_BUS: {
+                                (0, None): distance_fare_table
+                        }
                 }
 
         @staticmethod
         def getFaresForExpressBus():
-                &#34;&#34;&#34;
-                Generate a fare table for Express Bus using fare records from Data.gov.sg API
+                &#34;&#34;&#34;Generates a fare table for express buses using fare records from Data.gov.sg API
 
-                :return: dictionary of fare table for express bus
-                e.g.
-                {&lt;FareCategory.EXPRESS_BUS: 5&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}
-
+                Returns:
+                        fare_table (dict): Dictionary of fare table for express buses. For example, `{&lt;FareCategory.EXPRESS_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}`.
                 &#34;&#34;&#34;
                 results = DataGovService.getResource(DataGovService.EXPRESS_BUS_RESOURCE_ID)
 
@@ -631,13 +741,10 @@ Data.gov.sg API</p></section>
 
         @staticmethod
         def getFaresForTrunkBus():
-                &#34;&#34;&#34;
-                Generate a fare table for Trunk Bus using fare records from Data.gov.sg API
+                &#34;&#34;&#34;Generates a fare table for trunk buses using fare records from Data.gov.sg API
 
-                :return: dictionary of fare table for trunk bus
-                e.g.
-                {&lt;FareCategory.TRUNK_BUS: 6&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}
-
+                Returns:
+                        fare_table (dict): Dictionary of fare table for trunk buses. For example, `{&lt;FareCategory.TRUNK_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}`.
                 &#34;&#34;&#34;
                 results = DataGovService.getResource(DataGovService.TRUNK_BUS_RESOURCE_ID)
 
@@ -647,21 +754,21 @@ Data.gov.sg API</p></section>
 
         @staticmethod
         def getFaresForMRTLRT():
-                &#34;&#34;&#34;
-                        Generate a fare table for MRT and LRT using fare records from Data.gov.sg API
+                &#34;&#34;&#34;Generate a fare table for MRTs and LRTs using fare records from Data.gov.sg API
 
-                        :return: dictionary of fare table for MRT and LRT
-                        e.g.
-                        {&lt;FareCategory.MRT_LRT: 2&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 170.0, &lt;FareType.ADULT: 6&gt;: 92.0}}}
-
+                Returns:
+                        fare_table (dict): Dictionary of fare table for MRTs and LRTs. For example, `{&lt;FareCategory.MRT_LRT: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}`.
                 &#34;&#34;&#34;
                 results = DataGovService.getResource(DataGovService.MRT_LRT_RESOURCE_ID)
 
                 fare_table = {}
 
                 for result in results:
-                        fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING[result[&#39;fare_type&#39;]]
-                        fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING[result[&#39;applicable_time&#39;]]
+                        fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING.get(result[&#39;fare_type&#39;])
+                        fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING.get(result[&#39;applicable_time&#39;])
+
+                        if fare_type == None or fare_category == None:
+                                continue
 
                         distance_range = DataGovService.parseDistanceRange(result[&#39;distance&#39;])
                         fare = result[&#39;fare_per_ride&#39;]
@@ -679,69 +786,57 @@ Data.gov.sg API</p></section>
                 return fare_table
 
         @staticmethod
-        def getStaticFares():
-
-                return {
-                        FareCategory.NIGHT_BUS: {
-                                (0, None): 4.50
-                        },
-                        FareCategory.FLAT_FARE_2_BUS: {
-                                (0, None): 2
-                        },
-                }
-
-        @staticmethod
         def getFareTable():
-                &#34;&#34;&#34;
-                Generate a fare table for transits (bus, MRT and LRT)
+                &#34;&#34;&#34;Generates a fare table for transit modes by combining the individual fare tables.
 
-                :return: dictionary of fare for bus and MRT and LRT
-                {&lt;FareCategory.FEEDER_BUS: 4&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 170.0}},
-                 &lt;FareCategory.EXPRESS_BUS: 5&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 150.0}},
-                 &lt;FareCategory.TRUNK_BUS: 6&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 120.0}},
-                 &lt;FareCategory.MRT_LRT: 2&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 110.0 }},
-                }
+                Returns:
+                        fare_table (dict): Dictionary of fare table for all transit modes. For example, `{&lt;FareCategory.FEEDER_BUS: 4&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 170.0}}, &lt;FareCategory.EXPRESS_BUS: 5&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 150.0}}, &lt;FareCategory.TRUNK_BUS: 6&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 120.0}}, &lt;FareCategory.MRT_LRT: 2&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 110.0 }}}`.
                 &#34;&#34;&#34;
                 fare_table = DataGovService.getFaresForFeederBus()
                 fare_table.update(DataGovService.getFaresForExpressBus())
                 fare_table.update(DataGovService.getFaresForTrunkBus())
                 fare_table.update(DataGovService.getFaresForMRTLRT())
-                fare_table.update(DataGovService.getStaticFares())
+                fare_table.update(DataGovService.STATIC_FARES)
+
                 return fare_table</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
 <dt id="farely_api.boundary.DataGovService.BUS_FARE_TYPE_MAPPING"><code class="name">var <span class="ident">BUS_FARE_TYPE_MAPPING</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>A dictionary that maps the name of the fare types used by Data.gov.sg for buses to <a title="farely_api.enum.FareType" href="enum.html#farely_api.enum.FareType"><code>FareType</code></a> objects.</p></section>
 </dd>
 <dt id="farely_api.boundary.DataGovService.DATA_GOV_API_URL"><code class="name">var <span class="ident">DATA_GOV_API_URL</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The base url for the Data.gov.sg resources.</p></section>
 </dd>
 <dt id="farely_api.boundary.DataGovService.EXPRESS_BUS_RESOURCE_ID"><code class="name">var <span class="ident">EXPRESS_BUS_RESOURCE_ID</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The resource id for <a href="https://data.gov.sg/dataset/fare-for-express-bus-services">Fares for Express Bus Services</a>.</p></section>
 </dd>
 <dt id="farely_api.boundary.DataGovService.FEEDER_BUS_RESOURCE_ID"><code class="name">var <span class="ident">FEEDER_BUS_RESOURCE_ID</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The resource id for <a href="https://data.gov.sg/dataset/fares-for-feeder-bus-services">Fares for Feeder Bus Services</a>.</p></section>
 </dd>
 <dt id="farely_api.boundary.DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING"><code class="name">var <span class="ident">MRT_LRT_FARE_CATEGORY_MAPPING</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>A dictionary that maps the timing of the MRT and LRT fare used by Data.gov.sg for MRTs and LRTs to <a title="farely_api.enum.FareCategory" href="enum.html#farely_api.enum.FareCategory"><code>FareCategory</code></a> objects.</p></section>
 </dd>
 <dt id="farely_api.boundary.DataGovService.MRT_LRT_FARE_TYPE_MAPPING"><code class="name">var <span class="ident">MRT_LRT_FARE_TYPE_MAPPING</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>A dictionary that maps the name of the fare types used by Data.gov.sg for MRTs and LRTs to <a title="farely_api.enum.FareType" href="enum.html#farely_api.enum.FareType"><code>FareType</code></a> objects.</p></section>
 </dd>
 <dt id="farely_api.boundary.DataGovService.MRT_LRT_RESOURCE_ID"><code class="name">var <span class="ident">MRT_LRT_RESOURCE_ID</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The resource id for <a href="https://data.gov.sg/dataset/fare-structure-mrts-and-lrts">Fares for MRT and LRT</a>.</p></section>
+</dd>
+<dt id="farely_api.boundary.DataGovService.STATIC_FARES"><code class="name">var <span class="ident">STATIC_FARES</span></code></dt>
+<dd>
+<section class="desc"><p>A dictionary representing the fare table for the night and flat fare buses whose fares do not change.</p></section>
 </dd>
 <dt id="farely_api.boundary.DataGovService.TRUNK_BUS_RESOURCE_ID"><code class="name">var <span class="ident">TRUNK_BUS_RESOURCE_ID</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The resource id for <a href="https://data.gov.sg/dataset/fare-structure-for-trunk-bus-services">Fares for Trunk Bus Services</a>.</p></section>
 </dd>
 </dl>
 <h3>Static methods</h3>
@@ -750,34 +845,29 @@ Data.gov.sg API</p></section>
 <span>def <span class="ident">getFareTable</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generate a fare table for transits (bus, MRT and LRT)</p>
-<p>:return: dictionary of fare for bus and MRT and LRT
-{<FareCategory.FEEDER_BUS: 4>: {(0, 3.3): {<FareType.SINGLE_TRIP: 3>: 170.0}},
-<FareCategory.EXPRESS_BUS: 5>: {(0, 3.3): {<FareType.SINGLE_TRIP: 3>: 150.0}},
-<FareCategory.TRUNK_BUS: 6>: {(0, 3.3): {<FareType.SINGLE_TRIP: 3>: 120.0}},
-<FareCategory.MRT_LRT: 2>: {(0, 3.3): {<FareType.SINGLE_TRIP: 3>: 110.0 }},
-}</p></section>
+<section class="desc"><p>Generates a fare table for transit modes by combining the individual fare tables.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>fare_table</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Dictionary of fare table for all transit modes. For example, <code>{&lt;FareCategory.FEEDER_BUS: 4&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 170.0}}, &lt;FareCategory.EXPRESS_BUS: 5&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 150.0}}, &lt;FareCategory.TRUNK_BUS: 6&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 120.0}}, &lt;FareCategory.MRT_LRT: 2&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 110.0 }}}</code>.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def getFareTable():
-        &#34;&#34;&#34;
-        Generate a fare table for transits (bus, MRT and LRT)
+        &#34;&#34;&#34;Generates a fare table for transit modes by combining the individual fare tables.
 
-        :return: dictionary of fare for bus and MRT and LRT
-        {&lt;FareCategory.FEEDER_BUS: 4&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 170.0}},
-         &lt;FareCategory.EXPRESS_BUS: 5&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 150.0}},
-         &lt;FareCategory.TRUNK_BUS: 6&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 120.0}},
-         &lt;FareCategory.MRT_LRT: 2&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 110.0 }},
-        }
+        Returns:
+                fare_table (dict): Dictionary of fare table for all transit modes. For example, `{&lt;FareCategory.FEEDER_BUS: 4&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 170.0}}, &lt;FareCategory.EXPRESS_BUS: 5&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 150.0}}, &lt;FareCategory.TRUNK_BUS: 6&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 120.0}}, &lt;FareCategory.MRT_LRT: 2&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 110.0 }}}`.
         &#34;&#34;&#34;
         fare_table = DataGovService.getFaresForFeederBus()
         fare_table.update(DataGovService.getFaresForExpressBus())
         fare_table.update(DataGovService.getFaresForTrunkBus())
         fare_table.update(DataGovService.getFaresForMRTLRT())
-        fare_table.update(DataGovService.getStaticFares())
+        fare_table.update(DataGovService.STATIC_FARES)
+
         return fare_table</code></pre>
 </details>
 </dd>
@@ -785,23 +875,22 @@ def getFareTable():
 <span>def <span class="ident">getFaresForExpressBus</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generate a fare table for Express Bus using fare records from Data.gov.sg API</p>
-<p>:return: dictionary of fare table for express bus
-e.g.
-{<FareCategory.EXPRESS_BUS: 5>: {(0, None): {<FareType.ADULT: 6>: 92.0, <FareType.STUDENT: 2>: 42.0 }}}</p></section>
+<section class="desc"><p>Generates a fare table for express buses using fare records from Data.gov.sg API</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>fare_table</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Dictionary of fare table for express buses. For example, <code>{&lt;FareCategory.EXPRESS_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}</code>.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def getFaresForExpressBus():
-        &#34;&#34;&#34;
-        Generate a fare table for Express Bus using fare records from Data.gov.sg API
+        &#34;&#34;&#34;Generates a fare table for express buses using fare records from Data.gov.sg API
 
-        :return: dictionary of fare table for express bus
-        e.g.
-        {&lt;FareCategory.EXPRESS_BUS: 5&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}
-
+        Returns:
+                fare_table (dict): Dictionary of fare table for express buses. For example, `{&lt;FareCategory.EXPRESS_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}`.
         &#34;&#34;&#34;
         results = DataGovService.getResource(DataGovService.EXPRESS_BUS_RESOURCE_ID)
 
@@ -814,23 +903,22 @@ def getFaresForExpressBus():
 <span>def <span class="ident">getFaresForFeederBus</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generate a fare table for Feeder Bus using fare records from Data.gov.sg API</p>
-<p>:return: dictionary of fare table for feeder bus
-e.g.
-{<FareCategory.FEEDER_BUS: 4>: {(0, None): {<FareType.ADULT: 6>: 92.0, <FareType.STUDENT: 2>: 42.0 }}}</p></section>
+<section class="desc"><p>Generates a fare table for feeder buses using fare records from Data.gov.sg API</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>fare_table</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Dictionary of fare table for feeder buses. For example, <code>{&lt;FareCategory.FEEDER_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}</code>.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def getFaresForFeederBus():
-        &#34;&#34;&#34;
-        Generate a fare table for Feeder Bus using fare records from Data.gov.sg API
+        &#34;&#34;&#34;Generates a fare table for feeder buses using fare records from Data.gov.sg API
 
-        :return: dictionary of fare table for feeder bus
-        e.g.
-        {&lt;FareCategory.FEEDER_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}
-
+        Returns:
+                fare_table (dict): Dictionary of fare table for feeder buses. For example, `{&lt;FareCategory.FEEDER_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}`.
         &#34;&#34;&#34;
         results = DataGovService.getResource(DataGovService.FEEDER_BUS_RESOURCE_ID)
 
@@ -838,8 +926,6 @@ def getFaresForFeederBus():
                 return {}
 
         result = results[0]
-
-        fare_table = {}
 
         distance_fare_table = {}
 
@@ -849,10 +935,10 @@ def getFaresForFeederBus():
                         fare = result[key]
                         distance_fare_table[fare_type] = float(fare)
 
-        fare_table[(0, None)] = distance_fare_table
-
         return {
-                FareCategory.FEEDER_BUS: fare_table
+                FareCategory.FEEDER_BUS: {
+                        (0, None): distance_fare_table
+                }
         }</code></pre>
 </details>
 </dd>
@@ -860,31 +946,33 @@ def getFaresForFeederBus():
 <span>def <span class="ident">getFaresForMRTLRT</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generate a fare table for MRT and LRT using fare records from Data.gov.sg API</p>
-<p>:return: dictionary of fare table for MRT and LRT
-e.g.
-{<FareCategory.MRT_LRT: 2>: {(0, 3.3): {<FareType.SINGLE_TRIP: 3>: 170.0, <FareType.ADULT: 6>: 92.0}}}</p></section>
+<section class="desc"><p>Generate a fare table for MRTs and LRTs using fare records from Data.gov.sg API</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>fare_table</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Dictionary of fare table for MRTs and LRTs. For example, <code>{&lt;FareCategory.MRT_LRT: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}</code>.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def getFaresForMRTLRT():
-        &#34;&#34;&#34;
-                Generate a fare table for MRT and LRT using fare records from Data.gov.sg API
+        &#34;&#34;&#34;Generate a fare table for MRTs and LRTs using fare records from Data.gov.sg API
 
-                :return: dictionary of fare table for MRT and LRT
-                e.g.
-                {&lt;FareCategory.MRT_LRT: 2&gt;: {(0, 3.3): {&lt;FareType.SINGLE_TRIP: 3&gt;: 170.0, &lt;FareType.ADULT: 6&gt;: 92.0}}}
-
+        Returns:
+                fare_table (dict): Dictionary of fare table for MRTs and LRTs. For example, `{&lt;FareCategory.MRT_LRT: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}`.
         &#34;&#34;&#34;
         results = DataGovService.getResource(DataGovService.MRT_LRT_RESOURCE_ID)
 
         fare_table = {}
 
         for result in results:
-                fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING[result[&#39;fare_type&#39;]]
-                fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING[result[&#39;applicable_time&#39;]]
+                fare_type = DataGovService.MRT_LRT_FARE_TYPE_MAPPING.get(result[&#39;fare_type&#39;])
+                fare_category = DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING.get(result[&#39;applicable_time&#39;])
+
+                if fare_type == None or fare_category == None:
+                        continue
 
                 distance_range = DataGovService.parseDistanceRange(result[&#39;distance&#39;])
                 fare = result[&#39;fare_per_ride&#39;]
@@ -906,23 +994,22 @@ def getFaresForMRTLRT():
 <span>def <span class="ident">getFaresForTrunkBus</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Generate a fare table for Trunk Bus using fare records from Data.gov.sg API</p>
-<p>:return: dictionary of fare table for trunk bus
-e.g.
-{<FareCategory.TRUNK_BUS: 6>: {(0, None): {<FareType.ADULT: 6>: 92.0, <FareType.STUDENT: 2>: 42.0 }}}</p></section>
+<section class="desc"><p>Generates a fare table for trunk buses using fare records from Data.gov.sg API</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>fare_table</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Dictionary of fare table for trunk buses. For example, <code>{&lt;FareCategory.TRUNK_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}</code>.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def getFaresForTrunkBus():
-        &#34;&#34;&#34;
-        Generate a fare table for Trunk Bus using fare records from Data.gov.sg API
+        &#34;&#34;&#34;Generates a fare table for trunk buses using fare records from Data.gov.sg API
 
-        :return: dictionary of fare table for trunk bus
-        e.g.
-        {&lt;FareCategory.TRUNK_BUS: 6&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}
-
+        Returns:
+                fare_table (dict): Dictionary of fare table for trunk buses. For example, `{&lt;FareCategory.TRUNK_BUS: 4&gt;: {(0, None): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }}}`.
         &#34;&#34;&#34;
         results = DataGovService.getResource(DataGovService.TRUNK_BUS_RESOURCE_ID)
 
@@ -935,20 +1022,33 @@ def getFaresForTrunkBus():
 <span>def <span class="ident">getResource</span></span>(<span>resource_id)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Fetch fare records from Data.gov.sg API</p>
-<p>:param resource_id: id of the resource to be fetched from Data.gov.sg API
-:return: list of fare records in json format for a given resource</p></section>
+<section class="desc"><p>Fetches the resource from Data.gov.sg corresponding to the resource_id.</p>
+<p>Loops through the result pages of the Data.gov.sg resource and combines them into one list.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>resource_id</code></strong> :&ensp;<code>str</code></dt>
+<dd>id of the resource to be fetched from Data.gov.sg API.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>results</code></strong> :&ensp;<code>list</code></dt>
+<dd>A list of results in json format for a given resource.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def getResource(resource_id):
-        &#34;&#34;&#34;
-        Fetch fare records from Data.gov.sg API
+        &#34;&#34;&#34;Fetches the resource from Data.gov.sg corresponding to the resource_id.
 
-        :param resource_id: id of the resource to be fetched from Data.gov.sg API
-        :return: list of fare records in json format for a given resource
+        Loops through the result pages of the Data.gov.sg resource and combines them into one list.
+
+        Args:
+                resource_id (str): id of the resource to be fetched from Data.gov.sg API.
+
+        Returns:
+                results (list): A list of results in json format for a given resource.
         &#34;&#34;&#34;
         all_results = []
 
@@ -980,54 +1080,59 @@ def getResource(resource_id):
         return all_results</code></pre>
 </details>
 </dd>
-<dt id="farely_api.boundary.DataGovService.getStaticFares"><code class="name flex">
-<span>def <span class="ident">getStaticFares</span></span>(<span>)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def getStaticFares():
-
-        return {
-                FareCategory.NIGHT_BUS: {
-                        (0, None): 4.50
-                },
-                FareCategory.FLAT_FARE_2_BUS: {
-                        (0, None): 2
-                },
-        }</code></pre>
-</details>
-</dd>
 <dt id="farely_api.boundary.DataGovService.parseBusResults"><code class="name flex">
 <span>def <span class="ident">parseBusResults</span></span>(<span>results)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Parse bus fare records into a fare table</p>
-<p>:param results: list of bus fare records in json format
-:return: dictionary of fare table of bus fare category
-e.g.
-{(0, 3.3): {<FareType.ADULT: 6>: 92.0, <FareType.STUDENT: 2>: 42.0 },
-(3.4, 6.5): {<FareType.ADULT: 6>: 90.0, <FareType.STUDENT: 2>: 42.0 }
-}</p></section>
+<section class="desc"><p>Parses bus fare records into a fare table</p>
+<p>Used as a helper function parse the bus fare table for express and trunk buses, since they have a similar API format.</p>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; from farely_api.boundary import DataGovService
+&gt;&gt;&gt; DataGovService.parseBusResults([
+...     {
+...             'distance': 'Up to 3.3 km',
+...             'adult_card_fare_per_ride': '92.0',
+...             'student_card_fare_per_ride': '42.0',
+...     }
+... ])
+{(0, 3.4): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0}}
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>results</code></strong> :&ensp;<code>list</code></dt>
+<dd>List of bus fare records in json format</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>fare_table</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Dictionary of fare table of bus fare category.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def parseBusResults(results):
-        &#34;&#34;&#34;
-        Parse bus fare records into a fare table
+        &#34;&#34;&#34;Parses bus fare records into a fare table
 
-        :param results: list of bus fare records in json format
-        :return: dictionary of fare table of bus fare category
-        e.g.
-        {(0, 3.3): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0 },
-         (3.4, 6.5): {&lt;FareType.ADULT: 6&gt;: 90.0, &lt;FareType.STUDENT: 2&gt;: 42.0 }
-        }
+        Used as a helper function parse the bus fare table for express and trunk buses, since they have a similar API format.
+
+        Example:
+                &gt;&gt;&gt; from farely_api.boundary import DataGovService
+                &gt;&gt;&gt; DataGovService.parseBusResults([
+                ...     {
+                ...             &#39;distance&#39;: &#39;Up to 3.3 km&#39;,
+                ...             &#39;adult_card_fare_per_ride&#39;: &#39;92.0&#39;,
+                ...             &#39;student_card_fare_per_ride&#39;: &#39;42.0&#39;,
+                ...     }
+                ... ])
+                {(0, 3.4): {&lt;FareType.ADULT: 6&gt;: 92.0, &lt;FareType.STUDENT: 2&gt;: 42.0}}
+
+        Args:
+                results (list): List of bus fare records in json format
+
+        Returns:
+                fare_table (dict): Dictionary of fare table of bus fare category.
         &#34;&#34;&#34;
         fare_table = {}
 
@@ -1048,33 +1153,58 @@ def parseBusResults(results):
 </details>
 </dd>
 <dt id="farely_api.boundary.DataGovService.parseDistanceRange"><code class="name flex">
-<span>def <span class="ident">parseDistanceRange</span></span>(<span>str)</span>
+<span>def <span class="ident">parseDistanceRange</span></span>(<span>distance_range)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Parse distance range into a tuple</p>
-<pre><code>    '38.3 km - 39.2 km': (38.3, 39.3) (38.2 ≤ x &lt; 39.3)
-    'Up to 3.2 km': (0, 3.3) (&lt; 3.3)
-    'Over 30.2 km': (30.3) (x ≥ 30.2)
-    Otherwise: (0, None)
+<section class="desc"><p>Parses the distance range into a tuple</p>
+<p>Accepts input in the form of either '<strong> km - </strong> km', 'Up to <strong> km' and 'Over </strong> km'. For all other kinds of input, it will treat the distance range as spanning from 0 to infinity.</p>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; from farely_api.boundary import DataGovService
+&gt;&gt;&gt; DataGovService.parseDistanceRange('38.3 km - 39.2 km') # (38.2 ≤ x &lt; 39.3)
+(38.3, 39.3)
+&gt;&gt;&gt; DataGovService.parseDistanceRange('Up to 3.2 km') # (&lt; 3.3)
+(0, 3.3)
+&gt;&gt;&gt; DataGovService.parseDistanceRange('Over 30.2 km') # (x ≥ 30.2)
+(30.2, None)
+&gt;&gt;&gt; DataGovService.parseDistanceRange('') # For input that doesn't match the other formats, it will treat the distance range as spanning from 0 to infinity
+(0, None)
 </code></pre>
-<p>:param str: distance range in string format from Data.gov.sg API eg. "3.3 km - 4.2 km"
-:return: (min distance, max distance) - tuple representing distance range</p></section>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>distance_range</code></strong> :&ensp;<code>str</code></dt>
+<dd>Distance range in the string format from Data.gov.sg API eg. "3.3 km - 4.2 km".</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>distance_range_tuple</code></strong> :&ensp;<code>tuple</code></dt>
+<dd>Tuple representing the time range in the format: <code>(min_distance, max_distance)</code>. This means the distance range is from the <code>min_distance</code> to <code>max_distance</code>, inclusive of <code>min_distance</code> but not <code>max_distance</code>. If there is no max distance, <code>max_distance</code> will be <code>None</code>.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
-def parseDistanceRange(str):
-        &#34;&#34;&#34;
-        Parse distance range into a tuple
+def parseDistanceRange(distance_range):
+        &#34;&#34;&#34;Parses the distance range into a tuple
 
-                &#39;38.3 km - 39.2 km&#39;: (38.3, 39.3) (38.2 ≤ x &lt; 39.3)
-                &#39;Up to 3.2 km&#39;: (0, 3.3) (&lt; 3.3)
-                &#39;Over 30.2 km&#39;: (30.3) (x ≥ 30.2)
-                Otherwise: (0, None)
+        Accepts input in the form of either &#39;__ km - __ km&#39;, &#39;Up to __ km&#39; and &#39;Over __ km&#39;. For all other kinds of input, it will treat the distance range as spanning from 0 to infinity.
 
-        :param str: distance range in string format from Data.gov.sg API eg. &#34;3.3 km - 4.2 km&#34;
-        :return: (min distance, max distance) - tuple representing distance range
+        Example:
+                &gt;&gt;&gt; from farely_api.boundary import DataGovService
+                &gt;&gt;&gt; DataGovService.parseDistanceRange(&#39;38.3 km - 39.2 km&#39;) # (38.2 ≤ x &lt; 39.3)
+                (38.3, 39.3)
+                &gt;&gt;&gt; DataGovService.parseDistanceRange(&#39;Up to 3.2 km&#39;) # (&lt; 3.3)
+                (0, 3.3)
+                &gt;&gt;&gt; DataGovService.parseDistanceRange(&#39;Over 30.2 km&#39;) # (x ≥ 30.2)
+                (30.2, None)
+                &gt;&gt;&gt; DataGovService.parseDistanceRange(&#39;&#39;) # For input that doesn&#39;t match the other formats, it will treat the distance range as spanning from 0 to infinity
+                (0, None)
+
+        Args:
+                distance_range (str): Distance range in the string format from Data.gov.sg API eg. &#34;3.3 km - 4.2 km&#34;.
+
+        Returns:
+                distance_range_tuple (tuple): Tuple representing the time range in the format: `(min_distance, max_distance)`. This means the distance range is from the `min_distance` to `max_distance`, inclusive of `min_distance` but not `max_distance`. If there is no max distance, `max_distance` will be `None`.
         &#34;&#34;&#34;
 
         decimal_num_regex = r&#39;\d*\.?\d*&#39;
@@ -1082,16 +1212,20 @@ def parseDistanceRange(str):
         up_to_regex = r&#39;Up to ({}) km&#39;.format(decimal_num_regex)
         over_regex = r&#39;Over ({}) km&#39;.format(decimal_num_regex)
 
-        if re.match(from_to_regex, str):
-                match = re.match(from_to_regex, str)
-                return (float(match[1]), float(match[2]) + 0.1)
+        # Format: &#39;__ km - __ km&#39;
+        if re.match(from_to_regex, distance_range):
+                match = re.match(from_to_regex, distance_range)
+                return (float(match[1]), float(match[2]) + 0.1) # 0.1 added to account for rounding error
 
-        elif re.match(up_to_regex, str):
-                return (0, float(re.match(up_to_regex, str)[1]) + 0.1)
+        # Format: &#39;Up to __ km&#39;
+        elif re.match(up_to_regex, distance_range):
+                return (0, float(re.match(up_to_regex, distance_range)[1]) + 0.1) # 0.1 added to account for rounding error
 
-        elif re.match(over_regex, str):
-                return (float(re.match(over_regex, str)[1]), None)
+        # Format: &#39;Over __ km&#39;
+        elif re.match(over_regex, distance_range):
+                return (float(re.match(over_regex, distance_range)[1]), None)
 
+        # Others: Assume distance range from 0 to infinity
         else:
                 return (0, None)</code></pre>
 </details>
@@ -1102,24 +1236,29 @@ def parseDistanceRange(str):
 <span>class <span class="ident">GoogleMapsService</span></span>
 </code></dt>
 <dd>
-<section class="desc"><p>This class is used to obtain the routes for a route query using the Google Map Direction API</p></section>
+<section class="desc"><p>Handle requests to and processes responses from Google Maps APIs.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class GoogleMapsService():
-        &#34;&#34;&#34;
-        This class is used to obtain the routes for a route query using the Google Map Direction API
+        &#34;&#34;&#34;Handle requests to and processes responses from Google Maps APIs.
         &#34;&#34;&#34;
         DIRECTIONS_API_URL = &#39;https://maps.googleapis.com/maps/api/directions/json&#39;
-        PLACES_API_URL = &#39;https://maps.googleapis.com/maps/api/place/textsearch/json&#39;
+        &#34;&#34;&#34;The url for the Google Maps Directions API&#34;&#34;&#34;
 
         @staticmethod
         def getDirections(origin, destination):
-                &#34;&#34;&#34;
-                :param origin: Starting location of route in textual format
-                :param destination: End location of route in textual format
-                :return: response from Google Maps Direction API in json format
+                &#34;&#34;&#34;Fetches the best routes from the origin to the destination.
+
+                Uses the [Google Maps Directions API](https://developers.google.com/maps/documentation/directions/start) to find the best routes from the origin to the destination.
+
+                Args:
+                        origin (str): Starting location of route.
+                        destination (str): End location of route.
+
+                Returns:
+                        directions (dict): Response from Google Maps Directions API.
                 &#34;&#34;&#34;
                 r = requests.get(
                         url=GoogleMapsService.DIRECTIONS_API_URL,
@@ -1127,8 +1266,8 @@ def parseDistanceRange(str):
                                 &#39;key&#39;: GOOGLE_MAPS_API_KEY,
                                 &#39;mode&#39;: &#39;transit&#39;,
                                 &#39;units&#39;: &#39;metric&#39;,
-                                &#39;alternatives&#39;: &#39;true&#39;,
-                                &#39;region&#39;: &#39;sg&#39;,
+                                &#39;alternatives&#39;: &#39;true&#39;, # To get more than 1 route
+                                &#39;region&#39;: &#39;sg&#39;, # Region biasing for Singapore
                                 &#39;origin&#39;: origin,
                                 &#39;destination&#39;: destination,
                         }
@@ -1138,10 +1277,21 @@ def parseDistanceRange(str):
 
         @staticmethod
         def getLocation(lat, lng):
+                &#34;&#34;&#34;Returns a `farely_api.entity.Location` object corresponding to the latitude and longitude values
+
+                Uses the [Google Maps Places API](https://developers.google.com/places/web-service/intro) to geocode the latitude and longitude, to get the name of the location. Combines the latitude, longitude and name into a `farely_api.entity.Location` object.
+
+                Args:
+                        lat (float): Latitude of the location.
+                        lng (float): Longitude of the location.
+
+                Returns:
+                         location (farely_api.entity.Location): Location corresponding to the latitutde and longitude values.
+                &#34;&#34;&#34;
                 r = geocoder.google(
-                        location=&#39;{},{}&#39;.format(lat, lng),
+                        key=GOOGLE_MAPS_API_KEY,
                         method=&#39;places&#39;,
-                        key=GOOGLE_MAPS_API_KEY
+                        location=&#39;{},{}&#39;.format(lat, lng),
                 )
 
                 name = r.name
@@ -1156,23 +1306,32 @@ def parseDistanceRange(str):
 
         @staticmethod
         def getCountry(query):
+                &#34;&#34;&#34;
+                Returns a `farely_api.entity.Location` object corresponding to the latitude and longitude values
+
+                Uses the [Google Maps Geocoding API](https://developers.google.com/maps/documentation/geocoding/start) to geocode the latitude and longitude, to get the country of the location.
+
+                Args:
+                        query (str): Location represented in textual form (e.g. &#39;NTU&#39;).
+
+                Returns:
+                         country (str): Country corresponding to the location.
+                &#34;&#34;&#34;
                 r = geocoder.google(
                         location=query,
                         key=GOOGLE_MAPS_API_KEY,
-                        region=&#39;sg&#39;
+                        region=&#39;sg&#39; # Region biasing for Singapore
                 )
 
-                return r.country</code></pre>
+                country = r.country
+
+                return country</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
 <dt id="farely_api.boundary.GoogleMapsService.DIRECTIONS_API_URL"><code class="name">var <span class="ident">DIRECTIONS_API_URL</span></code></dt>
 <dd>
-<section class="desc"></section>
-</dd>
-<dt id="farely_api.boundary.GoogleMapsService.PLACES_API_URL"><code class="name">var <span class="ident">PLACES_API_URL</span></code></dt>
-<dd>
-<section class="desc"></section>
+<section class="desc"><p>The url for the Google Maps Directions API</p></section>
 </dd>
 </dl>
 <h3>Static methods</h3>
@@ -1181,39 +1340,80 @@ def parseDistanceRange(str):
 <span>def <span class="ident">getCountry</span></span>(<span>query)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns a <a title="farely_api.entity.Location" href="entity.html#farely_api.entity.Location"><code>Location</code></a> object corresponding to the latitude and longitude values</p>
+<p>Uses the <a href="https://developers.google.com/maps/documentation/geocoding/start">Google Maps Geocoding API</a> to geocode the latitude and longitude, to get the country of the location.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>query</code></strong> :&ensp;<code>str</code></dt>
+<dd>Location represented in textual form (e.g. 'NTU').</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>country</code></strong> :&ensp;<code>str</code></dt>
+<dd>Country corresponding to the location.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def getCountry(query):
+        &#34;&#34;&#34;
+        Returns a `farely_api.entity.Location` object corresponding to the latitude and longitude values
+
+        Uses the [Google Maps Geocoding API](https://developers.google.com/maps/documentation/geocoding/start) to geocode the latitude and longitude, to get the country of the location.
+
+        Args:
+                query (str): Location represented in textual form (e.g. &#39;NTU&#39;).
+
+        Returns:
+                 country (str): Country corresponding to the location.
+        &#34;&#34;&#34;
         r = geocoder.google(
                 location=query,
                 key=GOOGLE_MAPS_API_KEY,
-                region=&#39;sg&#39;
+                region=&#39;sg&#39; # Region biasing for Singapore
         )
 
-        return r.country</code></pre>
+        country = r.country
+
+        return country</code></pre>
 </details>
 </dd>
 <dt id="farely_api.boundary.GoogleMapsService.getDirections"><code class="name flex">
 <span>def <span class="ident">getDirections</span></span>(<span>origin, destination)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>:param origin: Starting location of route in textual format
-:param destination: End location of route in textual format
-:return: response from Google Maps Direction API in json format</p></section>
+<section class="desc"><p>Fetches the best routes from the origin to the destination.</p>
+<p>Uses the <a href="https://developers.google.com/maps/documentation/directions/start">Google Maps Directions API</a> to find the best routes from the origin to the destination.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>origin</code></strong> :&ensp;<code>str</code></dt>
+<dd>Starting location of route.</dd>
+<dt><strong><code>destination</code></strong> :&ensp;<code>str</code></dt>
+<dd>End location of route.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>directions</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Response from Google Maps Directions API.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def getDirections(origin, destination):
-        &#34;&#34;&#34;
-        :param origin: Starting location of route in textual format
-        :param destination: End location of route in textual format
-        :return: response from Google Maps Direction API in json format
+        &#34;&#34;&#34;Fetches the best routes from the origin to the destination.
+
+        Uses the [Google Maps Directions API](https://developers.google.com/maps/documentation/directions/start) to find the best routes from the origin to the destination.
+
+        Args:
+                origin (str): Starting location of route.
+                destination (str): End location of route.
+
+        Returns:
+                directions (dict): Response from Google Maps Directions API.
         &#34;&#34;&#34;
         r = requests.get(
                 url=GoogleMapsService.DIRECTIONS_API_URL,
@@ -1221,8 +1421,8 @@ def getDirections(origin, destination):
                         &#39;key&#39;: GOOGLE_MAPS_API_KEY,
                         &#39;mode&#39;: &#39;transit&#39;,
                         &#39;units&#39;: &#39;metric&#39;,
-                        &#39;alternatives&#39;: &#39;true&#39;,
-                        &#39;region&#39;: &#39;sg&#39;,
+                        &#39;alternatives&#39;: &#39;true&#39;, # To get more than 1 route
+                        &#39;region&#39;: &#39;sg&#39;, # Region biasing for Singapore
                         &#39;origin&#39;: origin,
                         &#39;destination&#39;: destination,
                 }
@@ -1235,17 +1435,41 @@ def getDirections(origin, destination):
 <span>def <span class="ident">getLocation</span></span>(<span>lat, lng)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns a <a title="farely_api.entity.Location" href="entity.html#farely_api.entity.Location"><code>Location</code></a> object corresponding to the latitude and longitude values</p>
+<p>Uses the <a href="https://developers.google.com/places/web-service/intro">Google Maps Places API</a> to geocode the latitude and longitude, to get the name of the location. Combines the latitude, longitude and name into a <a title="farely_api.entity.Location" href="entity.html#farely_api.entity.Location"><code>Location</code></a> object.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>lat</code></strong> :&ensp;<code>float</code></dt>
+<dd>Latitude of the location.</dd>
+<dt><strong><code>lng</code></strong> :&ensp;<code>float</code></dt>
+<dd>Longitude of the location.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>location</code></strong> :&ensp;<a title="farely_api.entity.Location" href="entity.html#farely_api.entity.Location"><code>Location</code></a></dt>
+<dd>Location corresponding to the latitutde and longitude values.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def getLocation(lat, lng):
+        &#34;&#34;&#34;Returns a `farely_api.entity.Location` object corresponding to the latitude and longitude values
+
+        Uses the [Google Maps Places API](https://developers.google.com/places/web-service/intro) to geocode the latitude and longitude, to get the name of the location. Combines the latitude, longitude and name into a `farely_api.entity.Location` object.
+
+        Args:
+                lat (float): Latitude of the location.
+                lng (float): Longitude of the location.
+
+        Returns:
+                 location (farely_api.entity.Location): Location corresponding to the latitutde and longitude values.
+        &#34;&#34;&#34;
         r = geocoder.google(
-                location=&#39;{},{}&#39;.format(lat, lng),
+                key=GOOGLE_MAPS_API_KEY,
                 method=&#39;places&#39;,
-                key=GOOGLE_MAPS_API_KEY
+                location=&#39;{},{}&#39;.format(lat, lng),
         )
 
         name = r.name
@@ -1265,16 +1489,16 @@ def getLocation(lat, lng):
 <span>class <span class="ident">LTADataMallService</span></span>
 </code></dt>
 <dd>
-<section class="desc"><p>Map bus service number to its corresponding fare category using LTA Data Mall service</p></section>
+<section class="desc"><p>Handle requests to and processes responses from LTA DataMall APIs.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class LTADataMallService():
-        &#34;&#34;&#34;
-        Map bus service number to its corresponding fare category using LTA Data Mall service
+        &#34;&#34;&#34;Handle requests to and processes responses from LTA DataMall APIs.
         &#34;&#34;&#34;
         BUS_SERVICES_API_URL = &#39;http://datamall2.mytransport.sg/ltaodataservice/BusServices&#39;
+        &#34;&#34;&#34;The url for the LTA DataMall&#39;s bus service API.&#34;&#34;&#34;
 
         FARE_CATEGORY_MAPPING = {
                 &#39;FEEDER&#39;: FareCategory.FEEDER_BUS,
@@ -1284,20 +1508,20 @@ def getLocation(lat, lng):
                 &#39;NIGHT RIDER&#39;: FareCategory.NIGHT_BUS,
                 &#39;FLAT FARE $2.00&#39;: FareCategory.FLAT_FARE_2_BUS,
 
-                # TRUNK BUS used as estimation because the actual bus fare for these bus types aren&#39;t provided by the Government API
+                # TRUNK BUS used as estimation because the actual bus fare for these bus types aren&#39;t provided by the Government APIs
                 &#39;INDUSTRIAL&#39;: FareCategory.TRUNK_BUS,
                 &#39;TOWNLINK&#39;: FareCategory.TRUNK_BUS,
                 &#39;2-TIER FLAT FARE&#39;: FareCategory.TRUNK_BUS,
         }
+        &#34;&#34;&#34;A dictionary that maps the name of the fare categories used by LTA DataMall for buses to `farely_api.enum.FareCategory` objects.&#34;&#34;&#34;
 
         @staticmethod
         def getBusServices():
-                &#34;&#34;&#34;
-                Map bus service number to its corresponding fare category
+                &#34;&#34;&#34;Map bus service number to its corresponding `farely_api.enum.FareCategory` object.
 
-                :return: dictionary with bus service number and  fare category as key and value respectively
+                Returns:
+                        bus_services (dict): Dictionary mapping bus service name bus service number to `farely_api.enum.FareCategory` object.
                 &#34;&#34;&#34;
-
                 bus_service_list = []
 
                 while True:
@@ -1346,11 +1570,11 @@ def getLocation(lat, lng):
 <dl>
 <dt id="farely_api.boundary.LTADataMallService.BUS_SERVICES_API_URL"><code class="name">var <span class="ident">BUS_SERVICES_API_URL</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>The url for the LTA DataMall's bus service API.</p></section>
 </dd>
 <dt id="farely_api.boundary.LTADataMallService.FARE_CATEGORY_MAPPING"><code class="name">var <span class="ident">FARE_CATEGORY_MAPPING</span></code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>A dictionary that maps the name of the fare categories used by LTA DataMall for buses to <a title="farely_api.enum.FareCategory" href="enum.html#farely_api.enum.FareCategory"><code>FareCategory</code></a> objects.</p></section>
 </dd>
 </dl>
 <h3>Static methods</h3>
@@ -1359,21 +1583,23 @@ def getLocation(lat, lng):
 <span>def <span class="ident">getBusServices</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Map bus service number to its corresponding fare category</p>
-<p>:return: dictionary with bus service number and
-fare category as key and value respectively</p></section>
+<section class="desc"><p>Map bus service number to its corresponding <a title="farely_api.enum.FareCategory" href="enum.html#farely_api.enum.FareCategory"><code>FareCategory</code></a> object.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>bus_services</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Dictionary mapping bus service name bus service number to <a title="farely_api.enum.FareCategory" href="enum.html#farely_api.enum.FareCategory"><code>FareCategory</code></a> object.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def getBusServices():
-        &#34;&#34;&#34;
-        Map bus service number to its corresponding fare category
+        &#34;&#34;&#34;Map bus service number to its corresponding `farely_api.enum.FareCategory` object.
 
-        :return: dictionary with bus service number and  fare category as key and value respectively
+        Returns:
+                bus_services (dict): Dictionary mapping bus service name bus service number to `farely_api.enum.FareCategory` object.
         &#34;&#34;&#34;
-
         bus_service_list = []
 
         while True:
@@ -1447,6 +1673,7 @@ def getBusServices():
 <li><code><a title="farely_api.boundary.DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING" href="#farely_api.boundary.DataGovService.MRT_LRT_FARE_CATEGORY_MAPPING">MRT_LRT_FARE_CATEGORY_MAPPING</a></code></li>
 <li><code><a title="farely_api.boundary.DataGovService.MRT_LRT_FARE_TYPE_MAPPING" href="#farely_api.boundary.DataGovService.MRT_LRT_FARE_TYPE_MAPPING">MRT_LRT_FARE_TYPE_MAPPING</a></code></li>
 <li><code><a title="farely_api.boundary.DataGovService.MRT_LRT_RESOURCE_ID" href="#farely_api.boundary.DataGovService.MRT_LRT_RESOURCE_ID">MRT_LRT_RESOURCE_ID</a></code></li>
+<li><code><a title="farely_api.boundary.DataGovService.STATIC_FARES" href="#farely_api.boundary.DataGovService.STATIC_FARES">STATIC_FARES</a></code></li>
 <li><code><a title="farely_api.boundary.DataGovService.TRUNK_BUS_RESOURCE_ID" href="#farely_api.boundary.DataGovService.TRUNK_BUS_RESOURCE_ID">TRUNK_BUS_RESOURCE_ID</a></code></li>
 <li><code><a title="farely_api.boundary.DataGovService.getFareTable" href="#farely_api.boundary.DataGovService.getFareTable">getFareTable</a></code></li>
 <li><code><a title="farely_api.boundary.DataGovService.getFaresForExpressBus" href="#farely_api.boundary.DataGovService.getFaresForExpressBus">getFaresForExpressBus</a></code></li>
@@ -1454,7 +1681,6 @@ def getBusServices():
 <li><code><a title="farely_api.boundary.DataGovService.getFaresForMRTLRT" href="#farely_api.boundary.DataGovService.getFaresForMRTLRT">getFaresForMRTLRT</a></code></li>
 <li><code><a title="farely_api.boundary.DataGovService.getFaresForTrunkBus" href="#farely_api.boundary.DataGovService.getFaresForTrunkBus">getFaresForTrunkBus</a></code></li>
 <li><code><a title="farely_api.boundary.DataGovService.getResource" href="#farely_api.boundary.DataGovService.getResource">getResource</a></code></li>
-<li><code><a title="farely_api.boundary.DataGovService.getStaticFares" href="#farely_api.boundary.DataGovService.getStaticFares">getStaticFares</a></code></li>
 <li><code><a title="farely_api.boundary.DataGovService.parseBusResults" href="#farely_api.boundary.DataGovService.parseBusResults">parseBusResults</a></code></li>
 <li><code><a title="farely_api.boundary.DataGovService.parseDistanceRange" href="#farely_api.boundary.DataGovService.parseDistanceRange">parseDistanceRange</a></code></li>
 </ul>
@@ -1463,7 +1689,6 @@ def getBusServices():
 <h4><code><a title="farely_api.boundary.GoogleMapsService" href="#farely_api.boundary.GoogleMapsService">GoogleMapsService</a></code></h4>
 <ul class="">
 <li><code><a title="farely_api.boundary.GoogleMapsService.DIRECTIONS_API_URL" href="#farely_api.boundary.GoogleMapsService.DIRECTIONS_API_URL">DIRECTIONS_API_URL</a></code></li>
-<li><code><a title="farely_api.boundary.GoogleMapsService.PLACES_API_URL" href="#farely_api.boundary.GoogleMapsService.PLACES_API_URL">PLACES_API_URL</a></code></li>
 <li><code><a title="farely_api.boundary.GoogleMapsService.getCountry" href="#farely_api.boundary.GoogleMapsService.getCountry">getCountry</a></code></li>
 <li><code><a title="farely_api.boundary.GoogleMapsService.getDirections" href="#farely_api.boundary.GoogleMapsService.getDirections">getDirections</a></code></li>
 <li><code><a title="farely_api.boundary.GoogleMapsService.getLocation" href="#farely_api.boundary.GoogleMapsService.getLocation">getLocation</a></code></li>
