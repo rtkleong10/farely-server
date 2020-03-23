@@ -6,6 +6,7 @@ Handles the application logic for the FarelyAPI
 from .boundary import GoogleMapsService, DataGovService, LTADataMallService
 from .enum import FareType, TravelMode, FareCategory
 from .entity import DirectionStep, Location
+from abc import abstractmethod
 
 __all__ = [
 	'FindRoutesController',
@@ -32,7 +33,7 @@ class FindRoutesController():
 
 	def __init__(self, route_query):
 		self.__route_query = route_query
-		self.__fare_controller = FareController()
+		self.__fare_controller = FareControllerFactory.getFareController(FareControllerFactory, self.__route_query.fare_type)
 
 	def get_walking_step(self, step):
 		"""Instantiates `farely_api.entity.DirectionStep` from a walking step of a route.
@@ -272,33 +273,30 @@ class FareController():
 
 		return None
 
-	def calculate_cash_fare(self, steps):
-		"""Calculates the fare for a list of direction steps.
-
-		This method is only for the Single Trip fare type.
+	def calculate_fare(self, fare_type, direction_steps):
+		"""Call the concrete fare controller class to calculate fare.
 
 		Args:
-			steps (list): List of tuples representing the direction steps.
+			fare_type (farely_api.enum.FareType): Fare type to calculate the fare for.
+			direction_steps (list): List of `farely_api.entity.DirectionStep` objects representing the steps of a route.
 
 		Returns:
-			fare (float): Calculated fare in Singapore dollars.
+			total_fare (float): Calculated total fare in Singapore dollars.
 		"""
-		total_fare = 0
-
-		for step in steps:
-			fare_category = step[0]
-			distance = step[1]
-			current_fare = self.get_step_fare(FareType.SINGLE_TRIP,fare_category, distance)
-
-			# Return None if one step's fare can't be calculated
-			if current_fare == None:
-				return None
-
-			total_fare += current_fare
-
+		steps = self.parse_steps(direction_steps)
+		total_fare = self.calculate_total_fare(fare_type, steps)
 		return total_fare
 
-	def calculate_card_fare(self, fare_type, steps):
+	@abstractmethod
+	def calculate_total_fare(self, fare_type, steps):
+		pass
+
+
+class CardFareController(FareController):
+	"""
+	FareController class for card fare type
+	"""
+	def calculate_total_fare(self, fare_type, steps):
 		"""Calculates the fare for a list of direction steps.
 
 		This method is for fare types other than Single Trip.
@@ -310,8 +308,8 @@ class FareController():
 		Returns:
 			fare (float): Calculated fare in Singapore dollars.
 		"""
-		total_fare = 0
 
+		total_fare = 0
 		current_fare_category = None
 		current_distance = 0
 
@@ -327,7 +325,7 @@ class FareController():
 				current_distance += distance
 
 			else:
-				current_fare = self.get_step_fare(fare_type, current_fare_category, current_distance)
+				current_fare = super().get_step_fare(fare_type, current_fare_category, current_distance)
 
 				# Return None if one step's fare can't be calculated
 				if current_fare == None:
@@ -338,7 +336,7 @@ class FareController():
 				current_fare_category = fare_category
 				current_distance = distance
 
-		current_fare = self.get_step_fare(fare_type, current_fare_category, current_distance)
+		current_fare = super().get_step_fare(fare_type, current_fare_category, current_distance)
 
 		if current_fare == None:
 			return None
@@ -347,25 +345,50 @@ class FareController():
 
 		return total_fare
 
-	def calculate_fare(self, fare_type, direction_steps):
+class CashFareController(FareController):
+	"""
+	FareController class for FARETYPE.SINGLE_TRIP
+	"""
+	def calculate_total_fare(self, fare_type, steps):
 		"""Calculates the fare for a list of direction steps.
 
+		This method is only for the Single Trip fare type.
+
 		Args:
-			fare_type (farely_api.enum.FareType): Fare type to calculate the fare for.
-			steps (list): List of `farely_api.entity.DirectionStep` objects representing the direction steps.
+			steps (list): List of tuples representing the direction steps.
 
 		Returns:
 			fare (float): Calculated fare in Singapore dollars.
 		"""
-		steps = self.parse_steps(direction_steps)
 
-		if fare_type == FareType.SINGLE_TRIP:
-			total_fare = self.calculate_cash_fare(steps)
+		total_fare = 0
+		for step in steps:
+			fare_category = step[0]
+			distance = step[1]
+			current_fare = super().get_step_fare(FareType.SINGLE_TRIP,fare_category, distance)
 
-		else:
-			total_fare = self.calculate_card_fare(fare_type, steps)
+			# Return None if one step's fare can't be calculated
+			if current_fare == None:
+				return None
+
+			total_fare += current_fare
 
 		return total_fare
+
+
+
+class FareControllerFactory():
+	"""
+	Interface for creating different fare controller
+	"""
+	def getFareController(self, fare_type ):
+		"""
+			Instanstiate concrete FareController class based on fare type
+		"""
+		if fare_type == FareType.SINGLE_TRIP:
+			return CashFareController()
+
+		return CardFareController()
 
 # Fare set to $2
 # class DummyFindRoutesController():
