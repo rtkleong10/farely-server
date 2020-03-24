@@ -366,3 +366,182 @@ class FareController():
 			total_fare = self.calculate_card_fare(fare_type, steps)
 
 		return total_fare
+
+# Fare set to $2
+# class DummyFindRoutesController():
+# 	"""
+# 	This class processes a route query and returns the best routes from an origin to a destination location.
+#
+# 	## Example
+# 	```
+# 	from farely_api.entity import RouteQuery
+# 	from farely_api.enum import FareType
+# 	from farely_api.control import FindRoutesController
+#
+# 	route_query = RouteQuery(
+# 	fare_type=FareType.ADULT,
+# 	origin="NTU",
+# 	destination="Changi Airport"
+# 	)
+# 	routes = FindRoutesController(route_query).find_routes()
+# 	print(routes)
+# 	```
+#
+# 	### Output
+# 	> {'geocoded_waypoints': [{'geocoder_status': 'OK', 'place_id': 'ChIJY0QBmQoP2jERGYItxQAIu7g', 'types': ['establishment', 'point_of_interest', 'university']}, {'geocoder_status': 'OK', 'place_id': 'ChIJ483Qk9YX2jERA0VOQV7d1tY', 'types': ['airport', 'establishment', 'point_of_interest']}], 'routes': [...], 'status': 'OK'}
+# 	"""
+#
+# 	def __init__(self, route_query):
+# 		self.__route_query = route_query
+# 		self.__fare_controller = FareController()
+#
+# 	def get_walking_step(self, step):
+# 		"""
+# 		This method instantiates `farely_api.entity.DirectionStep` from a walking step of a route.
+#
+# 		## Parameters
+# 		`step`: A dictionary representing a walking step in the Google Maps Direction API Format
+#
+# 		## Returns
+# 		A `farely_api.entity.DirectionStep` object with attributes of the walking step
+# 		"""
+# 		departure_stop = GoogleMapsService.get_location(**step["start_location"])
+# 		arrival_stop = GoogleMapsService.get_location(**step["end_location"])
+# 		distance = step["distance"]["value"] / 1000
+#
+# 		return DirectionStep(
+# 			travel_mode=TravelMode.WALK,
+# 			arrival_stop=arrival_stop,
+# 			departure_stop=departure_stop,
+# 			distance=distance,
+# 		)
+#
+# 	def get_transit_step(self, step):
+# 		"""
+# 		This method instantiate a `farely_api.entity.DirectionStep` object from a transit step of a route.
+#
+# 		## Parameters
+# 		`step`: A dictionary representing a transit direction step in the Google Maps Direction API Format
+#
+# 		## Returns
+# 		A `farely_api.entity.DirectionStep` object with attributes of the transit step
+# 		"""
+# 		line = step["transit_details"]["line"]["name"]
+# 		departure_stop = Location(
+# 			**step["transit_details"]["departure_stop"]["location"],
+# 			name=step["transit_details"]["departure_stop"]["name"],
+# 		)
+# 		arrival_stop = Location(
+# 			**step["transit_details"]["arrival_stop"]["location"],
+# 			name=step["transit_details"]["arrival_stop"]["name"],
+# 		)
+# 		distance = step["distance"]["value"] / 1000
+#
+# 		travel_mode = None
+# 		mode = step["transit_details"]["line"]["vehicle"]["type"]
+#
+# 		if (mode == "SUBWAY"):
+# 			travel_mode = TravelMode.MRT_LRT
+# 		elif (mode == "BUS"):
+# 			travel_mode = TravelMode.BUS
+#
+# 		return DirectionStep(
+# 			line=line,
+# 			travel_mode=travel_mode,
+# 			arrival_stop=arrival_stop,
+# 			departure_stop=departure_stop,
+# 			distance=distance,
+# 		)
+#
+# 	def get_direction_steps(self, steps):
+# 		"""
+# 		This method obtains a list of direction steps from a dictionary representing the steps.
+#
+# 		## Parameters
+# 		`steps`: An list of direction steps of a route in the Google Maps Direction API Format
+#
+# 		## Returns
+# 		A list of `farely_api.entity.DirectionStep` objects representing the steps of a route
+# 		"""
+# 		direction_steps = []
+#
+# 		for step in steps:
+# 			travel_mode = step["travel_mode"]
+# 			if travel_mode == "TRANSIT":
+# 				direction_steps.append(self.get_transit_step(step))
+#
+# 			elif travel_mode == "WALKING":
+# 				direction_steps.append(self.get_walking_step(step))
+#
+# 		return direction_steps
+#
+# 	def add_route_details(self, route):
+# 		"""
+# 		This method adds fare and checkpoint information to a route. Checkpoints are created for the departure stop of every step, as well as the endpoint of the last direction step (destination of the route). Checkpoints include the latitude, longitude and name of the checkpoint. For every checkpoint except the last one, the travel_mode is also included using a `farely_api.enum.TravelMode` object
+#
+# 		## Parameters
+# 		`route`: A route in the Google Maps Direction API Format
+#
+# 		## Returns
+# 		A route in the Google Maps Direction API Format with fare and checkpoint information embedded
+# 		"""
+# 		legs = route['legs']
+#
+# 		# Each route will always have one leg
+# 		for leg in legs:
+# 			steps = leg['steps']
+# 			direction_steps = self.get_direction_steps(steps)
+#
+# 			# Add fare
+# 			leg['fare'] = self.__fare_controller.calculate_fare(self.__route_query.fare_type, direction_steps)
+#
+# 			# Add checkpoint information
+# 			checkpoints = []
+#
+# 			for direction_step in direction_steps:
+# 				departure_stop = direction_step.departure_stop
+#
+# 				checkpoint = {
+# 					"lat": departure_stop.lat,
+# 					"lng": departure_stop.lng,
+# 					"name": departure_stop.name,
+# 					"travel_mode": direction_step.travel_mode,
+# 					"line": direction_step.line,
+# 				}
+#
+# 				checkpoints.append(checkpoint)
+#
+# 			if len(direction_steps) != 0:
+# 				last_direction_step = direction_steps[-1]
+# 				endpoint = last_direction_step.arrival_stop
+#
+# 				checkpoint = {
+# 					"lat": endpoint.lat,
+# 					"lng": endpoint.lng,
+# 					"name": endpoint.name,
+# 					"travel_mode": None,
+# 					"line": "",
+# 				}
+#
+# 				checkpoints.append(checkpoint)
+#
+# 			leg['checkpoints'] = checkpoints
+#
+# 	def find_routes(self):
+# 		"""
+# 		This method processes a route query to find the best routes. It uses the Google Maps Direction API to find the routes. Then, it adds fare and checkpoint information to the routes.
+#
+# 		## Returns
+# 		A list of routes in the Google Maps Direction API Format with fare and checkpoint information embedded
+# 		"""
+# 		data = GoogleMapsService.get_directions(
+# 			origin=self.__route_query.origin,
+# 			destination=self.__route_query.destination
+# 		)
+#
+# 		routes = data['routes']
+#
+# 		for route in routes:
+# 			self.add_route_details(route)
+#
+# 		return data
