@@ -10,5 +10,4 @@ app_name = 'api'
 
 urlpatterns = [
 	path('find-routes/', apis.FindRoutesApi.as_view(), name='find-routes'),
-	# path('dummy-find-routes/', apis.DummyFindRoutesApi.as_view(), name='dummy-find-routes'),
 ]
