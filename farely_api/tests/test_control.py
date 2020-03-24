@@ -11,12 +11,9 @@ __all__ = {
 }
 
 class FareControllerTest(TestCase):
-	def setUp(self):
-		self.FareControllerFactory= FareControllerFactory()
-
 	def test_empty_route(self):
 		fare_type = FareType.ADULT
-		self.fare_controller = self.FareControllerFactory.getFareController(fare_type)
+		self.fare_controller = FareControllerFactory.get_fare_controller(fare_type)
 		fare = self.fare_controller.calculate_fare(
 			fare_type,
 			direction_steps=[],
@@ -26,7 +23,7 @@ class FareControllerTest(TestCase):
 
 	def test_walking_route(self):
 		fare_type = FareType.ADULT
-		self.fare_controller = self.FareControllerFactory.getFareController(fare_type)
+		self.fare_controller = FareControllerFactory.get_fare_controller(fare_type)
 		fare = self.fare_controller.calculate_fare(
 			fare_type,
 			direction_steps=[
@@ -41,7 +38,7 @@ class FareControllerTest(TestCase):
 
 	def test_mrt_bus_route(self):
 		fare_type = FareType.STUDENT
-		self.fare_controller = self.FareControllerFactory.getFareController(fare_type)
+		self.fare_controller = FareControllerFactory.get_fare_controller(fare_type)
 		fare = self.fare_controller.calculate_fare(
 			fare_type,
 			direction_steps=[
@@ -61,7 +58,7 @@ class FareControllerTest(TestCase):
 
 	def test_invalid_travel_mode(self):
 		fare_type = FareType.ADULT
-		self.fare_controller = self.FareControllerFactory.getFareController(fare_type)
+		self.fare_controller = FareControllerFactory.get_fare_controller(fare_type)
 		fare = self.fare_controller.calculate_fare(
 			fare_type,
 			direction_steps=[
@@ -81,7 +78,7 @@ class FareControllerTest(TestCase):
 
 	def test_missing_line(self):
 		fare_type = FareType.ADULT
-		self.fare_controller = self.FareControllerFactory.getFareController(fare_type)
+		self.fare_controller = FareControllerFactory.get_fare_controller(fare_type)
 		fare = self.fare_controller.calculate_fare(
 			fare_type,
 			direction_steps=[
