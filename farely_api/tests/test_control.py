@@ -4,7 +4,7 @@
 from django.test import TestCase
 from farely_api.enum import FareType, TravelMode
 from farely_api.entity import DirectionStep
-from farely_api.control import FareController
+from farely_api.control import FareController, FareControllerFactory
 
 __all__ = {
 	'FareControllerTest',
@@ -12,19 +12,23 @@ __all__ = {
 
 class FareControllerTest(TestCase):
 	def setUp(self):
-		self.fare_controller = FareController()
+		self.FareControllerFactory= FareControllerFactory()
 
 	def test_empty_route(self):
+		fare_type = FareType.ADULT
+		self.fare_controller = self.FareControllerFactory.getFareController(fare_type)
 		fare = self.fare_controller.calculate_fare(
-			fare_type=FareType.ADULT,
+			fare_type,
 			direction_steps=[],
 		)
 
 		self.assertEqual(fare, 0)
 
 	def test_walking_route(self):
+		fare_type = FareType.ADULT
+		self.fare_controller = self.FareControllerFactory.getFareController(fare_type)
 		fare = self.fare_controller.calculate_fare(
-			fare_type=FareType.ADULT,
+			fare_type,
 			direction_steps=[
 				DirectionStep(
 					distance=2.3,
@@ -36,8 +40,10 @@ class FareControllerTest(TestCase):
 		self.assertEqual(fare, 0)
 
 	def test_mrt_bus_route(self):
+		fare_type = FareType.STUDENT
+		self.fare_controller = self.FareControllerFactory.getFareController(fare_type)
 		fare = self.fare_controller.calculate_fare(
-			fare_type=FareType.STUDENT,
+			fare_type,
 			direction_steps=[
 				DirectionStep(
 					distance=2.3,
@@ -54,8 +60,10 @@ class FareControllerTest(TestCase):
 		self.assertEqual(fare, 0.52)
 
 	def test_invalid_travel_mode(self):
+		fare_type = FareType.ADULT
+		self.fare_controller = self.FareControllerFactory.getFareController(fare_type)
 		fare = self.fare_controller.calculate_fare(
-			fare_type=FareType.ADULT,
+			fare_type,
 			direction_steps=[
 				DirectionStep(
 					distance=2.3,
@@ -72,8 +80,10 @@ class FareControllerTest(TestCase):
 		self.assertEqual(fare, None)
 
 	def test_missing_line(self):
+		fare_type = FareType.ADULT
+		self.fare_controller = self.FareControllerFactory.getFareController(fare_type)
 		fare = self.fare_controller.calculate_fare(
-			fare_type=FareType.ADULT,
+			fare_type,
 			direction_steps=[
 				DirectionStep(
 					distance=2.3,
