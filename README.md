@@ -2,17 +2,23 @@
 Server to handle the backend service for Farely application
 
 ## How to Run
-1. `pip install -r requirements.txt` (only on the first time or whenever the `requirements.txt` is updated)
-2. `python manage.py collectstatic` (only on the first time or whenever the static files change)
-3. `python manage.py runserver`
+1. `pip install -r requirements.txt`
+2. `python manage.py runserver`
+3. Open [http://127.0.0.1:8000/api/find-routes/](http://127.0.0.1:8000/api/find-routes/) in a web browser
+
+### Prerequisites
+- Installed [Python](https://www.python.org/)
+
+## How to Generate Documentation
+1. `pdoc --html --force farely_api`
+2. Documentation generated in the `html/` folder
 
 ## How to Run Tests
-1. `./manage.py test`
+1. `python manage.py test`
 
-## How to Generate Docs
-1. `pdoc --html --force farely_api`
+### Note
+- Tests are incomplete as it was removed from the project deliverables
 
 ## Deployment Links
-- Find Routes: https://rtkleong10-farely-server.herokuapp.com/api/find-routes/
-- Dummy Find Routes: https://rtkleong10-farely-server.herokuapp.com/api/dummy-find-routes/
-- Documentation: https://rtkleong10-farely-server.herokuapp.com/docs/
+- [Find Routes API](https://rtkleong10-farely-server.herokuapp.com/api/find-routes/)
+- [Documentation](https://rtkleong10-farely-server.herokuapp.com/docs/)
