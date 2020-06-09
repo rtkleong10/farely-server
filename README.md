@@ -1,5 +1,5 @@
 # Farely-server
-Server to handle the backend service for Farely Android application. The Android application was developed separately This is a school project I did for CZ2006 Software Engineering. My group mates are Chulpaibul Jiraporn, Nguyen Duy Khanh, Rachel Khan, Tran Anh Tai and Truong Quang Duc. The documentation is available at https://rtkleong10.github.io/farely-server/.
+Django server to handle the backend service for Farely Android application. The Android application was developed separately. The application allows users to find routes from one place to another in Singapore (using Google Maps API) and get the estimated fare (using Data.gov.sg and LTA DataMall). This is a school project I did for CZ2006 Software Engineering. My group mates are Chulpaibul Jiraporn, Nguyen Duy Khanh, Rachel Khan, Tran Anh Tai and Truong Quang Duc. The documentation is available at https://rtkleong10.github.io/farely-server/.
 
 ## How to Run
 1. `pip install -r requirements.txt`
