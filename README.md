@@ -1,5 +1,5 @@
 # Farely-server
-Server to handle the backend service for Farely application
+Server to handle the backend service for Farely Android application. The Android application was developed separately This is a school project I did for CZ2006 Software Engineering. My group mates are Chulpaibul Jiraporn, Nguyen Duy Khanh, Rachel Khan, Tran Anh Tai and Truong Quang Duc. The documentation is available at https://rtkleong10.github.io/farely-server/.
 
 ## How to Run
 1. `pip install -r requirements.txt`
@@ -12,13 +12,10 @@ Server to handle the backend service for Farely application
 ## How to Generate Documentation
 1. `pdoc --html --force farely_api`
 2. Documentation generated in the `html/` folder
+3. Transfer files in the `html/farely_api` folder to the `docs/` folder
 
 ## How to Run Tests
 1. `python manage.py test`
 
 ### Note
 - Tests are incomplete as it was removed from the project deliverables
-
-## Deployment Links
-- [Find Routes API](https://rtkleong10-farely-server.herokuapp.com/api/find-routes/)
-- [Documentation](https://rtkleong10-farely-server.herokuapp.com/docs/)
